@@ -1,0 +1,14 @@
+{
+  "skill": "avengers",
+  "positive": [
+    { "prompt": "Run /avengers", "top_k": 1 },
+    { "prompt": "Build the three unblocked build-plan features in parallel, each in its own worktree", "top_k": 3 },
+    { "prompt": "Start a parallel wave of planned features with subagents and land them one at a time on an integration branch", "top_k": 3 },
+    { "prompt": "Resume the parallel wave we started earlier", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /continuous and finish the build plan one feature at a time", "owner": "continuous" },
+    { "prompt": "Add dependency edges to the build plan so we know which items can run together", "owner": "plan-graph" },
+    { "prompt": "Write the spec for the next build-plan feature", "owner": "feature" }
+  ]
+}

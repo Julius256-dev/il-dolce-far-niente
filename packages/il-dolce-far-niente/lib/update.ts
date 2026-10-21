@@ -710,7 +710,7 @@ async function writeControlIgnore(targetDir: string): Promise<void> {
   await assertNoSymlinkParents(targetDir, `${CONTROL_DIR}/.gitignore`);
   await atomicWrite(
     targetPath(targetDir, `${CONTROL_DIR}/.gitignore`),
-    "backups/\nstaging/\nrun.json\n"
+    "backups/\nstaging/\nrun.json\navengers.json\n"
   );
 }
 

@@ -1,0 +1,13 @@
+{
+  "skill": "models",
+  "positive": [
+    { "prompt": "Run /models", "top_k": 1 },
+    { "prompt": "Which model does the implementer subagent use, and can I change the reviewers to Opus?", "top_k": 3 },
+    { "prompt": "Set the main agent model and effort for each reviewer role for the team", "top_k": 3 },
+    { "prompt": "Check whether the subagents actually ran on the requested models", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Check Blueprint setup, adapters and workflow drift", "owner": "doctor" },
+    { "prompt": "Tune project commands, standards and adapters after installing", "owner": "onboard" }
+  ]
+}

@@ -50,6 +50,14 @@ state.
 2. **Build plan** - `blueprint/build-plan.md`. Count checked vs unchecked leaf
    items. Name the next unchecked leaf, the same target `/feature` would pick,
    and note if a parent item was split into sub-items (`4a`, `4b`, ...).
+   <!-- ext:begin idfn-frontier -->
+   When any leaf carries an `_(after: …)_` dependency suffix, also report the
+   **frontier**: unchecked leaves whose named blockers are all checked (or
+   `_(after: none)_`). When `blueprint/.state/avengers.json` exists, report the
+   active wave: its integration branch and each item's status. Suggest
+   `/avengers resume` for an unfinished wave, or `/avengers` when two or more
+   frontier items are waiting and no single-feature work is active.
+   <!-- ext:end idfn-frontier -->
 3. **Current work** - `blueprint/context/current-feature.md`. Is something in
    progress, or is it the reset stub? If a feature, fix, or rollback spec is
    present, report its type and name, which build steps are checked, and the

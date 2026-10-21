@@ -237,6 +237,34 @@ instead of guessing, such as:
 
 If no changes are needed, say so.
 
+<!-- ext:begin idfn-onboard -->
+## Step 4b - choose a profile, tracker and models
+
+Il Dolce Far Niente adds three short choices. Show current values first and
+change only what the user picks.
+
+1. **Profile.** Offer the presets in `reference/profiles/`: `client-delivery`
+   (every spec approved, full review panel, pull-request landing),
+   `product` (batched spec approval, review when sensitive), `restricted`
+   (parallel builds off, every gate on, client-approved models only) or keep
+   `custom`. Applying a profile writes its values into `blueprint/config.json`
+   and sets `profile`; show the diff before writing. The `restricted` profile
+   must not be applied without asking whether AI-assisted coding and the chosen
+   model provider are approved for this codebase.
+2. **Tracker.** Ask where issues live: local files (`blueprint/tickets/`,
+   recommended when unsure), GitHub Issues or GitLab. Then the triage label
+   strings, recommending the canonical names. Write `tracker` in the config and
+   `blueprint/context/tracker.md` from the matching guide in
+   `reference/trackers/`, and offer `GLOSSARY.md` and `docs/adr/` as the domain
+   docs (`domainDocs`), created lazily by the skills that use them.
+3. **Models.** Show the resolved model per role (see
+   `../models/reference/resolution.md`) and offer the `/models` change flow, or
+   accept the profile's values.
+
+Add `blueprint/config.local.json` to `.gitignore` so personal model overrides
+never get committed.
+
+<!-- ext:end idfn-onboard -->
 ## Step 5 - point to optional CI setup
 
 Do not create or change Verify commands or GitHub workflows during onboarding.

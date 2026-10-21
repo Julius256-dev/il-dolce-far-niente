@@ -375,7 +375,7 @@ test("new installs record only Blueprint-owned managed files", async (t) => {
   ]);
   assert.equal(
     await fs.readFile(path.join(targetDir, CONTROL_DIR, ".gitignore"), "utf8"),
-    "backups/\nstaging/\nrun.json\n"
+    "backups/\nstaging/\nrun.json\navengers.json\n"
   );
   assert.equal((await readManifest(targetDir))?.version, "1.0.0");
   await assert.rejects(fs.access(path.join(targetDir, ".ai-blueprint")), {

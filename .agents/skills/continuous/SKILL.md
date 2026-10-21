@@ -58,6 +58,13 @@ With no argument after pending completion has been reconciled:
 3. Continue in build-plan order until no unchecked leaf remains or
    `continuous.maxFeatures` completed features have been counted.
 
+<!-- ext:begin idfn-edges -->
+When build-plan leaves carry `_(after: …)_` dependency suffixes, "next" means the
+next unchecked leaf in plan order whose named blockers are all checked; skip a
+leaf that names an unchecked item until its blockers land. The suffix is never
+part of the title or description.
+
+<!-- ext:end idfn-edges -->
 `resume` explicitly resumes the active feature or its pending completion.
 A feature number or name may set
 the starting item only when no different work item is active. After that item,

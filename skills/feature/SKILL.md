@@ -30,6 +30,11 @@ Resolve the target from `blueprint/build-plan.md`:
 
 - Use the requested number or name when it matches a checklist item.
 - With no argument, use the first unchecked leaf item.
+<!-- ext:begin idfn-edges -->
+- When leaves carry `_(after: …)_` dependency suffixes, "first unchecked leaf"
+  means the first one whose named blockers are all checked. The suffix is
+  scheduling metadata, never part of the title, branch name or spec.
+<!-- ext:end idfn-edges -->
 - Read only the matching checklist line, its parent, and nearby text needed to
   understand the hierarchy.
 - If a plain list has no checkboxes, treat its first item as unchecked and offer

@@ -278,7 +278,7 @@ test("clean and forced installs preserve untouched links and support parent dire
   const forced = runInstaller(project, "--codex", "--force");
   assert.equal(forced.status, 0, forced.stderr);
   assert.equal(await fs.readFile(path.join(project, "AGENTS.md"), "utf8"), templateFiles["AGENTS.md"]);
-  assert.equal(await fs.readFile(path.join(project, "blueprint/.state/.gitignore"), "utf8"), "backups/\nstaging/\nrun.json\n");
+  assert.equal(await fs.readFile(path.join(project, "blueprint/.state/.gitignore"), "utf8"), "backups/\nstaging/\nrun.json\navengers.json\n");
   assert.equal(await fs.readFile(outside, "utf8"), "Keep unrelated content\n");
   for (const relativePath of untouchedLinks) {
     assert.equal((await fs.lstat(path.join(project, relativePath))).isSymbolicLink(), true);

@@ -24,6 +24,13 @@ because the directory isn't empty.
 
 The workflow is defined by the local skills and context files below.
 
+<!-- ext:begin idfn-intro -->
+It is installed through **Il Dolce Far Niente**, which adds parallel builds
+(`/avengers`), dependency edges in the build plan (`/plan-graph`), Matt Pocock's
+engineering skills (`mp-*`), and per-role model selection (`/models`). Every
+addition keeps Blueprint's approval gates.
+<!-- ext:end idfn-intro -->
+
 ## Proportional engineering
 
 Build for established requirements, not hypothetical scale, threats, or future
@@ -104,6 +111,39 @@ requests for provider review and squash merge. Configuration never supplies the
 required push, pull-request, or merge approvals. Continuous Mode remains
 local-only and ignores this setting.
 
+<!-- ext:begin idfn-config -->
+Il Dolce Far Niente adds optional keys; a missing key means its default:
+
+- `profile` - `client-delivery`, `product`, `restricted` or `custom`; `/onboard`
+  applies a profile's preset values, which you can then edit.
+- `tracker` - where issues live (`local` files in `blueprint/tickets/`, `github`
+  or `gitlab`), the tracker guide (`blueprint/context/tracker.md`) and the label
+  string for each triage role. Used by `plan-graph` and the `mp-*` skills.
+- `domainDocs` - the glossary (`GLOSSARY.md`) and ADR folder (`docs/adr`).
+- `avengers` - parallel build limits: `maxConcurrent` (1 turns parallel builds
+  off), `specApproval` (`batch` or `each`), `integrationBranchPrefix`,
+  `worktreeRoot`, `serializeWhen`, `finalIntegrationAudit` and `portBase`.
+- `models` - the model and effort per role; see Models below.
+
+`blueprint/config.local.json` is a personal, Git-ignored override that may set
+only `models` and `avengers.maxConcurrent`. It never changes safety settings.
+
+## Models
+
+Each subagent role runs on a configured model: `planner`, `implementer`,
+`merger`, `explorer`, `reviewer-lens`, `reviewer-standards` and `reviewer-spec`.
+Orchestrators resolve the role's model and effort with
+`models/reference/resolution.md` in the installed skill tree and pass them on
+every subagent call. `models.main` is the team's main-agent model; apply it with
+`/model` or by starting sessions with `claude --agent avengers-lead`. Run
+`/models` to view or change settings and `/models check` to confirm subagents ran
+on the requested models.
+
+Subagent definitions live in `.claude/agents/`. Every role runs with
+`.claude/hooks/block-remote-git.mjs`, which blocks pushes, publishes, deploys
+and any commit, merge or reset on the default branch.
+<!-- ext:end idfn-config -->
+
 New projects default to one review packet after all small implementation steps
 (`workflow.stepReview: "feature"`) with step checkpoint commits disabled. This
 keeps the normal loop reviewable without repeating the full session context after
@@ -156,6 +196,15 @@ the default branch is protected or several isolated checkouts are active. This
 model intentionally does not add per-item state folders or automatic agent
 coordination.
 
+<!-- ext:begin idfn-parallel -->
+`/avengers` adds that coordination as a separate, explicit layer on top of this
+model. It builds every unblocked build-plan item in its own worktree and branch,
+runs the same gates per item, and lands items one at a time onto an integration
+branch (`wave/<n>`) that only you merge into the default branch. Build-plan
+items opt into parallel building with dependency suffixes such as
+`_(after: 2, 3)_` or `_(after: none)_`; items without a suffix stay serial.
+<!-- ext:end idfn-parallel -->
+
 Learn the feature loop: `/feature` -> `/implement` -> `/check` -> `/audit current` ->
 `/complete`. Approve the Feature spec before Implement. Check proves behavior;
 Audit reviews code and records findings. Showing both in this path does not
@@ -199,6 +248,33 @@ Core skills:
 - `rollback` - plan a safe reversal of a completed feature from its archive and exact git commit, with later-dependency review before code changes
 - `release` - optional Render or Vercel deployment readiness, local config, env review, and smoke-test planning
 
+<!-- ext:begin idfn-skills -->
+### Plan and configure parallel work
+
+- `plan-graph` - break the build plan into vertical slices and record dependency edges as `_(after: …)_` suffixes so `/avengers` knows the frontier
+- `models` - show and change the model and effort for the main agent and every subagent role, for the team or just you
+
+### Engineering practice (Matt Pocock)
+
+- `mp-triage` - move issues through triage states and hand accepted work to `fix` or the build plan
+- `mp-wayfinder` - map a large, foggy effort as decision tickets until the route to build-plan items is clear
+- `mp-architecture` - survey the codebase for deepening opportunities and grill through the one you pick
+- `mp-retro` - suggest improvements to standards, checks and agent instructions after a session or wave
+- `mp-grill` - a relentless alignment interview that also updates the glossary and ADRs
+
+### Disciplines loaded by other skills
+
+- `mp-tdd` - red-green test-driven development at the spec's agreed seams
+- `mp-code-review` - two-axis review: project standards and spec conformance
+- `mp-grilling` - the interview primitive behind planning and triage skills
+- `mp-domain-modeling` - sharpen domain terms, `GLOSSARY.md` and ADRs
+- `mp-codebase-design` - shared vocabulary for deep modules, seams and interfaces
+- `mp-diagnosing-bugs` - disciplined reproduce, minimise, hypothesise, instrument loop
+- `mp-research` - cited research notes saved under `blueprint/research/`
+- `mp-pr` - the pull request body format used when landing by pull request
+- `mp-writing-for-agents` - how to write skills and agent instructions
+<!-- ext:end idfn-skills -->
+
 In Codex, invoke these as skills (`$onboard`, `$discovery`, `$overview`, `$feature`,
 `$implement`, and so on) or ask naturally, such as "run the overview." In Claude
 Code and Google Antigravity, use slash commands such as `/onboard` or `/feature`.
@@ -226,6 +302,15 @@ per feature, applies the Continuous quality gates, archives and merges serially,
 and stops on decisions or failed safety gates. It never pushes, deploys,
 publishes, sends, or performs destructive actions.
 
+<!-- ext:begin idfn-avengers -->
+Optional explicit-only skill: `avengers` builds the build plan's current
+frontier in parallel. Each item gets its own worktree, planner, implementer and
+fresh reviewers (Blueprint's lens review plus Matt Pocock's standards and spec
+axes), and a merger lands passing items one at a time on an integration branch.
+It stops for spec approval and again before the wave touches the default
+branch. It never pushes, deploys, publishes, or performs destructive actions.
+<!-- ext:end idfn-avengers -->
+
 Deployment is also explicit. `/release` can prepare local Render or Vercel config
 and run readiness checks, but it must stop before deploy, remote service changes,
 push, or publish unless the user gives a separate yes in the current chat.
@@ -239,7 +324,7 @@ Git, and never part of a feature commit.
 Commands with meaningful progress or a durable handoff should write it when the
 state directory exists: `onboard`, `adopt`, `discovery`, `overview`, `feature`,
 `fix`, `rollback`, `implement`, `debug`, `check`, `audit`, `tests`,
-`ci`, `prototype`, `autopilot`, `continuous`, `complete`, and
+`ci`, `prototype`, `autopilot`, `continuous`, `avengers`, `complete`, and
 `release`. Short orientation commands such as `explore`, `brief`, `status`, and `doctor`
 do not write activity state. The `check guide` mode also never writes activity
 state; select the Check mode before any activity call. Doctor's optional

@@ -353,6 +353,10 @@ With `git.landing: "pull-request"`:
 2. Show the target remote and base branch, exact branch to push, proposed pull
    request title, and concise body. State that the pull request must use squash
    merge to preserve Blueprint's one-work-item, one-default-branch-commit history.
+   <!-- ext:begin idfn-pr-body -->
+   Shape the body with the `mp-pr` discipline: the smallest visual that makes the
+   change clear, before/after evidence that it works, and a merge-danger call.
+   <!-- ext:end idfn-pr-body -->
 3. Obtain one explicit approval for the feature-branch push and pull request
    creation. Configuration never supplies this approval. Only after approval,
    push that branch with upstream tracking and open the pull request against the

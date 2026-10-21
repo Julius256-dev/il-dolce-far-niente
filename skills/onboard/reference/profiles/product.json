@@ -1,0 +1,51 @@
+{
+  "description": "Your own product work: specs approved per wave, review when sensitive, local merge or pull request.",
+  "config": {
+    "profile": "product",
+    "qualityGates": {
+      "regular": {
+        "audit": "manual",
+        "independentReview": "when-sensitive",
+        "check": "when-behavioral",
+        "tryGuide": "when-testable"
+      },
+      "continuous": {
+        "audit": "manual",
+        "independentReview": "when-sensitive",
+        "check": "when-behavioral",
+        "tryGuide": "when-testable"
+      }
+    },
+    "avengers": {
+      "maxConcurrent": 4,
+      "specApproval": "batch",
+      "finalIntegrationAudit": true,
+      "serializeWhen": [
+        "shared-files",
+        "migration",
+        "auth",
+        "payments"
+      ]
+    },
+    "models": {
+      "main": "claude-opus-5-5",
+      "subagentDefault": "claude-sonnet-5-5",
+      "roles": {
+        "planner": "claude-opus-5-5",
+        "reviewer-lens": "claude-opus-5-5",
+        "reviewer-standards": "claude-opus-5-5",
+        "reviewer-spec": "claude-opus-5-5",
+        "implementer": "claude-sonnet-5-5",
+        "merger": "claude-sonnet-5-5",
+        "explorer": "claude-sonnet-5-5"
+      },
+      "effort": {
+        "planner": "medium",
+        "reviewer-lens": "medium",
+        "reviewer-standards": "medium",
+        "reviewer-spec": "medium"
+      },
+      "reviewerMustDiffer": true
+    }
+  }
+}

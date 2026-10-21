@@ -1,6 +1,6 @@
 ---
 name: mp-code-review
-description: "Two-axis diff review since a fixed point (commit, branch, tag, merge-base): Standards (documented coding standards plus a Fowler smell baseline) and Spec (does the code match its issue or spec?), in parallel sub-agents reported side by side. Use to review a branch, PR, or work-in-progress changes, \"review since X\", or as a standards/spec reviewer for /audit independent or /avengers."
+description: "Two-axis diff review since a fixed point: Standards (documented coding standards plus a Fowler smell baseline) and Spec (does the code match its spec?), reported side by side. Use to review a branch, PR or work in progress, or as the standards/spec reviewer for /audit independent or /avengers."
 ---
 
 # Code Review
@@ -99,7 +99,7 @@ When run as a reviewer for `/audit independent` or `/avengers` (roles `reviewer-
 
 - **Spec source:** `blueprint/context/current-feature.md` first. Its build steps' `Done when` lines are the requirements; Out of scope marks scope creep.
 - **Fixed point:** the base commit the review request records (or the branch's merge base), not a user prompt.
-- **Record findings.** Chat output is not enough: also record each confirmed finding in `blueprint/context/findings.md`, following the audit skill's Step 4 ledger contract (exact header line `### F-NN [Px] open - Title`, next sequential ID, `**File:**`, `**Found:**`, `**Why it matters:**`, `**Suggested fix:**`, empty `**Resolution:**`; unconfirmed risks as `unverified`). Add one line to each block naming its axis: `**Axis:** standards` or `**Axis:** spec`.
+- **Record findings.** Chat output is not enough: also record each confirmed finding in `blueprint/context/findings.md`, following the audit skill's Step 4 ledger contract (exact header line `### F-NN [Px] open - Title`, next sequential ID, `**File:**`, `**Found:**`, `**Why it matters:**`, `**Suggested fix:**`, empty `**Resolution:**`; unconfirmed risks as `unverified`). Add one line to each block naming its axis: `**Axis:** standards` or `**Axis:** spec`. Exception: when your task says to **return** findings instead (as the `/avengers` axis reviewers do, because they run in parallel), write nothing and return the same blocks with the ID left as `F-??`; the orchestrator numbers and records them.
 - **Severity mapping:**
 
   | Finding | Severity |
