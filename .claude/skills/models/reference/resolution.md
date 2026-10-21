@@ -48,7 +48,12 @@ and points to `/models`.
 
 - **Claude Code:** pass the resolved model as the subagent call's `model`
   parameter and the effort as its `effort` parameter. The per-call value outranks
-  the agent file and `CLAUDE_CODE_SUBAGENT_MODEL`.
+  the agent file and `CLAUDE_CODE_SUBAGENT_MODEL`. When the runtime's `model`
+  parameter accepts only family names, pass the family of the resolved model
+  (`claude-opus-5-5` → `opus`, `claude-sonnet-5-5` → `sonnet`,
+  `claude-haiku-*` → `haiku`, `claude-fable-*` → `fable`) and confirm the exact
+  model the subagent reports; a family name resolves to that family's current
+  version, which may differ from a pinned ID.
 - **Things that can override you silently:** an administrator's
   `availableModels` allowlist swaps a blocked model for a permitted one, and
   `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` makes every subagent use one model. Always
