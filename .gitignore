@@ -7,3 +7,5 @@ blueprint/.state/run.json
 .worktrees/
 *.log
 .DS_Store
+sync-report.md
+pr-body.md

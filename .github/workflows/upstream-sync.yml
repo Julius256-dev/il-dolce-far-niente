@@ -1,0 +1,77 @@
+name: Upstream sync
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix packages/il-dolce-far-niente
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Pull upstream subtrees
+        id: pull
+        run: |
+          branch="upstream-sync/$(date -u +%Y-%m-%d)"
+          git checkout -b "$branch"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          before=$(git rev-parse HEAD)
+          git subtree pull --prefix upstream/ai-blueprint https://github.com/aiblueprinthq/ai-blueprint main --squash -m "chore(upstream): pull ai-blueprint"
+          git subtree pull --prefix upstream/mattpocock-skills https://github.com/mattpocock/skills main --squash -m "chore(upstream): pull mattpocock-skills"
+          if [ "$(git rev-parse HEAD)" = "$before" ]; then echo "changed=false" >> "$GITHUB_OUTPUT"; else echo "changed=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Merge upstream into our copies
+        if: steps.pull.outputs.changed == 'true'
+        id: merge
+        run: |
+          set +e
+          npx tsx scripts/sync-upstream.ts --report sync-report.md
+          status=$?
+          set -e
+          if [ "$status" = "1" ]; then exit 1; fi
+          echo "conflicts=$([ "$status" = "2" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          npx tsx scripts/build-adapters.ts
+          git add -A
+          git commit -m "chore(upstream): merge upstream changes into our copies" || true
+      - name: Run checks
+        if: steps.pull.outputs.changed == 'true' && steps.merge.outputs.conflicts == 'false'
+        id: checks
+        continue-on-error: true
+        run: npm run check
+      - name: Open pull request
+        if: steps.pull.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git push origin "${{ steps.pull.outputs.branch }}"
+          {
+            cat sync-report.md
+            echo
+            if [ "${{ steps.merge.outputs.conflicts }}" = "true" ]; then
+              echo "**Conflicts need a human.** Resolve the markers in the files listed above, run \`npm run check\`, and push to this branch."
+            elif [ "${{ steps.checks.outcome }}" != "success" ]; then
+              echo "**Checks failed** after a clean merge. See the workflow log."
+            else
+              echo "Clean merge; checks passed."
+            fi
+            echo
+            echo "Upstream changelogs: [AI Blueprint](https://github.com/aiblueprinthq/ai-blueprint/blob/main/CHANGELOG.md) · [mattpocock/skills](https://github.com/mattpocock/skills/blob/main/CHANGELOG.md)"
+          } > pr-body.md
+          gh pr create --base main --head "${{ steps.pull.outputs.branch }}" \
+            --title "Upstream sync $(date -u +%Y-%m-%d)" --body-file pr-body.md

@@ -18,7 +18,7 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
@@ -42,6 +42,8 @@ interface Mapping {
   transform?: "matt";
   include?: string[];
   exclude?: string[];
+  /** Upstream-relative path -> our relative path, for files we renamed. */
+  rename?: Record<string, string>;
 }
 
 interface Lock {
@@ -182,13 +184,25 @@ async function syncMapping(lock: Lock, mapping: Mapping, results: Result[]): Pro
   const source = lock.sources[mapping.source];
   if (!source) throw new Error(`Unknown source ${mapping.source}`);
   const fromRoot = path.join(repoRoot, source.prefix, mapping.from);
-  const upstreamFiles = (await listFiles(fromRoot)).filter((rel) => selected(rel, mapping));
-  const baseDir = path.join(baseRoot, mapping.to);
-  const baseFiles = (await listFiles(baseDir)).filter((rel) => selected(rel, mapping));
-  const all = new Set([...upstreamFiles, ...baseFiles]);
+    const baseDir = path.join(baseRoot, mapping.to);
+  // Paths owned by a more specific mapping nested under this one (for example
+  // skills/mp-tdd under skills) belong to that mapping, not this one.
+  const nested = lock.mappings
+    .filter((other) => other !== mapping && other.to.startsWith(`${mapping.to}/`))
+    .map((other) => other.to.slice(mapping.to.length + 1));
+  const ownedHere = (rel: string): boolean => !nested.some((n) => rel === n || rel.startsWith(`${n}/`));
+  const baseFiles = (await listFiles(baseDir)).filter((rel) => selected(rel, mapping) && ownedHere(rel));
+  const rename = mapping.rename ?? {};
+  const inverse = Object.fromEntries(Object.entries(rename).map(([from, to]) => [to, from]));
+  const toOurs = (rel: string): string => rename[rel] ?? rel;
+  const toUpstream = (rel: string): string => inverse[rel] ?? rel;
+  const upstreamFiles = (await listFiles(fromRoot)).filter((rel) => selected(rel, mapping) && ownedHere(rel));
+  // Work in our path space: upstream files are renamed first, base files already are.
+  const all = new Set([...upstreamFiles.map(toOurs), ...baseFiles]);
 
   for (const rel of [...all].sort()) {
-    const upstreamFile = rel ? path.join(fromRoot, rel) : fromRoot;
+    const upstreamRel = toUpstream(rel);
+    const upstreamFile = upstreamRel ? path.join(fromRoot, upstreamRel) : fromRoot;
     const targetRel = rel ? `${mapping.to}/${rel}` : mapping.to;
     const targetFile = path.join(repoRoot, targetRel);
     const baseFile = path.join(baseRoot, targetRel);
@@ -310,7 +324,7 @@ async function main(): Promise<void> {
   if (results.some((r) => r.outcome === "conflict")) process.exit(2);
 }
 
-main().catch((error: unknown) => {
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) main().catch((error: unknown) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
 });
