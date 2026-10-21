@@ -34,7 +34,12 @@ const AI_SKILLS = new Set([
   "adopt", "audit", "autopilot", "brief", "check", "ci",
   "complete", "continuous", "debug", "discovery", "doctor", "explore", "feature", "fix",
   "implement", "onboard", "overview", "prototype", "release", "rollback",
-  "status", "tests"
+  "status", "tests",
+  // Il Dolce Far Niente additions (docs/DESIGN.md).
+  "avengers", "models", "plan-graph",
+  "mp-architecture", "mp-code-review", "mp-codebase-design", "mp-diagnosing-bugs",
+  "mp-domain-modeling", "mp-grill", "mp-grilling", "mp-pr", "mp-research", "mp-retro",
+  "mp-tdd", "mp-triage", "mp-wayfinder", "mp-writing-for-agents"
 ]);
 
 interface AdapterCheckboxChoice {
@@ -107,7 +112,7 @@ async function runCli(
     options.command !== "dashboard"
   ) {
     throw new Error(
-      "The global blueprint command supports project status and the local dashboard only. Use `npx create-ai-blueprint@latest` to install Blueprint or `npx create-ai-blueprint@latest update` to update it."
+      "The global blueprint command supports project status and the local dashboard only. Use `npx il-dolce-far-niente@latest` to install Blueprint or `npx il-dolce-far-niente@latest update` to update it."
     );
   }
 
@@ -350,7 +355,7 @@ function parseArgs(args: readonly string[], surface: CliSurface = "package"): Cl
       );
     }
 
-    const binary = surface === "global" ? "blueprint" : "npx create-ai-blueprint@latest";
+    const binary = surface === "global" ? "blueprint" : "npx il-dolce-far-niente@latest";
     const command = options.command === "install" ? "" : ` ${options.command}`;
     throw new Error(`Unknown option: ${arg}\nRun \`${binary}${command} --help\` for usage.`);
   }
@@ -686,7 +691,7 @@ function getOpenCodeSkillsRoot(adapters: readonly Adapter[]): string {
 
 function printUpdatePlan(prepared: PreparedUpdate): void {
   const { plan } = prepared;
-  console.log("AI Blueprint update plan.");
+  console.log("Il Dolce Far Niente update plan.");
   console.log(`Target: ${prepared.targetDir}`);
   console.log(`Adapters: ${prepared.adapters.join(", ")}`);
 
@@ -760,7 +765,7 @@ function styleInstall(value: string, code: string): string {
 
 function printInstallWelcome(version: string): void {
   const mark = [" ___  ___", "| _ )| _ \\", "| _ \\|  _/", "|___/|_|"];
-  const title = ["", "AI Blueprint", `v${version}`, ""];
+  const title = ["", "Il Dolce Far Niente", `v${version}`, ""];
   const compact = (process.stdout.columns || 80) < 32;
   console.log("");
   for (const [index, line] of mark.entries()) {
@@ -768,7 +773,7 @@ function printInstallWelcome(version: string): void {
     console.log(`  ${styleInstall(line.padEnd(11), "36")}${label}`);
   }
   if (compact) {
-    console.log(`  ${styleInstall("AI Blueprint", "1")}`);
+    console.log(`  ${styleInstall("Il Dolce Far Niente", "1")}`);
     console.log(`  v${version}`);
   }
   console.log("");
@@ -788,8 +793,8 @@ function printSuccess(
   }
   console.log(
     presentation
-      ? styleInstall("  + AI Blueprint installed.", "1;36")
-      : "AI Blueprint installed."
+      ? styleInstall("  + Il Dolce Far Niente installed.", "1;36")
+      : "Il Dolce Far Niente installed."
   );
   console.log(`Target: ${targetDir}`);
   console.log(`Adapters: ${adapters.join(", ")}`);
@@ -833,7 +838,7 @@ function printOnboardingNextSteps(
 }
 
 function printUpdateSuccess(prepared: PreparedUpdate, result: UpdateResult): void {
-  console.log("AI Blueprint updated.");
+  console.log("Il Dolce Far Niente updated.");
   console.log(`Version: ${prepared.previousVersion} -> ${prepared.version}`);
 
   if (prepared.addedAdapters.length > 0) {
@@ -973,7 +978,7 @@ async function readGlobalCliVersion(): Promise<string | null> {
     }
 
     const packageJson = await fs.readFile(
-      path.join(globalRoot, "create-ai-blueprint", "package.json"),
+      path.join(globalRoot, "il-dolce-far-niente", "package.json"),
       "utf8"
     );
     const metadata: unknown = JSON.parse(packageJson);
@@ -1040,7 +1045,7 @@ function isGlobalCliInstallConfirmed(answer: string): boolean {
 }
 
 function getGlobalCliInstallCommand(version: string): string {
-  return `npm install --global create-ai-blueprint@${version}`;
+  return `npm install --global il-dolce-far-niente@${version}`;
 }
 
 function getGlobalCliPrompt(
@@ -1055,15 +1060,15 @@ function getGlobalCliPrompt(
   return `\n${question}
 This adds the shorter \`blueprint status\` and \`blueprint dashboard\` commands.
 Without it, use:
-  npx create-ai-blueprint@latest status
-  npx create-ai-blueprint@latest dashboard
+  npx il-dolce-far-niente@latest status
+  npx il-dolce-far-niente@latest dashboard
 This runs: ${getGlobalCliInstallCommand(targetVersion)}
 Continue? [y/N]: `;
 }
 
 async function installGlobalCli(version: string): Promise<void> {
   const npmExecPath = process.env.npm_execpath;
-  const packageSpec = `create-ai-blueprint@${version}`;
+  const packageSpec = `il-dolce-far-niente@${version}`;
   const command = npmExecPath
     ? process.execPath
     : process.platform === "win32"
@@ -1111,7 +1116,7 @@ async function waitForShutdown(): Promise<void> {
 }
 
 function printCommandHelp(command: CliOptions["command"], surface: CliSurface): void {
-  const binary = surface === "global" ? "blueprint" : "npx create-ai-blueprint@latest";
+  const binary = surface === "global" ? "blueprint" : "npx il-dolce-far-niente@latest";
 
   if (command === "status") {
     console.log(`${binary} status
@@ -1159,8 +1164,8 @@ Examples:
 
 The global blueprint command does not install or update Blueprint.
 Use the installer to update your project:
-  npx create-ai-blueprint@latest update
-  npx create-ai-blueprint@latest update --help`);
+  npx il-dolce-far-niente@latest update
+  npx il-dolce-far-niente@latest update --help`);
     return;
   }
 
@@ -1173,7 +1178,7 @@ Use the installer to update your project:
 }
 
 function printUpdateHelp(): void {
-  console.log(`create-ai-blueprint update
+  console.log(`il-dolce-far-niente update
 
 Update managed Blueprint files while preserving project-owned plans and rules.
 Adapter flags add to the installed set. To remove adapters, run interactively
@@ -1184,7 +1189,7 @@ confirm replacement interactively or use --force. --force backs them up before
 replacing or removing them.
 
 Usage:
-  npx create-ai-blueprint@latest update [options]
+  npx il-dolce-far-niente@latest update [options]
 
 Options:
   --codex          Add Codex to the installed adapters
@@ -1202,31 +1207,32 @@ Options:
   --version, -v    Show package version
 
 Examples:
-  npx create-ai-blueprint@latest update
-  npx create-ai-blueprint@latest update --codex --dry-run
-  npx create-ai-blueprint@latest update --target ./my-app --yes`);
+  npx il-dolce-far-niente@latest update
+  npx il-dolce-far-niente@latest update --codex --dry-run
+  npx il-dolce-far-niente@latest update --target ./my-app --yes`);
 }
 
 function printHelp(): void {
-  console.log(`create-ai-blueprint
+  console.log(`il-dolce-far-niente
 
-Install AI Blueprint into an already scaffolded app.
+Install Il Dolce Far Niente (AI Blueprint workflow, /avengers parallel builds and
+Matt Pocock's engineering skills) into an already scaffolded app.
 
 Usage:
-  npx create-ai-blueprint@latest
-  npx create-ai-blueprint@latest update
-  npx create-ai-blueprint@latest update -- --codex
-  npx create-ai-blueprint@latest status
-  npx create-ai-blueprint@latest status --json
-  npx create-ai-blueprint@latest dashboard
-  npx create-ai-blueprint@latest -- --codex
-  npx create-ai-blueprint@latest -- --claude
-  npx create-ai-blueprint@latest -- --copilot
-  npx create-ai-blueprint@latest -- --opencode
-  npx create-ai-blueprint@latest -- --antigravity
-  npx create-ai-blueprint@latest -- --codex --opencode
-  npx create-ai-blueprint@latest -- --all
-  npx create-ai-blueprint@latest -- --both
+  npx il-dolce-far-niente@latest
+  npx il-dolce-far-niente@latest update
+  npx il-dolce-far-niente@latest update -- --codex
+  npx il-dolce-far-niente@latest status
+  npx il-dolce-far-niente@latest status --json
+  npx il-dolce-far-niente@latest dashboard
+  npx il-dolce-far-niente@latest -- --codex
+  npx il-dolce-far-niente@latest -- --claude
+  npx il-dolce-far-niente@latest -- --copilot
+  npx il-dolce-far-niente@latest -- --opencode
+  npx il-dolce-far-niente@latest -- --antigravity
+  npx il-dolce-far-niente@latest -- --codex --opencode
+  npx il-dolce-far-niente@latest -- --all
+  npx il-dolce-far-niente@latest -- --both
 
 Options:
   --codex          Add Codex on install, or add it to the installed adapters on update
@@ -1268,8 +1274,8 @@ Options:
   --version, -v    Show package version
 
 Install or update Blueprint with:
-  npx create-ai-blueprint@latest
-  npx create-ai-blueprint@latest update`);
+  npx il-dolce-far-niente@latest
+  npx il-dolce-far-niente@latest update`);
 }
 
 // Correct for both layouts: dist/bin/ when published, bin/ in a source checkout.

@@ -5,10 +5,10 @@ import { fileURLToPath } from "node:url";
 import {
   createDefaultProjectConfig,
   parseProjectConfig
-} from "../packages/create-ai-blueprint/lib/project-config.js";
+} from "../../packages/il-dolce-far-niente/lib/project-config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "..");
+const repoRoot = path.resolve(__dirname, "..", "..");
 const codexSkillsRoot = path.join(repoRoot, ".agents", "skills");
 const claudeSkillsRoot = path.join(repoRoot, ".claude", "skills");
 const currentFeatureStub = `# Current Feature
@@ -76,11 +76,11 @@ const requiredPaths = [
   "blueprint/history/fixes/README.md",
   "blueprint/history/rollbacks/README.md",
   "evals/try-guide.json",
-  "packages/create-ai-blueprint/bin/create-ai-blueprint.ts",
-  "packages/create-ai-blueprint/LICENSE",
-  "packages/create-ai-blueprint/lib/update.ts",
-  "packages/create-ai-blueprint/package.json",
-  "scripts/e2e/scenarios/try-guide-behavior.ts"
+  "packages/il-dolce-far-niente/bin/il-dolce-far-niente.ts",
+  "packages/il-dolce-far-niente/LICENSE",
+  "packages/il-dolce-far-niente/lib/update.ts",
+  "packages/il-dolce-far-niente/package.json",
+  "scripts/blueprint/e2e/scenarios/try-guide-behavior.ts"
 ];
 
 function errorCode(error: unknown): string | undefined {
@@ -833,7 +833,7 @@ async function validateVerificationContract(): Promise<void> {
       ]
     ],
     [
-      "packages/create-ai-blueprint/README.md",
+      "packages/il-dolce-far-niente/README.md",
       [
         "optional `/ci` or `$ci` skill",
         "offers a reviewed local commit for the Blueprint setup and plans",
@@ -945,7 +945,7 @@ async function validateSkillReferences(adapterFiles: readonly string[]): Promise
 }
 
 async function validatePackageMetadata(): Promise<void> {
-  const packageRoot = path.join(repoRoot, "packages", "create-ai-blueprint");
+  const packageRoot = path.join(repoRoot, "packages", "il-dolce-far-niente");
   const metadata = parseRecord(
     await fs.readFile(path.join(packageRoot, "package.json"), "utf8"),
     "Package metadata"
@@ -967,7 +967,7 @@ async function validatePackageMetadata(): Promise<void> {
     ? metadata.scripts as Record<string, unknown>
     : {};
 
-  if (bin["create-ai-blueprint"] !== "dist/bin/create-ai-blueprint.js") {
+  if (bin["il-dolce-far-niente"] !== "dist/bin/il-dolce-far-niente.js") {
     throw new Error("Package bin entry does not point to the installer CLI");
   }
 
@@ -1012,9 +1012,9 @@ async function validateRepositoryPolish(): Promise<void> {
   const [rootLicense, packageLicense, packageMetadata, changelog, publishWorkflow] =
     await Promise.all([
       fs.readFile(path.join(repoRoot, "LICENSE")),
-      fs.readFile(path.join(repoRoot, "packages", "create-ai-blueprint", "LICENSE")),
+      fs.readFile(path.join(repoRoot, "packages", "il-dolce-far-niente", "LICENSE")),
       fs.readFile(
-        path.join(repoRoot, "packages", "create-ai-blueprint", "package.json"),
+        path.join(repoRoot, "packages", "il-dolce-far-niente", "package.json"),
         "utf8"
       ),
       fs.readFile(path.join(repoRoot, "CHANGELOG.md"), "utf8"),

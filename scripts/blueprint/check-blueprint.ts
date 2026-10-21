@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "..");
+const repoRoot = path.resolve(__dirname, "..", "..");
 interface CheckCommand {
   name: string;
   command: string;
@@ -33,7 +33,7 @@ const checks: CheckCommand[] = [
   },
   {
     name: "Installer unit tests",
-    ...npmInvocation(["--prefix", "packages/create-ai-blueprint", "test"])
+    ...npmInvocation(["--prefix", "packages/il-dolce-far-niente", "test"])
   },
   {
     name: "Packed installer smoke tests",

@@ -19,7 +19,7 @@ import {
   resolveUpdateAdapters,
   selectGlobalCliAction,
   shouldOfferGlobalCliInstall
-} from "../bin/create-ai-blueprint.js";
+} from "../bin/il-dolce-far-niente.js";
 import {
   CONTROL_DIR,
   MANIFEST_PATH,
@@ -320,16 +320,16 @@ test("global CLI installation is offered for published interactive installs and 
   assert.equal(isGlobalCliInstallConfirmed("no"), false);
   assert.equal(
     getGlobalCliInstallCommand("0.9.0"),
-    "npm install --global create-ai-blueprint@0.9.0"
+    "npm install --global il-dolce-far-niente@0.9.0"
   );
   assert.equal(
     getGlobalCliPrompt("install", null, "0.12.0"),
     "\nInstall the optional global `blueprint` CLI command?\n" +
       "This adds the shorter `blueprint status` and `blueprint dashboard` commands.\n" +
       "Without it, use:\n" +
-      "  npx create-ai-blueprint@latest status\n" +
-      "  npx create-ai-blueprint@latest dashboard\n" +
-      "This runs: npm install --global create-ai-blueprint@0.12.0\n" +
+      "  npx il-dolce-far-niente@latest status\n" +
+      "  npx il-dolce-far-niente@latest dashboard\n" +
+      "This runs: npm install --global il-dolce-far-niente@0.12.0\n" +
       "Continue? [y/N]: "
   );
   assert.equal(
@@ -337,9 +337,9 @@ test("global CLI installation is offered for published interactive installs and 
     "\nUpdate the optional global `blueprint` CLI from 0.11.1 to 0.12.0?\n" +
       "This adds the shorter `blueprint status` and `blueprint dashboard` commands.\n" +
       "Without it, use:\n" +
-      "  npx create-ai-blueprint@latest status\n" +
-      "  npx create-ai-blueprint@latest dashboard\n" +
-      "This runs: npm install --global create-ai-blueprint@0.12.0\n" +
+      "  npx il-dolce-far-niente@latest status\n" +
+      "  npx il-dolce-far-niente@latest dashboard\n" +
+      "This runs: npm install --global il-dolce-far-niente@0.12.0\n" +
       "Continue? [y/N]: "
   );
   assert.equal(selectGlobalCliAction(null, "0.11.0"), "install");
@@ -1251,6 +1251,90 @@ test("update removes an adapter's skill tree and keeps CLAUDE.md", async (t) => 
     "Check skill\n"
   );
   assert.deepEqual((await readManifest(targetDir))?.adapters, ["codex"]);
+});
+
+test("Claude Code manages subagent definitions and hooks alongside skills", async (t) => {
+  const workspace = await createWorkspace(t);
+  const templateRoot = path.join(workspace, "template");
+  const targetDir = path.join(workspace, "target");
+  const claudeFiles = {
+    ".claude/skills/check/SKILL.md": "Check skill\n",
+    ".claude/agents/planner.md": "Planner agent\n",
+    ".claude/hooks/block-remote-git.mjs": "// hook\n"
+  };
+
+  await writeFiles(templateRoot, {
+    ...claudeFiles,
+    ".agents/skills/check/SKILL.md": "Check skill\n"
+  });
+  await writeFiles(targetDir, {
+    ...claudeFiles,
+    ".agents/skills/check/SKILL.md": "Check skill\n",
+    ".claude/settings.local.json": "{}\n"
+  });
+
+  const codexOnly = await writeInstallManifest({
+    targetDir: path.join(workspace, "target"),
+    templateRoot,
+    version: "1.0.0",
+    adapters: ["codex"]
+  });
+  assert.deepEqual(Object.keys(codexOnly.managedFiles), [".agents/skills/check/SKILL.md"]);
+
+  const manifest = await writeInstallManifest({
+    targetDir,
+    templateRoot,
+    version: "1.0.0",
+    adapters: ["claude", "codex"]
+  });
+
+  assert.deepEqual(Object.keys(manifest.managedFiles), [
+    ".agents/skills/check/SKILL.md",
+    ".claude/agents/planner.md",
+    ".claude/hooks/block-remote-git.mjs",
+    ".claude/skills/check/SKILL.md"
+  ]);
+
+  const prepared = await prepareUpdate({
+    targetDir,
+    templateRoot,
+    version: "1.1.0",
+    adapters: ["codex"]
+  });
+
+  assert.deepEqual(
+    prepared.plan.remove.map((operation) => operation.path),
+    [
+      ".claude/agents/planner.md",
+      ".claude/hooks/block-remote-git.mjs",
+      ".claude/skills/check/SKILL.md"
+    ]
+  );
+  await applyPreparedUpdate(prepared);
+  await assert.rejects(fs.access(path.join(targetDir, ".claude/agents")), { code: "ENOENT" });
+  await assert.rejects(fs.access(path.join(targetDir, ".claude/hooks")), { code: "ENOENT" });
+  assert.equal(
+    await fs.readFile(path.join(targetDir, ".claude/settings.local.json"), "utf8"),
+    "{}\n"
+  );
+});
+
+test("templates without Claude agents or hooks still install Claude skills", async (t) => {
+  const workspace = await createWorkspace(t);
+  const templateRoot = path.join(workspace, "template");
+  const targetDir = path.join(workspace, "target");
+
+  await writeFiles(templateRoot, { ".claude/skills/check/SKILL.md": "Check skill\n" });
+  await fs.mkdir(targetDir, { recursive: true });
+
+  const manifest = await writeInstallManifest({
+    targetDir,
+    templateRoot,
+    version: "1.0.0",
+    adapters: ["claude"]
+  });
+
+  assert.deepEqual(Object.keys(manifest.managedFiles), [".claude/skills/check/SKILL.md"]);
 });
 
 test("adding Claude Code creates CLAUDE.md only when it is missing", async (t) => {

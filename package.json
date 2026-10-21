@@ -10,10 +10,20 @@
     "check:static": "tsx scripts/validate.ts",
     "test:routing": "tsx scripts/blueprint/evals/routing.ts --min-rank1 90",
     "test:transform": "tsx --test scripts/sync-upstream.test.ts",
-    "test:hooks": "node --test .claude/hooks/block-remote-git.test.mjs",
+    "test:hooks": "node --test tests/hooks/*.test.mjs",
     "test": "npm --prefix packages/il-dolce-far-niente test",
     "check": "npm run build:adapters -- --check && npm run check:static && npm run test:routing && npm run test:transform && npm run test:hooks && npm test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "link:local": "tsx scripts/blueprint/link-local.ts",
+    "unlink:local": "tsx scripts/blueprint/link-local.ts --undo",
+    "test:sandbox": "tsx --test scripts/blueprint/scaffold-sandbox.test.ts scripts/blueprint/clear-sandbox.test.ts",
+    "test:activity": "tsx --test scripts/blueprint/run-state-helper.test.ts",
+    "test:link-local": "tsx --test scripts/blueprint/link-local.test.ts",
+    "test:package": "tsx scripts/blueprint/smoke-package.ts",
+    "test:e2e": "tsx scripts/blueprint/e2e/run.ts",
+    "sandbox": "tsx scripts/blueprint/scaffold-sandbox.ts",
+    "sandbox:clear": "tsx scripts/blueprint/clear-sandbox.ts",
+    "sandbox:demo": "tsx scripts/blueprint/scaffold-sandbox.ts --demo-plan"
   },
   "engines": {
     "node": ">=22"

@@ -4,8 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const repoRoot = path.resolve(path.dirname(scriptPath), "..");
-const packageRoot = path.join(repoRoot, "packages", "create-ai-blueprint");
+const repoRoot = path.resolve(path.dirname(scriptPath), "..", "..");
+const packageRoot = path.join(repoRoot, "packages", "il-dolce-far-niente");
 const sandboxRoot = path.join(repoRoot, ".sandbox");
 
 const adapters = ["all", "codex", "claude", "copilot", "opencode", "antigravity"] as const;
@@ -111,7 +111,7 @@ export function createBlueprintNpxArguments(
   tarball: string,
   adapter: Adapter | null
 ): string[] {
-  const args = ["--yes", "--package", tarball, "create-ai-blueprint"];
+  const args = ["--yes", "--package", tarball, "il-dolce-far-niente"];
 
   if (adapter) {
     args.push("--", `--${adapter}`, "--yes");
@@ -192,7 +192,7 @@ async function main(): Promise<void> {
     passed("Local package ready");
 
     console.log("\nInstall AI Blueprint\n");
-    console.log("$ npx create-ai-blueprint@local\n");
+    console.log("$ npx il-dolce-far-niente@local\n");
     runVisible(
       npxCommand(),
       createBlueprintNpxArguments(tarball, options.adapter),
@@ -438,7 +438,7 @@ export async function addLocalBlueprintScripts(
     await fs.readFile(packageJsonPath, "utf8")
   ) as PackageJson & Record<string, unknown>;
   const packageSpec = path.relative(projectRoot, tarball).split(path.sep).join("/");
-  const localCommand = `npx --yes --package ${packageSpec} create-ai-blueprint`;
+  const localCommand = `npx --yes --package ${packageSpec} il-dolce-far-niente`;
 
   packageJson.scripts = {
     ...(packageJson.scripts || {}),

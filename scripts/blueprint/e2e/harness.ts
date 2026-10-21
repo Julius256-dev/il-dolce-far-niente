@@ -5,8 +5,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "..", "..");
-const packageRoot = path.join(repoRoot, "packages", "create-ai-blueprint");
+const repoRoot = path.resolve(__dirname, "..", "..", "..");
+const packageRoot = path.join(repoRoot, "packages", "il-dolce-far-niente");
 const runsRoot = path.join(__dirname, "runs");
 
 interface CommandOptions extends SpawnSyncOptions {
@@ -137,10 +137,10 @@ class Runner {
     const binary = path.join(
       runner,
       "node_modules",
-      "create-ai-blueprint",
+      "il-dolce-far-niente",
       "dist",
       "bin",
-      "create-ai-blueprint.js"
+      "il-dolce-far-niente.js"
     );
     run(process.execPath, [binary, "--target", this.workspace, adapterFlag, "--yes"], this.runDir);
   }

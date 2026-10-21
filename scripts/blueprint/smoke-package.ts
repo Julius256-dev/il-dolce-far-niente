@@ -6,8 +6,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "..");
-const packageRoot = path.join(repoRoot, "packages", "create-ai-blueprint");
+const repoRoot = path.resolve(__dirname, "..", "..");
+const packageRoot = path.join(repoRoot, "packages", "il-dolce-far-niente");
 
 type Adapter = "codex" | "claude" | "copilot" | "opencode" | "antigravity";
 
@@ -134,12 +134,12 @@ async function main(): Promise<void> {
     const installedPackageRoot = path.join(
       runnerDir,
       "node_modules",
-      "create-ai-blueprint"
+      "il-dolce-far-niente"
     );
     await requireMissing(
       path.join(installedPackageRoot, "scripts", "prepare-template.ts")
     );
-    const binary = path.join(installedPackageRoot, "dist", "bin", "create-ai-blueprint.js");
+    const binary = path.join(installedPackageRoot, "dist", "bin", "il-dolce-far-niente.js");
     const metadata = parseRecord(
       await fs.readFile(path.join(installedPackageRoot, "package.json"), "utf8"),
       "Installed package metadata"
@@ -154,8 +154,8 @@ async function main(): Promise<void> {
       "node_modules",
       ".bin",
       process.platform === "win32"
-        ? "create-ai-blueprint.cmd"
-        : "create-ai-blueprint"
+        ? "il-dolce-far-niente.cmd"
+        : "il-dolce-far-niente"
     );
     const installedBlueprintCommand = path.join(
       runnerDir,

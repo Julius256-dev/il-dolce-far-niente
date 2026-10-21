@@ -4,7 +4,7 @@ import readline from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const repoRoot = path.resolve(path.dirname(scriptPath), "..");
+const repoRoot = path.resolve(path.dirname(scriptPath), "..", "..");
 const sandboxRoot = path.join(repoRoot, ".sandbox");
 
 export async function listSandboxEntries(root: string): Promise<string[]> {

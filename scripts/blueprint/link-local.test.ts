@@ -6,8 +6,8 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const packageRoot = path.join(repoRoot, "packages", "create-ai-blueprint");
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const packageRoot = path.join(repoRoot, "packages", "il-dolce-far-niente");
 
 test("link:local can replace its existing global link", { timeout: 300_000 }, async () => {
   const prefix = await fs.mkdtemp(path.join(os.tmpdir(), "blueprint-local-link-"));
@@ -22,14 +22,14 @@ test("link:local can replace its existing global link", { timeout: 300_000 }, as
     const npmRoot = runNpm(prefix, ["root", "--global"]);
     assert.equal(npmRoot.status, 0, formatFailure(npmRoot));
     assert.equal(
-      await canonicalPath(path.join(npmRoot.stdout.trim(), "create-ai-blueprint")),
+      await canonicalPath(path.join(npmRoot.stdout.trim(), "il-dolce-far-niente")),
       await canonicalPath(packageRoot)
     );
 
     const binRoot = process.platform === "win32" ? prefix : path.join(prefix, "bin");
     const suffix = process.platform === "win32" ? ".cmd" : "";
     await Promise.all(
-      ["create-ai-blueprint", "blueprint"].map((name) =>
+      ["il-dolce-far-niente", "blueprint"].map((name) =>
         fs.access(path.join(binRoot, `${name}${suffix}`))
       )
     );

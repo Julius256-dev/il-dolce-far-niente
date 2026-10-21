@@ -48,13 +48,13 @@ test("runs the packed Blueprint through npx with real prompts by default", () =>
     "--yes",
     "--package",
     "/tmp/blueprint.tgz",
-    "create-ai-blueprint"
+    "il-dolce-far-niente"
   ]);
   assert.deepEqual(createBlueprintNpxArguments("/tmp/blueprint.tgz", "codex"), [
     "--yes",
     "--package",
     "/tmp/blueprint.tgz",
-    "create-ai-blueprint",
+    "il-dolce-far-niente",
     "--",
     "--codex",
     "--yes"
@@ -127,7 +127,7 @@ test("adds realistic plans that are ready for overview", async () => {
 test("adds sandbox commands pinned to the locally packed CLI", async () => {
   const workspace = await fs.mkdtemp(path.join(os.tmpdir(), "blueprint-local-cli-"));
   const projectRoot = path.join(workspace, "project");
-  const tarball = path.join(workspace, "artifacts", "create-ai-blueprint-local.tgz");
+  const tarball = path.join(workspace, "artifacts", "il-dolce-far-niente-local.tgz");
 
   try {
     await scaffoldProject(projectRoot);
@@ -138,11 +138,11 @@ test("adds sandbox commands pinned to the locally packed CLI", async () => {
 
     assert.equal(
       packageJson.scripts["blueprint:status"],
-      "npx --yes --package ../artifacts/create-ai-blueprint-local.tgz create-ai-blueprint status"
+      "npx --yes --package ../artifacts/il-dolce-far-niente-local.tgz il-dolce-far-niente status"
     );
     assert.equal(
       packageJson.scripts["blueprint:dashboard"],
-      "npx --yes --package ../artifacts/create-ai-blueprint-local.tgz create-ai-blueprint dashboard"
+      "npx --yes --package ../artifacts/il-dolce-far-niente-local.tgz il-dolce-far-niente dashboard"
     );
   } finally {
     await fs.rm(workspace, { recursive: true, force: true });

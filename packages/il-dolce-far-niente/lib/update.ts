@@ -95,8 +95,11 @@ interface InstallManifestOptions {
 const MANAGED_ROOTS = {
   common: [],
   agents: [".agents/skills"],
-  claude: [".claude/skills"]
+  claude: [".claude/skills", ".claude/agents", ".claude/hooks"]
 } as const;
+// Managed roots that a template may legitimately omit (older or trimmed
+// templates ship only skills). A missing optional root contributes no files.
+const OPTIONAL_MANAGED_ROOTS = new Set<string>([".claude/agents", ".claude/hooks"]);
 const RETIRED_MANAGED_PATHS = new Set(["blueprint/README.md"]);
 const CLAUDE_ENTRYPOINT_PATH = "CLAUDE.md";
 const VALID_ADAPTERS: readonly Adapter[] = [
@@ -171,6 +174,11 @@ async function collectManagedTemplateFiles(
 
   for (const relativeRoot of roots) {
     const sourceRoot = path.join(templateRoot, ...relativeRoot.split("/"));
+
+    if (OPTIONAL_MANAGED_ROOTS.has(relativeRoot) && !(await pathExists(sourceRoot))) {
+      continue;
+    }
+
     await collectSourceFiles(sourceRoot, relativeRoot, files);
   }
 

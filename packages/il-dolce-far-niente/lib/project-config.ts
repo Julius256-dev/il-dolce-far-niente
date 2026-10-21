@@ -22,6 +22,76 @@ type TryGuideGatePolicy =
   | "when-testable"
   | "when-user-facing";
 type ProjectConfigState = "defaults" | "invalid" | "project";
+type ProjectProfile = "client-delivery" | "product" | "restricted" | "custom";
+type TrackerKind = "local" | "github" | "gitlab";
+type TrackerLabelRole =
+  | "bug"
+  | "enhancement"
+  | "needs-triage"
+  | "needs-info"
+  | "ready-for-agent"
+  | "ready-for-human"
+  | "wontfix";
+type AvengersSpecApproval = "batch" | "each";
+type AvengersSerializeReason =
+  | "shared-files"
+  | "migration"
+  | "auth"
+  | "payments"
+  | "config"
+  | "sensitive";
+type ModelRole =
+  | "planner"
+  | "implementer"
+  | "merger"
+  | "reviewer-lens"
+  | "reviewer-standards"
+  | "reviewer-spec"
+  | "explorer";
+type ModelEffort = "low" | "medium" | "high" | "xhigh" | "max";
+
+const PROJECT_PROFILES: readonly ProjectProfile[] = [
+  "client-delivery",
+  "product",
+  "restricted",
+  "custom"
+];
+const TRACKER_KINDS: readonly TrackerKind[] = ["local", "github", "gitlab"];
+const TRACKER_LABEL_ROLES: readonly TrackerLabelRole[] = [
+  "bug",
+  "enhancement",
+  "needs-triage",
+  "needs-info",
+  "ready-for-agent",
+  "ready-for-human",
+  "wontfix"
+];
+const AVENGERS_SERIALIZE_REASONS: readonly AvengersSerializeReason[] = [
+  "shared-files",
+  "migration",
+  "auth",
+  "payments",
+  "config",
+  "sensitive"
+];
+const MODEL_ROLES: readonly ModelRole[] = [
+  "planner",
+  "implementer",
+  "merger",
+  "reviewer-lens",
+  "reviewer-standards",
+  "reviewer-spec",
+  "explorer"
+];
+const MODEL_EFFORTS: readonly ModelEffort[] = ["low", "medium", "high", "xhigh", "max"];
+const MODEL_ALIASES: readonly string[] = [
+  "fable",
+  "opus",
+  "sonnet",
+  "haiku",
+  "best",
+  "opusplan"
+];
 
 interface QualityGatePolicy {
   audit: AuditGatePolicy;
@@ -57,6 +127,32 @@ interface ProjectConfig {
     maxFeatures: number | null;
     maxRepairAttempts: number;
     finalIntegrationAudit: boolean;
+  };
+  profile: ProjectProfile;
+  tracker: {
+    kind: TrackerKind;
+    doc: string;
+    labels: Record<TrackerLabelRole, string>;
+  };
+  domainDocs: {
+    glossary: string;
+    adr: string;
+  };
+  avengers: {
+    maxConcurrent: number;
+    specApproval: AvengersSpecApproval;
+    integrationBranchPrefix: string;
+    worktreeRoot: string;
+    serializeWhen: AvengersSerializeReason[];
+    finalIntegrationAudit: boolean;
+    portBase: number;
+  };
+  models: {
+    main: string;
+    subagentDefault: string;
+    roles: Record<ModelRole, string>;
+    effort: Partial<Record<ModelRole, ModelEffort>>;
+    reviewerMustDiffer: boolean;
   };
 }
 
@@ -110,6 +206,53 @@ function createDefaultProjectConfig(): ProjectConfig {
       maxFeatures: null,
       maxRepairAttempts: 2,
       finalIntegrationAudit: false
+    },
+    profile: "custom",
+    tracker: {
+      kind: "local",
+      doc: "blueprint/context/tracker.md",
+      labels: {
+        bug: "bug",
+        enhancement: "enhancement",
+        "needs-triage": "needs-triage",
+        "needs-info": "needs-info",
+        "ready-for-agent": "ready-for-agent",
+        "ready-for-human": "ready-for-human",
+        wontfix: "wontfix"
+      }
+    },
+    domainDocs: {
+      glossary: "GLOSSARY.md",
+      adr: "docs/adr"
+    },
+    avengers: {
+      maxConcurrent: 3,
+      specApproval: "batch",
+      integrationBranchPrefix: "wave/",
+      worktreeRoot: "../.worktrees",
+      serializeWhen: ["shared-files", "migration", "auth", "payments", "config"],
+      finalIntegrationAudit: true,
+      portBase: 4100
+    },
+    models: {
+      main: "claude-opus-5-5",
+      subagentDefault: "claude-sonnet-5-5",
+      roles: {
+        planner: "claude-opus-5-5",
+        "reviewer-lens": "claude-opus-5-5",
+        "reviewer-standards": "claude-opus-5-5",
+        "reviewer-spec": "claude-opus-5-5",
+        implementer: "claude-sonnet-5-5",
+        merger: "claude-sonnet-5-5",
+        explorer: "claude-sonnet-5-5"
+      },
+      effort: {
+        planner: "medium",
+        "reviewer-lens": "medium",
+        "reviewer-standards": "medium",
+        "reviewer-spec": "medium"
+      },
+      reviewerMustDiffer: true
     }
   };
 }
@@ -189,7 +332,12 @@ function parseProjectConfig(value: unknown): ProjectConfig {
       "verification",
       "review",
       "qualityGates",
-      "continuous"
+      "continuous",
+      "profile",
+      "tracker",
+      "domainDocs",
+      "avengers",
+      "models"
     ],
     "config"
   );
@@ -213,6 +361,13 @@ function parseProjectConfig(value: unknown): ProjectConfig {
     "qualityGates.continuous"
   );
   const continuous = optionalRecord(root.continuous, "continuous");
+  const tracker = optionalRecord(root.tracker, "tracker");
+  const trackerLabels = optionalRecord(tracker.labels, "tracker.labels");
+  const domainDocs = optionalRecord(root.domainDocs, "domainDocs");
+  const avengers = optionalRecord(root.avengers, "avengers");
+  const models = optionalRecord(root.models, "models");
+  const modelRoles = optionalRecord(models.roles, "models.roles");
+  const modelEffort = optionalRecord(models.effort, "models.effort");
 
   assertKnownKeys(workflow, ["stepReview", "checkpointCommits"], "workflow");
   assertKnownKeys(
@@ -243,6 +398,29 @@ function parseProjectConfig(value: unknown): ProjectConfig {
     ["maxFeatures", "maxRepairAttempts", "finalIntegrationAudit"],
     "continuous"
   );
+  assertKnownKeys(tracker, ["kind", "doc", "labels"], "tracker");
+  assertKnownKeys(trackerLabels, TRACKER_LABEL_ROLES, "tracker.labels");
+  assertKnownKeys(domainDocs, ["glossary", "adr"], "domainDocs");
+  assertKnownKeys(
+    avengers,
+    [
+      "maxConcurrent",
+      "specApproval",
+      "integrationBranchPrefix",
+      "worktreeRoot",
+      "serializeWhen",
+      "finalIntegrationAudit",
+      "portBase"
+    ],
+    "avengers"
+  );
+  assertKnownKeys(
+    models,
+    ["main", "subagentDefault", "roles", "effort", "reviewerMustDiffer"],
+    "models"
+  );
+  assertKnownKeys(modelRoles, MODEL_ROLES, "models.roles");
+  assertKnownKeys(modelEffort, MODEL_ROLES, "models.effort");
 
   return {
     schemaVersion: PROJECT_CONFIG_SCHEMA_VERSION,
@@ -335,8 +513,139 @@ function parseProjectConfig(value: unknown): ProjectConfig {
         defaults.continuous.finalIntegrationAudit,
         "continuous.finalIntegrationAudit"
       )
+    },
+    profile: optionalEnum(root.profile, PROJECT_PROFILES, defaults.profile, "profile"),
+    tracker: {
+      kind: optionalEnum(tracker.kind, TRACKER_KINDS, defaults.tracker.kind, "tracker.kind"),
+      doc: optionalRelativePath(tracker.doc, defaults.tracker.doc, "tracker.doc"),
+      labels: Object.fromEntries(
+        TRACKER_LABEL_ROLES.map((role) => [
+          role,
+          optionalNonEmptyString(
+            trackerLabels[role],
+            defaults.tracker.labels[role],
+            `tracker.labels.${role}`
+          )
+        ])
+      ) as Record<TrackerLabelRole, string>
+    },
+    domainDocs: {
+      glossary: optionalRelativePath(
+        domainDocs.glossary,
+        defaults.domainDocs.glossary,
+        "domainDocs.glossary"
+      ),
+      adr: optionalRelativePath(domainDocs.adr, defaults.domainDocs.adr, "domainDocs.adr")
+    },
+    avengers: {
+      maxConcurrent: optionalBoundedInteger(
+        avengers.maxConcurrent,
+        defaults.avengers.maxConcurrent,
+        "avengers.maxConcurrent",
+        1,
+        8
+      ),
+      specApproval: optionalEnum(
+        avengers.specApproval,
+        ["batch", "each"],
+        defaults.avengers.specApproval,
+        "avengers.specApproval"
+      ),
+      integrationBranchPrefix: optionalBranchPrefix(
+        avengers.integrationBranchPrefix,
+        defaults.avengers.integrationBranchPrefix,
+        "avengers.integrationBranchPrefix"
+      ),
+      worktreeRoot: optionalNonEmptyString(
+        avengers.worktreeRoot,
+        defaults.avengers.worktreeRoot,
+        "avengers.worktreeRoot"
+      ),
+      serializeWhen: optionalEnumList(
+        avengers.serializeWhen,
+        AVENGERS_SERIALIZE_REASONS,
+        defaults.avengers.serializeWhen,
+        "avengers.serializeWhen"
+      ),
+      finalIntegrationAudit: optionalBoolean(
+        avengers.finalIntegrationAudit,
+        defaults.avengers.finalIntegrationAudit,
+        "avengers.finalIntegrationAudit"
+      ),
+      portBase: optionalBoundedInteger(
+        avengers.portBase,
+        defaults.avengers.portBase,
+        "avengers.portBase",
+        1024,
+        65535
+      )
+    },
+    models: {
+      main: optionalModel(models.main, defaults.models.main, "models.main"),
+      subagentDefault: optionalModel(
+        models.subagentDefault,
+        defaults.models.subagentDefault,
+        "models.subagentDefault"
+      ),
+      roles: Object.fromEntries(
+        MODEL_ROLES.map((role) => [
+          role,
+          optionalModel(modelRoles[role], defaults.models.roles[role], `models.roles.${role}`)
+        ])
+      ) as Record<ModelRole, string>,
+      effort: parseModelEffort(modelEffort, defaults.models.effort),
+      reviewerMustDiffer: optionalBoolean(
+        models.reviewerMustDiffer,
+        defaults.models.reviewerMustDiffer,
+        "models.reviewerMustDiffer"
+      )
     }
   };
+}
+
+function parseModelEffort(
+  value: Record<string, unknown>,
+  defaults: Partial<Record<ModelRole, ModelEffort>>
+): Partial<Record<ModelRole, ModelEffort>> {
+  const effort: Partial<Record<ModelRole, ModelEffort>> = {};
+
+  for (const role of MODEL_ROLES) {
+    const fallback = defaults[role];
+
+    if (value[role] === undefined && fallback === undefined) {
+      continue;
+    }
+
+    effort[role] =
+      value[role] === undefined
+        ? fallback
+        : optionalEnum(value[role], MODEL_EFFORTS, "medium", `models.effort.${role}`);
+  }
+
+  return effort;
+}
+
+function isValidModel(value: string): boolean {
+  if (value === "inherit" || /^claude-[a-z0-9-]+$/.test(value)) {
+    return true;
+  }
+
+  const alias = value.endsWith("[1m]") ? value.slice(0, -"[1m]".length) : value;
+  return MODEL_ALIASES.includes(alias);
+}
+
+function optionalModel(value: unknown, fallback: string, label: string): string {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  if (typeof value !== "string" || !isValidModel(value)) {
+    throw new Error(
+      `${label} must be inherit, one of the aliases ${MODEL_ALIASES.join(", ")} (optionally suffixed [1m]), or a full model ID such as claude-sonnet-5-5.`
+    );
+  }
+
+  return value;
 }
 
 function parseQualityGatePolicy(
@@ -433,6 +742,58 @@ function optionalBranchPrefix(
   return value;
 }
 
+function optionalNonEmptyString(value: unknown, fallback: string, label: string): string {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(`${label} must be a non-empty string.`);
+  }
+
+  return value;
+}
+
+function optionalRelativePath(value: unknown, fallback: string, label: string): string {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  if (
+    typeof value !== "string" ||
+    value.trim() === "" ||
+    value.includes("\\") ||
+    path.posix.isAbsolute(value) ||
+    /^[a-zA-Z]:/.test(value) ||
+    value.split("/").includes("..")
+  ) {
+    throw new Error(`${label} must be a project-relative path inside the repository.`);
+  }
+
+  return value;
+}
+
+function optionalEnumList<const T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  fallback: readonly T[],
+  label: string
+): T[] {
+  if (value === undefined) {
+    return [...fallback];
+  }
+
+  if (
+    !Array.isArray(value) ||
+    value.some((item) => typeof item !== "string" || !allowed.includes(item as T)) ||
+    new Set(value).size !== value.length
+  ) {
+    throw new Error(`${label} must be a list of unique values from: ${allowed.join(", ")}.`);
+  }
+
+  return [...value] as T[];
+}
+
 function optionalNullablePositiveInteger(
   value: unknown,
   fallback: number | null,
@@ -506,6 +867,13 @@ export {
 
 export type {
   AuditGatePolicy,
+  AvengersSerializeReason,
+  AvengersSpecApproval,
+  ModelEffort,
+  ModelRole,
+  ProjectProfile,
+  TrackerKind,
+  TrackerLabelRole,
   CheckpointCommitPolicy,
   CheckGatePolicy,
   IndependentReviewGatePolicy,

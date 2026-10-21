@@ -18,7 +18,7 @@ interface EvaluationResult {
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const casesPath = path.resolve(__dirname, "..", "..", "..", "evals", "try-guide.json");
+const casesPath = path.resolve(__dirname, "..", "..", "..", "..", "evals", "try-guide.json");
 
 function parseResults(resultText: string): EvaluationResult[] {
   const firstBrace = resultText.indexOf("{");

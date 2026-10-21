@@ -4,8 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "..");
-const packageRoot = path.join(repoRoot, "packages", "create-ai-blueprint");
+const repoRoot = path.resolve(__dirname, "..", "..");
+const packageRoot = path.join(repoRoot, "packages", "il-dolce-far-niente");
 
 interface NpmInvocation {
   command: string;
@@ -79,8 +79,8 @@ function main(): void {
 Linked ${packageName} from this checkout.
 
 These commands now run from your local files, with no network access:
-  create-ai-blueprint --help
-  create-ai-blueprint --target ./my-app
+  il-dolce-far-niente --help
+  il-dolce-far-niente --target ./my-app
   blueprint status
 
 Re-run \`npm run link:local\` after editing the source. The linked commands run

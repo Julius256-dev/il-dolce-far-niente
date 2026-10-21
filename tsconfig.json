@@ -14,6 +14,6 @@
     "types": ["node"],
     "noEmit": true
   },
-  "include": ["scripts/**/*.ts", "packages/create-ai-blueprint/**/*.ts"],
-  "exclude": ["packages/create-ai-blueprint/dist", "packages/create-ai-blueprint/template"]
+  "include": ["scripts/**/*.ts", "packages/il-dolce-far-niente/**/*.ts"],
+  "exclude": ["packages/il-dolce-far-niente/dist", "packages/il-dolce-far-niente/template"]
 }
