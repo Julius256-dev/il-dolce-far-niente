@@ -1,0 +1,27 @@
+{
+  "skill": "mp-tdd",
+  "positive": [
+    {
+      "prompt": "Build this test-first with red-green-refactor",
+      "top_k": 3
+    },
+    {
+      "prompt": "Write a failing test before the code for this parser at the agreed seams",
+      "top_k": 3
+    },
+    {
+      "prompt": "Use TDD: one failing test, then the minimal code, then the next test",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Start coding the approved current feature step by step",
+      "owner": "implement"
+    },
+    {
+      "prompt": "Set up a unit test runner for this project with an example test",
+      "owner": "tests"
+    }
+  ]
+}

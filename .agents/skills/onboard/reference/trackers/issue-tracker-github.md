@@ -1,5 +1,7 @@
 # Issue tracker: GitHub
 
+Reference for `/onboard`: when `tracker.kind` in `blueprint/config.json` is `github`, `/onboard` writes this content (with the flags below set) to `blueprint/context/tracker.md`, the tracker doc the `mp-*` skills and `/plan-graph` read.
+
 Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
 ## Conventions

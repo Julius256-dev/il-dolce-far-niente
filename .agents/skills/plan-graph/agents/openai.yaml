@@ -1,5 +1,5 @@
 interface:
-  display_name: "To Tickets"
-  short_description: "Split a plan into tracer-bullet tickets"
+  display_name: "Plan Graph"
+  short_description: "Add blocking edges to the build plan"
 policy:
   allow_implicit_invocation: false

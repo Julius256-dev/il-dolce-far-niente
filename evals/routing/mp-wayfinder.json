@@ -1,0 +1,27 @@
+{
+  "skill": "mp-wayfinder",
+  "positive": [
+    {
+      "prompt": "Run /mp-wayfinder",
+      "top_k": 1
+    },
+    {
+      "prompt": "This effort is too big for one session; chart a map of decision tickets toward the destination",
+      "top_k": 3
+    },
+    {
+      "prompt": "Work through the next frontier decision ticket on the wayfinder map",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /discovery to plan the project and draft the two plans",
+      "owner": "discovery"
+    },
+    {
+      "prompt": "Add blocking edges to the build plan and show the frontier",
+      "owner": "plan-graph"
+    }
+  ]
+}

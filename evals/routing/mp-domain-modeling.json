@@ -1,0 +1,27 @@
+{
+  "skill": "mp-domain-modeling",
+  "positive": [
+    {
+      "prompt": "Add this term to GLOSSARY.md and sharpen our domain terminology",
+      "top_k": 3
+    },
+    {
+      "prompt": "Record an ADR for choosing event sourcing for orders",
+      "top_k": 3
+    },
+    {
+      "prompt": "Our codebase terminology is fuzzy; challenge the terms and update the glossary",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Distill the planning docs into project-overview.md",
+      "owner": "overview"
+    },
+    {
+      "prompt": "Shared vocabulary for designing deep modules and where a seam goes",
+      "owner": "mp-codebase-design"
+    }
+  ]
+}

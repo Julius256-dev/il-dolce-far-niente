@@ -1,0 +1,27 @@
+{
+  "skill": "mp-writing-for-agents",
+  "positive": [
+    {
+      "prompt": "Help me write a new skill description so agents trigger it reliably",
+      "top_k": 3
+    },
+    {
+      "prompt": "Prune AGENTS.md and turn instructions into context pointers",
+      "top_k": 3
+    },
+    {
+      "prompt": "Edit this skill and its description for agents",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /onboard to tune commands, standards and adapters",
+      "owner": "onboard"
+    },
+    {
+      "prompt": "Run /mp-retro on this coding session to improve the agent environment",
+      "owner": "mp-retro"
+    }
+  ]
+}

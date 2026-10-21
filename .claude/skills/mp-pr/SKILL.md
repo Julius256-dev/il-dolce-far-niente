@@ -1,6 +1,6 @@
 ---
 name: mp-pr
-description: "Use when writing a PR body."
+description: "PR body format (Summary visual, before/after Evidence, Merge Danger door and blast radius). Use when writing or editing a pull request description, including the PR body /complete opens when git.landing is pull-request."
 metadata:
   credits:
     skill: show-me
@@ -8,6 +8,12 @@ metadata:
     organisation: Humanlayer
     url: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
 ---
+
+# PR Body
+
+**Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
+
+This is the PR body format `/complete` uses when `git.landing` in `blueprint/config.json` is `pull-request`. Prefer Evidence the work item already recorded (Check results, test and Verify runs).
 
 Use this template for writing the PR body:
 
@@ -34,7 +40,7 @@ Use this template for writing the PR body:
 
 ## Sections
 
-Skip all preambles and keep prose brief. Use the user's domain language from `GLOSSARY.md`.
+Skip all preambles and keep prose brief. Use the user's domain language from the glossary (`domainDocs.glossary` in `blueprint/config.json`, default `GLOSSARY.md`).
 
 ### Summary
 

@@ -1,0 +1,27 @@
+{
+  "skill": "mp-codebase-design",
+  "positive": [
+    {
+      "prompt": "Design a deep module with a small interface for the payment adapter",
+      "top_k": 3
+    },
+    {
+      "prompt": "Where should the seam go to make this module testable?",
+      "top_k": 3
+    },
+    {
+      "prompt": "Find deepening opportunities in this module's interface",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /mp-architecture to scan the codebase and produce an HTML report",
+      "owner": "mp-architecture"
+    },
+    {
+      "prompt": "Explore an idea against the codebase and compare alternatives without writing files",
+      "owner": "explore"
+    }
+  ]
+}

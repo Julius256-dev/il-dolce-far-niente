@@ -1,13 +1,17 @@
 ---
 name: mp-tdd
-description: Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests.
+description: Test-driven development discipline (red-green loop, good tests at agreed seams, mocking, anti-patterns). Use when building features or fixing bugs test-first, writing a failing test before the code, "red-green-refactor", or adding integration tests when the project has a test command.
 ---
 
 # Test-Driven Development
 
+**Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
+
 TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle: consult them before and during the loop, not after.
 
-When exploring the codebase, read `GLOSSARY.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
+Testing applies only when the project has a test command: Blueprint's Testing gate in `blueprint/context/coding-standards.md` (a `test` command in the Commands section of `AGENTS.md`) is the switch. Without one, verify logic with the evidence the workflow already uses and don't install a runner mid-step; `/tests` adds one.
+
+When exploring the codebase, read the glossary (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching. Their locations come from `domainDocs` in `blueprint/config.json` (defaults `GLOSSARY.md` and `docs/adr`).
 
 ## What a good test is
 
@@ -19,9 +23,9 @@ See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking g
 
 A **seam** is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.
 
-**Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam. You can't test everything, so agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
+**Test only at pre-agreed seams.** Before writing any test, write down the seams under test. Inside Blueprint the seams were agreed at spec approval: they are the approved spec's `## Testing` section in `blueprint/context/current-feature.md`, so use those without asking again. Confirm seams with the user only when the spec names none (or there is no spec). No test is written at an unconfirmed seam; a step that surfaces logic the spec didn't foresee gets a focused test at the nearest agreed seam, or a question. You can't test everything, so agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
 
-Ask: "What's the public interface, and which seams should we test?" Give each proposed seam a one-line note on what it catches and what it misses.
+When you must ask: "What's the public interface, and which seams should we test?" Give each proposed seam a one-line note on what it catches and what it misses.
 
 When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), call the Skill tool with "mp-codebase-design" for the vocabulary. It is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms, and it is a reference to consult, not a session to run.
 

@@ -1,7 +1,11 @@
 ---
 name: mp-code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: "Two-axis diff review since a fixed point (commit, branch, tag, merge-base): Standards (documented coding standards plus a Fowler smell baseline) and Spec (does the code match its issue or spec?), in parallel sub-agents reported side by side. Use to review a branch, PR, or work-in-progress changes, \"review since X\", or as a standards/spec reviewer for /audit independent or /avengers."
 ---
+
+# Code Review
+
+**Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
 
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
@@ -10,7 +14,7 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
 
-The issue tracker should have been provided to you. If not, tell the user to run `/onboard`.
+For the issue tracker, read `tracker` (and `tracker.labels`) in `blueprint/config.json` and the tracker doc it names (default `blueprint/context/tracker.md`). If either is missing, use the local-files tracker (`blueprint/tickets/`) and suggest `/onboard`.
 
 ## Process
 
@@ -26,14 +30,15 @@ Before going further, confirm the fixed point resolves (`git rev-parse <fixed-po
 
 Look for the originating spec, in this order:
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in the tracker doc.
-2. A path the user passed as an argument.
-3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+1. Inside Blueprint, `blueprint/context/current-feature.md` when it is the spec for this branch (see _Inside Blueprint independent review_).
+2. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in the tracker doc.
+3. A path the user passed as an argument.
+4. A spec file under `docs/`, `specs/`, `blueprint/tickets/`, or `blueprint/history/` matching the branch name or feature.
+5. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
 
 ### 3. Identify the standards sources
 
-Search the repo for every file that documents how code should be written. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list.
+Search the repo for every file that documents how code should be written. When `blueprint/context/coding-standards.md`, `CODING_STANDARDS.md`, or `CONTRIBUTING.md` exists, it must be on the list.
 
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
 
@@ -87,3 +92,22 @@ A change can pass one axis and fail the other:
 - Code that does exactly what the issue asked but breaks the project's conventions → **Spec pass, Standards fail.**
 
 Reporting them separately stops one axis from masking the other.
+
+## Inside Blueprint independent review
+
+When run as a reviewer for `/audit independent` or `/avengers` (roles `reviewer-standards` and `reviewer-spec`), keep the two-axis method above, with these changes:
+
+- **Spec source:** `blueprint/context/current-feature.md` first. Its build steps' `Done when` lines are the requirements; Out of scope marks scope creep.
+- **Fixed point:** the base commit the review request records (or the branch's merge base), not a user prompt.
+- **Record findings.** Chat output is not enough: also record each confirmed finding in `blueprint/context/findings.md`, following the audit skill's Step 4 ledger contract (exact header line `### F-NN [Px] open - Title`, next sequential ID, `**File:**`, `**Found:**`, `**Why it matters:**`, `**Suggested fix:**`, empty `**Resolution:**`; unconfirmed risks as `unverified`). Add one line to each block naming its axis: `**Axis:** standards` or `**Axis:** spec`.
+- **Severity mapping:**
+
+  | Finding | Severity |
+  | --- | --- |
+  | Breach of a documented standard | P1 when it is a likely bug, broken contract, or missing guard; otherwise P2 |
+  | Fowler-baseline smell | always P3 (a judgement call) |
+  | Unmet spec requirement | P1 when a `Done when` is unmet; otherwise P2 |
+  | Scope creep | P2 |
+
+- **Never repair code as a reviewer.** Write only the findings ledger (and whatever the calling `/audit` phase permits); the builder repairs through `/implement`.
+- The report still keeps the axes apart: do not rerank findings across axes, even though both land in one ledger.

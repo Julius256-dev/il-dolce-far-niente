@@ -1,5 +1,7 @@
 # Issue tracker: GitLab
 
+Reference for `/onboard`: when `tracker.kind` in `blueprint/config.json` is `gitlab`, `/onboard` writes this content (with the flags below set) to `blueprint/context/tracker.md`, the tracker doc the `mp-*` skills and `/plan-graph` read.
+
 Issues and specs for this repo live as GitLab issues. Use the [`glab`](https://gitlab.com/gitlab-org/cli) CLI for all operations.
 
 ## Conventions

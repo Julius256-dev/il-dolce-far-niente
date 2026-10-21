@@ -1,13 +1,17 @@
 ---
 name: mp-domain-modeling
-description: Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a GLOSSARY.md, or recording or editing an ADR.
+description: Build and sharpen a project's domain model, challenging fuzzy terms and writing glossary entries and ADRs as decisions land. Use when discussing codebase terminology, writing or editing a GLOSSARY.md, or recording or editing an ADR.
 ---
 
 # Domain Modeling
 
+**Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
+
 Actively build and sharpen the project's domain model as you design. This is the *active* discipline: challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `GLOSSARY.md` for vocabulary is not this skill: that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
 
 ## File structure
+
+The root glossary and ADR folder come from `domainDocs` in `blueprint/config.json` (defaults `GLOSSARY.md` and `docs/adr`). The trees below show the defaults; substitute the configured paths.
 
 Most repos have a single context:
 

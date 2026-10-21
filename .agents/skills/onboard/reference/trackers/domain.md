@@ -1,6 +1,6 @@
 # Domain Docs
 
-How the engineering skills should consume this repo's domain documentation when exploring the codebase.
+Reference for `/onboard`: how the `mp-*` engineering skills consume a project's domain documentation when exploring the codebase. The locations come from `domainDocs` in `blueprint/config.json` (defaults `GLOSSARY.md` and `docs/adr`); `/onboard` records any non-default paths there rather than copying this file.
 
 ## Before exploring, read these
 

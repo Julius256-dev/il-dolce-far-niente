@@ -1,11 +1,15 @@
 ---
 name: mp-triage
-description: Move issues and external PRs through a state machine of triage roles, categorise, verify, grill if needed, and write agent-ready briefs.
+description: Triage tracker issues and external PRs through a label state machine (bug/enhancement, needs-triage, needs-info, ready-for-agent, wontfix), verify claims, grill if needed, write agent briefs, and hand accepted bugs to /fix and enhancements to the build plan. Use only for /mp-triage.
 ---
 
 # Triage
 
+**Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
+
 Move issues on the project issue tracker through a small state machine of triage roles.
+
+For the tracker, read `tracker` (and `tracker.labels`) in `blueprint/config.json` and the tracker doc it names (default `blueprint/context/tracker.md`). If either is missing, use the local-files tracker (`blueprint/tickets/`) and suggest `/onboard`.
 
 If this repo treats external pull requests as a request surface (see the issue-tracker config), triage covers them too: **a PR is an issue with attached code**, using the same roles, same states, and same machine, with a few deltas marked "for a PR" below. Resolve a bare `#42` to an issue or PR per the tracker config.
 
@@ -39,7 +43,7 @@ For a PR, the same states read against the attached code: `ready-for-agent` mean
 
 Every triaged issue should carry exactly one category role and one state role. If state roles conflict, flag it and ask the maintainer before doing anything else.
 
-These are canonical role names. The actual label strings used in the issue tracker may differ. The mapping should have been provided to you. If not, tell the user to run `/onboard`.
+These are canonical role names. The actual label strings used in the issue tracker may differ: use the string mapped to each role in `tracker.labels` (a missing key means the canonical name).
 
 State transitions: an unlabeled issue normally goes to `needs-triage` first; from there it moves to `needs-info`, `ready-for-agent`, `ready-for-human`, or `wontfix`. `needs-info` returns to `needs-triage` once the reporter replies. The maintainer can override at any time; flag transitions that look unusual and ask before proceeding.
 
@@ -66,7 +70,7 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 
 ## Triage a specific issue or PR
 
-1. **Gather context.** Read the full issue or PR (body, comments, labels, author, dates; for a PR, the diff too). Parse any prior triage notes so you don't re-ask resolved questions. Explore the codebase using the project's domain glossary, respecting ADRs in the area. Run two checks against the codebase: (a) **redundancy**: search for an existing implementation of the requested behavior by domain concept (not just the request's wording), and report where you looked. If found, it's an already-implemented `wontfix` (step 5). (b) **prior rejection**: read `.out-of-scope/*.md` and surface any that resembles this request.
+1. **Gather context.** Read the full issue or PR (body, comments, labels, author, dates; for a PR, the diff too). Parse any prior triage notes so you don't re-ask resolved questions. Explore the codebase using the project's domain glossary, respecting ADRs in the area (locations from `domainDocs` in `blueprint/config.json`; defaults `GLOSSARY.md` and `docs/adr`). Run two checks against the codebase: (a) **redundancy**: search for an existing implementation of the requested behavior by domain concept (not just the request's wording), and report where you looked. If found, it's an already-implemented `wontfix` (step 5). (b) **prior rejection**: read `.out-of-scope/*.md` and surface any that resembles this request.
 
 2. **Recommend.** Tell the maintainer your category and state recommendation with reasoning, plus a brief codebase summary relevant to the request (including whether it's already implemented). Wait for direction.
 
@@ -83,6 +87,11 @@ Show counts and a one-line summary per item. Let the maintainer pick.
      - **Rejected (bug)**: give a polite explanation, then close.
      - **Rejected (enhancement)**: write to `.out-of-scope/`, link to it from a comment, then close ([OUT-OF-SCOPE.md](OUT-OF-SCOPE.md)).
    - `needs-triage`: apply the role. Optional comment if there's partial progress.
+
+6. **Hand off into Blueprint.** Triage never builds. Once an issue is accepted (`ready-for-agent` or `ready-for-human`):
+   - **Bug**: hand it to `/fix` (quote the issue reference and the confirmed reproduction from step 3), which writes the fix spec.
+   - **Enhancement**: propose it as a build-plan item following `/feature`'s plan-addition behavior (duplicate search, one checkbox line and its placement in `blueprint/build-plan.md`, written only after the maintainer approves). Its blocking edges can be added later with `/plan-graph`.
+   Tell the maintainer which command comes next; do not run it.
 
 ## Quick state override
 

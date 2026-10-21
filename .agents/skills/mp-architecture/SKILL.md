@@ -1,16 +1,19 @@
 ---
 name: mp-architecture
-description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
+description: Scan the codebase for architectural friction and deepening opportunities (shallow modules into deep ones), present them as a visual HTML report, then grill through the one you pick. Use only for /mp-architecture or a direct architecture-review request.
 ---
 
 # Improve Codebase Architecture
+
+**Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
 
 Surface architectural friction and propose **deepening opportunities**: refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.
 
 This command is _informed_ by the project's domain model and built on a shared design vocabulary:
 
 - Call the Skill tool with "mp-codebase-design" for the architecture vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) and its principles (the deletion test, "the interface is the test surface", "one adapter = hypothetical seam, two = real"). Use these terms exactly in every suggestion, and don't drift into "component," "service," "API," or "boundary."
-- The domain language in `GLOSSARY.md` gives names to good seams; ADRs in `docs/adr/` record decisions this command should not re-litigate.
+- The domain language in `GLOSSARY.md` gives names to good seams; ADRs in `docs/adr/` record decisions this command should not re-litigate. Both locations come from `domainDocs` in `blueprint/config.json` (defaults `GLOSSARY.md` and `docs/adr`).
+- Treat decisions recorded in the project's architecture documents and in `blueprint/context/project-overview.md` (stack, data model, boundaries) like ADRs: don't re-litigate them unless the friction is real.
 
 ## Process
 
@@ -52,7 +55,7 @@ End the report with a **Top recommendation** section: which candidate you'd tack
 
 **Use GLOSSARY.md vocabulary for the domain, and the `/mp-codebase-design` vocabulary for the architecture.** If `GLOSSARY.md` defines "Order," talk about "the Order intake module," not "the FooBarHandler," and not "the Order service."
 
-**ADR conflicts**: if a candidate contradicts an existing ADR, only surface it when the friction is real enough to warrant revisiting the ADR. Mark it clearly in the card (e.g. a warning callout: _"contradicts ADR-0007, but worth reopening because…"_). Don't list every theoretical refactor an ADR forbids.
+**ADR conflicts**: if a candidate contradicts an existing ADR (or a decision in the architecture documents or project overview), only surface it when the friction is real enough to warrant revisiting the ADR. Mark it clearly in the card (e.g. a warning callout: _"contradicts ADR-0007, but worth reopening because…"_). Don't list every theoretical refactor an ADR forbids.
 
 See [HTML-REPORT.md](HTML-REPORT.md) for the full HTML scaffold, diagram patterns, and styling guidance.
 
@@ -68,3 +71,12 @@ Side effects happen inline as decisions crystallize; call the Skill tool with "m
 - **Sharpening a fuzzy term during the conversation?** Update `GLOSSARY.md` right there.
 - **User rejects the candidate with a load-bearing reason?** Offer an ADR, framed as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Only offer when the reason would actually be needed by a future explorer to avoid re-suggesting the same thing; skip ephemeral reasons ("not worth it right now") and self-evident ones.
 - **Want to explore alternative interfaces for the deepened module?** Call the Skill tool with "mp-codebase-design" and use its design-it-twice parallel sub-agent pattern.
+
+### 4. Hand off into Blueprint
+
+This command changes no code. A candidate the user wants to act on becomes one of:
+
+- **A proposed build-plan item**, following `/feature`'s plan-addition behavior: search for a duplicate, propose one checkbox line and its placement in `blueprint/build-plan.md`, and write it only after the user approves. A wide refactor follows `/plan-graph`'s expand–contract sequencing.
+- **A P2 or P3 finding** in `blueprint/context/findings.md`, following the audit skill's Step 4 ledger contract (next sequential ID, status `open`), when the user wants it tracked but not planned yet.
+
+The user picks which; never do both silently.

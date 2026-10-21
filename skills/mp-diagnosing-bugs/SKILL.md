@@ -1,13 +1,25 @@
 ---
 name: mp-diagnosing-bugs
-description: Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow.
+description: Diagnosis discipline for hard bugs and performance regressions (tight red-capable feedback loop, minimise, ranked falsifiable hypotheses, tagged instrumentation, regression test). Use when a bug is hard to pin down, flaky, or slow, or when /debug or /fix needs a rigorous reproduction loop.
 ---
 
 # Diagnosing Bugs
 
+**Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
+
 A discipline for hard bugs. Skip phases only when explicitly justified.
 
-When exploring the codebase, read `GLOSSARY.md` (if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching.
+When exploring the codebase, read the glossary (if it exists) to get a clear mental model of the relevant modules, and check ADRs in the area you're touching. Their locations come from `domainDocs` in `blueprint/config.json` (defaults `GLOSSARY.md` and `docs/adr`).
+
+## Inside Blueprint's `/debug`
+
+`/debug` never edits code, tests, or configuration. When it loads this skill, run Phases 1–4 within that boundary and stop there:
+
+- Phase 1 builds the loop only from existing tests, commands, requests, scripts outside the project tree, or the HITL template; never by adding a test or fixture to the project.
+- Phase 4 uses debuggers, existing logs, and read-only probes, not new `[DEBUG-...]` log lines in project files.
+- Hand the evidence (the loop command and its redacted red output, the minimised repro, the ranked hypotheses and which probes confirmed or killed each) to `/fix` through `/debug`'s report.
+
+Phase 5 (regression test + fix) and Phase 6 (cleanup) happen later, inside `/fix` and `/implement`, which own code changes and their review gates.
 
 ## Redact
 
