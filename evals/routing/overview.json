@@ -1,0 +1,12 @@
+{
+  "skill": "overview",
+  "positive": [
+    { "prompt": "Run /overview", "top_k": 1 },
+    { "prompt": "Generate the AI-facing project overview from the project plan and build plan", "top_k": 3 },
+    { "prompt": "Normalize my two planning docs and refresh project-overview.md", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /feature and spec the next build-plan item", "owner": "feature" },
+    { "prompt": "Run /status and summarize current progress", "owner": "status" }
+  ]
+}

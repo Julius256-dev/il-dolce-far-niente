@@ -1,0 +1,12 @@
+{
+  "skill": "onboard",
+  "positive": [
+    { "prompt": "Run /onboard after installing Blueprint", "top_k": 1 },
+    { "prompt": "Finish configuring Blueprint in this freshly scaffolded project", "top_k": 3 },
+    { "prompt": "I just overlaid the workflow onto a new app, detect the stack and document its commands", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /adopt in this brownfield codebase with existing shipped features", "owner": "adopt" },
+    { "prompt": "Run /overview after I finish editing both planning documents", "owner": "overview" }
+  ]
+}
