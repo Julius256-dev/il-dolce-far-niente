@@ -1,0 +1,27 @@
+{
+  "name": "il-dolce-far-niente-workspace",
+  "private": true,
+  "type": "module",
+  "description": "Workspace for Il Dolce Far Niente: AI Blueprint + Matt Pocock skills with parallel /avengers builds.",
+  "license": "MIT",
+  "scripts": {
+    "sync:upstream": "tsx scripts/sync-upstream.ts",
+    "build:adapters": "tsx scripts/build-adapters.ts",
+    "check:static": "tsx scripts/validate.ts",
+    "test:routing": "tsx scripts/blueprint/evals/routing.ts --min-rank1 90",
+    "test:transform": "tsx --test scripts/sync-upstream.test.ts",
+    "test:hooks": "node --test .claude/hooks/block-remote-git.test.mjs",
+    "test": "npm --prefix packages/il-dolce-far-niente test",
+    "check": "npm run build:adapters -- --check && npm run check:static && npm run test:routing && npm run test:transform && npm run test:hooks && npm test",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@inquirer/checkbox": "^4.2.4",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^6.0.2"
+  }
+}

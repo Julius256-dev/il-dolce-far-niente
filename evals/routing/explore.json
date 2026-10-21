@@ -1,0 +1,15 @@
+{
+  "skill": "explore",
+  "positive": [
+    { "prompt": "Run /explore would caching help our dashboard?", "top_k": 1 },
+    { "prompt": "Explore this idea against the actual codebase and compare alternatives without changing files", "top_k": 1 },
+    { "prompt": "I'm considering an idea and want to weigh options and tradeoffs before deciding whether to plan anything", "top_k": 1 },
+    { "prompt": "Investigate whether a change would help; discuss uncertainty and the option of doing nothing", "top_k": 1 }
+  ],
+  "negative": [
+    { "prompt": "Preview the next build-plan feature and explain its scope, dependencies, and size", "owner": "brief" },
+    { "prompt": "Guide a deep product planning interview and draft project-plan.md and build-plan.md", "owner": "discovery" },
+    { "prompt": "Reproduce and diagnose the failing test to isolate the root cause of the regression", "owner": "debug" },
+    { "prompt": "Turn the next build-plan item into a buildable spec with done-when criteria", "owner": "feature" }
+  ]
+}

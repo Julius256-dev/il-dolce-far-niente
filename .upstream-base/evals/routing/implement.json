@@ -1,0 +1,12 @@
+{
+  "skill": "implement",
+  "positive": [
+    { "prompt": "Run /implement", "top_k": 1 },
+    { "prompt": "Build the approved current-feature spec one reviewable step at a time", "top_k": 3 },
+    { "prompt": "Start coding the current fix and run its tests after each step", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /check and observe whether the finished behavior works", "owner": "check" },
+    { "prompt": "Run /complete to archive and merge the finished work", "owner": "complete" }
+  ]
+}

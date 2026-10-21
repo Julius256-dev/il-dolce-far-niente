@@ -1,0 +1,12 @@
+{
+  "skill": "fix",
+  "positive": [
+    { "prompt": "Run /fix for the broken login redirect", "top_k": 1 },
+    { "prompt": "Document this unplanned bug as the current work item", "top_k": 3 },
+    { "prompt": "Write a short fix spec for this small change that is not in the build plan", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /feature for the next planned build item", "owner": "feature" },
+    { "prompt": "Run /audit and review the entire project for dead code", "owner": "audit" }
+  ]
+}

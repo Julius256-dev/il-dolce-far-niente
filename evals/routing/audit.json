@@ -1,0 +1,19 @@
+{
+  "skill": "audit",
+  "positive": [
+    { "prompt": "Run /audit current", "top_k": 1 },
+    { "prompt": "Run /audit independent current and prepare a fresh Claude reviewer handoff", "top_k": 1 },
+    { "prompt": "Run /audit security and inspect the changed authentication code", "top_k": 1 },
+    { "prompt": "Use $audit performance current to look for repeated queries and unbounded work", "top_k": 1 },
+    { "prompt": "Audit tests in src/auth for weak assertions, brittle mocks, and skipped coverage", "top_k": 3 },
+    { "prompt": "Run a focused quality audit on the changed files", "top_k": 3 },
+    { "prompt": "Review this code for duplication, dead code, and standards drift", "top_k": 3 },
+    { "prompt": "Do a code quality and security audit and record the findings", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /debug to find why the authentication request returns 500", "owner": "debug" },
+    { "prompt": "Run /check and prove every done-when against the running app", "owner": "check" },
+    { "prompt": "Run /implement to build the approved current spec", "owner": "implement" },
+    { "prompt": "Run /tests to add a unit test runner to this project", "owner": "tests" }
+  ]
+}

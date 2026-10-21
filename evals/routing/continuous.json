@@ -1,0 +1,12 @@
+{
+  "skill": "continuous",
+  "positive": [
+    { "prompt": "Run /continuous until the build plan is finished", "top_k": 1 },
+    { "prompt": "Build every remaining planned feature serially with one local branch and commit per feature", "top_k": 1 },
+    { "prompt": "Resume Continuous Mode and keep going through the unchecked roadmap without pushing", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /autopilot for only the current feature and stop before completion", "owner": "autopilot" },
+    { "prompt": "Run /feature for the next item and stop after writing its spec", "owner": "feature" }
+  ]
+}

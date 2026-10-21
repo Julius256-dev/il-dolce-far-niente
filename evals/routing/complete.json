@@ -1,0 +1,12 @@
+{
+  "skill": "complete",
+  "positive": [
+    { "prompt": "Run /complete for the current feature", "top_k": 1 },
+    { "prompt": "Wrap up this finished fix, archive its spec, and ask before merging", "top_k": 3 },
+    { "prompt": "Finish the feature with the final checks and squash merge its branch", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /release and check whether this app is ready for Render", "owner": "release" },
+    { "prompt": "Run /check and gather behavioral proof before completion", "owner": "check" }
+  ]
+}

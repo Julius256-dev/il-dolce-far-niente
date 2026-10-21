@@ -1,0 +1,9 @@
+node_modules/
+.sandbox/
+packages/il-dolce-far-niente/dist/
+packages/il-dolce-far-niente/template/
+scripts/blueprint/e2e/runs/
+blueprint/.state/run.json
+.worktrees/
+*.log
+.DS_Store
