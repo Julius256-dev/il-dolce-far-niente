@@ -54,7 +54,11 @@ user's project.
 
 ## Config additions (`blueprint/config.json`)
 
-All new keys are optional; a missing key means the default shown.
+All new keys are optional; a missing key means the default shown, except
+`models.roles` and `models.effort`: a role missing there falls through to
+`subagentDefault`, then the agent file's `model`, then `inherit` (see
+`skills/models/reference/resolution.md`). The template config lists every role
+explicitly, so new projects get the team defaults below.
 
 ```json
 {
