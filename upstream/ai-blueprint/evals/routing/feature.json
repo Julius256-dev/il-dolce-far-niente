@@ -1,0 +1,13 @@
+{
+  "skill": "feature",
+  "positive": [
+    { "prompt": "Run /feature 4", "top_k": 1 },
+    { "prompt": "Turn the next build-plan item into a detailed buildable spec", "top_k": 3 },
+    { "prompt": "Spec out this new feature with small steps and clear done-when criteria", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /brief 4 and explain the feature before we spec it", "owner": "brief" },
+    { "prompt": "Run /fix for this unplanned greeting bug", "owner": "fix" },
+    { "prompt": "Explore an idea against the codebase and compare alternatives without writing files or a spec", "owner": "explore" }
+  ]
+}

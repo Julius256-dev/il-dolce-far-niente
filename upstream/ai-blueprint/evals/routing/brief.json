@@ -1,0 +1,13 @@
+{
+  "skill": "brief",
+  "positive": [
+    { "prompt": "Run /brief 3", "top_k": 1 },
+    { "prompt": "Preview the next build-plan feature before we write its spec", "top_k": 3 },
+    { "prompt": "Explain this upcoming feature's scope, dependencies, and size without changing files", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /feature 3 and write the buildable spec", "owner": "feature" },
+    { "prompt": "Run /status and tell me what is currently in progress", "owner": "status" },
+    { "prompt": "Explore an idea against the codebase and compare alternatives without writing files or a spec", "owner": "explore" }
+  ]
+}

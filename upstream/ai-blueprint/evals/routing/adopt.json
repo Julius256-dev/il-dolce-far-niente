@@ -1,0 +1,12 @@
+{
+  "skill": "adopt",
+  "positive": [
+    { "prompt": "Run /adopt in this repository", "top_k": 1 },
+    { "prompt": "Bring the Blueprint workflow into this existing mature codebase", "top_k": 3 },
+    { "prompt": "Bootstrap Blueprint plans and standards for a brownfield app with shipped features", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /onboard after overlaying Blueprint onto this freshly scaffolded app", "owner": "onboard" },
+    { "prompt": "Set up Blueprint in this new early project and document its commands", "owner": "onboard" }
+  ]
+}
