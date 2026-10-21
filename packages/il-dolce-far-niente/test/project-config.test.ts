@@ -7,6 +7,7 @@ import test, { type TestContext } from "node:test";
 import {
   PROJECT_CONFIG_PATH,
   createDefaultProjectConfig,
+  parseLocalProjectConfig,
   parseProjectConfig,
   readProjectConfig
 } from "../lib/project-config.js";
@@ -252,21 +253,8 @@ test("Il Dolce Far Niente keys default to the documented values", () => {
   assert.deepEqual(defaults.models, {
     main: "claude-opus-5-5",
     subagentDefault: "claude-sonnet-5-5",
-    roles: {
-      planner: "claude-opus-5-5",
-      "reviewer-lens": "claude-opus-5-5",
-      "reviewer-standards": "claude-opus-5-5",
-      "reviewer-spec": "claude-opus-5-5",
-      implementer: "claude-sonnet-5-5",
-      merger: "claude-sonnet-5-5",
-      explorer: "claude-sonnet-5-5"
-    },
-    effort: {
-      planner: "medium",
-      "reviewer-lens": "medium",
-      "reviewer-standards": "medium",
-      "reviewer-spec": "medium"
-    },
+    roles: {},
+    effort: {},
     reviewerMustDiffer: true
   });
 
@@ -323,14 +311,12 @@ test("Il Dolce Far Niente keys accept every documented value", () => {
   assert.equal(config.models.roles.implementer, "haiku");
   assert.equal(config.models.roles.explorer, "claude-haiku-4-5");
   assert.equal(config.models.roles.merger, "best");
-  assert.equal(config.models.roles.planner, "claude-opus-5-5");
-  assert.deepEqual(config.models.effort, {
-    planner: "xhigh",
-    implementer: "low",
-    "reviewer-lens": "medium",
-    "reviewer-standards": "medium",
-    "reviewer-spec": "medium"
+  assert.deepEqual(config.models.roles, {
+    implementer: "haiku",
+    merger: "best",
+    explorer: "claude-haiku-4-5"
   });
+  assert.deepEqual(config.models.effort, { planner: "xhigh", implementer: "low" });
   assert.equal(config.models.reviewerMustDiffer, false);
 
   for (const profile of ["client-delivery", "product", "restricted", "custom"]) {
@@ -462,3 +448,73 @@ async function writeConfig(projectRoot: string, value: unknown): Promise<void> {
   await fs.mkdir(path.dirname(configPath), { recursive: true });
   await fs.writeFile(configPath, `${JSON.stringify(value, null, 2)}\n`);
 }
+
+test("models leaves unlisted roles and effort empty so lower layers apply", () => {
+  const partial = parseProjectConfig({
+    schemaVersion: 1,
+    models: { roles: { implementer: "claude-sonnet-5-5" }, effort: { planner: "high" } }
+  });
+  assert.deepEqual(partial.models.roles, { implementer: "claude-sonnet-5-5" });
+  assert.deepEqual(partial.models.effort, { planner: "high" });
+  assert.equal(partial.models.roles.planner, undefined);
+
+  // The restricted profile writes "effort": {} to mean "pass no effort".
+  const restricted = parseProjectConfig({
+    schemaVersion: 1,
+    models: { main: "inherit", subagentDefault: "inherit", effort: {} }
+  });
+  assert.deepEqual(restricted.models.effort, {});
+  assert.deepEqual(restricted.models.roles, {});
+  assert.equal(restricted.models.main, "inherit");
+  assert.equal(restricted.models.subagentDefault, "inherit");
+  assert.equal(restricted.models.reviewerMustDiffer, true);
+});
+
+test("parseLocalProjectConfig returns only the keys the file names", () => {
+  assert.deepEqual(parseLocalProjectConfig({}), {});
+  assert.deepEqual(
+    parseLocalProjectConfig({
+      models: {
+        main: "opus[1m]",
+        roles: { implementer: "claude-haiku-4-5" },
+        effort: {},
+        reviewerMustDiffer: false
+      },
+      avengers: { maxConcurrent: 2 }
+    }),
+    {
+      models: {
+        main: "opus[1m]",
+        roles: { implementer: "claude-haiku-4-5" },
+        effort: {},
+        reviewerMustDiffer: false
+      },
+      avengers: { maxConcurrent: 2 }
+    }
+  );
+  assert.deepEqual(parseLocalProjectConfig({ models: { subagentDefault: "inherit" } }), {
+    models: { subagentDefault: "inherit" }
+  });
+});
+
+test("parseLocalProjectConfig rejects keys outside models and avengers.maxConcurrent", () => {
+  const cases: Array<[unknown, RegExp]> = [
+    [[], /local config must be an object/],
+    [{ schemaVersion: 1 }, /local config contains unknown key: schemaVersion/],
+    [{ qualityGates: {} }, /local config contains unknown key: qualityGates/],
+    [{ git: { landing: "local-merge" } }, /local config contains unknown key: git/],
+    [{ avengers: { specApproval: "each" } }, /avengers contains unknown key: specApproval/],
+    [{ avengers: { maxConcurrent: 9 } }, /avengers\.maxConcurrent must be an integer from 1 through 8/],
+    [{ avengers: "fast" }, /avengers must be an object/],
+    [{ models: { fallback: "opus" } }, /models contains unknown key: fallback/],
+    [{ models: { main: "gpt-5" } }, /models\.main must be inherit/],
+    [{ models: { roles: { designer: "opus" } } }, /models\.roles contains unknown key: designer/],
+    [{ models: { roles: { planner: "gpt-5" } } }, /models\.roles\.planner must be inherit/],
+    [{ models: { effort: { planner: "extreme" } } }, /models\.effort\.planner must be one of/],
+    [{ models: { reviewerMustDiffer: "no" } }, /models\.reviewerMustDiffer must be true or false/]
+  ];
+
+  for (const [value, pattern] of cases) {
+    assert.throws(() => parseLocalProjectConfig(value), pattern);
+  }
+});

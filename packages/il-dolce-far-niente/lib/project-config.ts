@@ -5,6 +5,7 @@ import path from "node:path";
 // normalizes the separator for filesystem reads, so this must not be built with
 // path.join or Windows would surface "blueprint\config.json" to users.
 const PROJECT_CONFIG_PATH = "blueprint/config.json";
+const LOCAL_PROJECT_CONFIG_PATH = "blueprint/config.local.json";
 const PROJECT_CONFIG_SCHEMA_VERSION = 1 as const;
 
 type StepReviewPolicy = "every" | "feature";
@@ -150,9 +151,28 @@ interface ProjectConfig {
   models: {
     main: string;
     subagentDefault: string;
-    roles: Record<ModelRole, string>;
+    // Only roles the file names. A missing role falls through to the lower
+    // layers in skills/models/reference/resolution.md (subagentDefault, the
+    // agent file, inherit), so the parser must not invent per-role values.
+    roles: Partial<Record<ModelRole, string>>;
     effort: Partial<Record<ModelRole, ModelEffort>>;
     reviewerMustDiffer: boolean;
+  };
+}
+
+// Personal, Git-ignored overrides (blueprint/config.local.json). Every key is
+// optional and only what the file names is returned, so callers can layer it
+// over the team config without the parser filling in defaults.
+interface LocalProjectConfig {
+  models?: {
+    main?: string;
+    subagentDefault?: string;
+    roles?: Partial<Record<ModelRole, string>>;
+    effort?: Partial<Record<ModelRole, ModelEffort>>;
+    reviewerMustDiffer?: boolean;
+  };
+  avengers?: {
+    maxConcurrent?: number;
   };
 }
 
@@ -237,21 +257,8 @@ function createDefaultProjectConfig(): ProjectConfig {
     models: {
       main: "claude-opus-5-5",
       subagentDefault: "claude-sonnet-5-5",
-      roles: {
-        planner: "claude-opus-5-5",
-        "reviewer-lens": "claude-opus-5-5",
-        "reviewer-standards": "claude-opus-5-5",
-        "reviewer-spec": "claude-opus-5-5",
-        implementer: "claude-sonnet-5-5",
-        merger: "claude-sonnet-5-5",
-        explorer: "claude-sonnet-5-5"
-      },
-      effort: {
-        planner: "medium",
-        "reviewer-lens": "medium",
-        "reviewer-standards": "medium",
-        "reviewer-spec": "medium"
-      },
+      roles: {},
+      effort: {},
       reviewerMustDiffer: true
     }
   };
@@ -587,13 +594,8 @@ function parseProjectConfig(value: unknown): ProjectConfig {
         defaults.models.subagentDefault,
         "models.subagentDefault"
       ),
-      roles: Object.fromEntries(
-        MODEL_ROLES.map((role) => [
-          role,
-          optionalModel(modelRoles[role], defaults.models.roles[role], `models.roles.${role}`)
-        ])
-      ) as Record<ModelRole, string>,
-      effort: parseModelEffort(modelEffort, defaults.models.effort),
+      roles: parseModelRoles(modelRoles),
+      effort: parseModelEffort(modelEffort),
       reviewerMustDiffer: optionalBoolean(
         models.reviewerMustDiffer,
         defaults.models.reviewerMustDiffer,
@@ -603,26 +605,86 @@ function parseProjectConfig(value: unknown): ProjectConfig {
   };
 }
 
-function parseModelEffort(
-  value: Record<string, unknown>,
-  defaults: Partial<Record<ModelRole, ModelEffort>>
-): Partial<Record<ModelRole, ModelEffort>> {
+function parseModelRoles(value: Record<string, unknown>): Partial<Record<ModelRole, string>> {
+  const roles: Partial<Record<ModelRole, string>> = {};
+
+  for (const role of MODEL_ROLES) {
+    if (value[role] !== undefined) {
+      roles[role] = optionalModel(value[role], "inherit", `models.roles.${role}`);
+    }
+  }
+
+  return roles;
+}
+
+function parseModelEffort(value: Record<string, unknown>): Partial<Record<ModelRole, ModelEffort>> {
   const effort: Partial<Record<ModelRole, ModelEffort>> = {};
 
   for (const role of MODEL_ROLES) {
-    const fallback = defaults[role];
-
-    if (value[role] === undefined && fallback === undefined) {
-      continue;
+    if (value[role] !== undefined) {
+      effort[role] = optionalEnum(value[role], MODEL_EFFORTS, "medium", `models.effort.${role}`);
     }
-
-    effort[role] =
-      value[role] === undefined
-        ? fallback
-        : optionalEnum(value[role], MODEL_EFFORTS, "medium", `models.effort.${role}`);
   }
 
   return effort;
+}
+
+function parseLocalProjectConfig(value: unknown): LocalProjectConfig {
+  const root = requireRecord(value, "local config");
+  assertKnownKeys(root, ["models", "avengers"], "local config");
+
+  const local: LocalProjectConfig = {};
+
+  if (root.avengers !== undefined) {
+    const avengers = requireRecord(root.avengers, "avengers");
+    assertKnownKeys(avengers, ["maxConcurrent"], "avengers");
+    local.avengers = {};
+
+    if (avengers.maxConcurrent !== undefined) {
+      local.avengers.maxConcurrent = optionalBoundedInteger(
+        avengers.maxConcurrent,
+        1,
+        "avengers.maxConcurrent",
+        1,
+        8
+      );
+    }
+  }
+
+  if (root.models !== undefined) {
+    const models = requireRecord(root.models, "models");
+    assertKnownKeys(
+      models,
+      ["main", "subagentDefault", "roles", "effort", "reviewerMustDiffer"],
+      "models"
+    );
+    local.models = {};
+
+    for (const key of ["main", "subagentDefault"] as const) {
+      if (models[key] !== undefined) {
+        local.models[key] = optionalModel(models[key], "inherit", `models.${key}`);
+      }
+    }
+    if (models.roles !== undefined) {
+      const roles = requireRecord(models.roles, "models.roles");
+      assertKnownKeys(roles, MODEL_ROLES, "models.roles");
+      local.models.roles = parseModelRoles(roles);
+    }
+    if (models.effort !== undefined) {
+      const effort = requireRecord(models.effort, "models.effort");
+      assertKnownKeys(effort, MODEL_ROLES, "models.effort");
+      local.models.effort = parseModelEffort(effort);
+    }
+    if (models.reviewerMustDiffer !== undefined) {
+      local.models.reviewerMustDiffer = optionalBoolean(
+        models.reviewerMustDiffer,
+        true,
+        "models.reviewerMustDiffer"
+      );
+    }
+  }
+
+  return local;
 }
 
 function isValidModel(value: string): boolean {
@@ -858,9 +920,11 @@ function getErrorCode(error: unknown): string | undefined {
 }
 
 export {
+  LOCAL_PROJECT_CONFIG_PATH,
   PROJECT_CONFIG_PATH,
   PROJECT_CONFIG_SCHEMA_VERSION,
   createDefaultProjectConfig,
+  parseLocalProjectConfig,
   parseProjectConfig,
   readProjectConfig
 };
@@ -879,6 +943,7 @@ export type {
   IndependentReviewGatePolicy,
   IndependentReviewExecution,
   LandingPolicy,
+  LocalProjectConfig,
   LogicTestPolicy,
   ProjectConfig,
   ProjectConfigResult,
