@@ -11,7 +11,7 @@ exact order, so the same configuration always gives the same answer.
 | `main` | the session you talk to (applied with `/model`, not per call) |
 | `planner` | spec drafting in `/avengers` |
 | `implementer` | building and repairs |
-| `merger` | landing features on the integration branch |
+| `merger` | resolving a conflicted landing in `/avengers` |
 | `reviewer-lens` | Blueprint independent review (Phase B) |
 | `reviewer-standards` | Standards axis (`mp-code-review`) |
 | `reviewer-spec` | Spec axis (`mp-code-review`) |

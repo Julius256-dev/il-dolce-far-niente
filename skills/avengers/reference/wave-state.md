@@ -1,12 +1,13 @@
 # Wave state record
 
 `/avengers` keeps one generated, Git-ignored record of the active wave at
-`blueprint/.state/avengers.json`. It lets `/avengers resume` and `/status` find
-the wave's worktrees after a cleared context. Git stays the source of truth: on
-resume, every claim here is checked against branches, worktrees and commits.
+`blueprint/.state/avengers.json` in the main checkout. It lets `/avengers resume`
+and `/status` find the wave's worktrees after a cleared context. Git stays the
+source of truth: `avengers.mjs status` checks every claim here against branches,
+worktrees and commits.
 
-Write it atomically (write a temporary file in the same folder, then rename).
-Never put secrets, prompts, raw logs or user content in it.
+Only `scripts/avengers.mjs` and `scripts/land.mjs` write it, atomically. Never
+edit it by hand, and never put secrets, prompts, raw logs or user content in it.
 
 ```json
 {
@@ -16,25 +17,24 @@ Never put secrets, prompts, raw logs or user content in it.
   "defaultBranch": "main",
   "startCommit": "<full SHA of the default branch when the wave started>",
   "integrationBranch": "wave/3",
-  "integrationWorktree": "../.worktrees/shop-wave-3",
+  "integrationWorktree": "/abs/path/.worktrees/shop-wave-3",
+  "portBase": 4100,
+  "verifyCommand": "npm run verify",
   "startedAt": "<ISO-8601>",
   "updatedAt": "<ISO-8601>",
   "models": {
-    "planner": { "model": "claude-opus-5-5", "effort": "medium" },
-    "implementer": { "model": "claude-sonnet-5-5" },
-    "merger": { "model": "claude-sonnet-5-5" },
-    "reviewer-lens": { "model": "claude-opus-5-5", "effort": "medium" },
-    "reviewer-standards": { "model": "claude-opus-5-5", "effort": "medium" },
-    "reviewer-spec": { "model": "claude-opus-5-5", "effort": "medium" }
+    "planner": { "model": "claude-opus-5-5", "family": "opus", "effort": "medium" },
+    "implementer": { "model": "claude-sonnet-5-5", "family": "sonnet", "effort": null }
   },
   "items": [
     {
       "id": "4",
       "title": "Export reports",
       "branch": "feature/export-reports",
-      "worktree": "../.worktrees/shop-export-reports",
+      "worktree": "/abs/path/.worktrees/shop-export-reports",
       "port": 4101,
       "forkPoint": "<full SHA of the integration tip this branch was created from>",
+      "buildAttempt": 1,
       "status": "reviewing",
       "repairAttempts": 0,
       "reviewTarget": "<full SHA>",
@@ -55,4 +55,6 @@ Never put secrets, prompts, raw logs or user content in it.
 `dropped`. A `dropped` item records the exact decision it waits for in
 `question`; a `blocked` item records why in `blockedReason`.
 
-Delete the record after the wave lands and its worktrees are removed.
+Per-item scratch (reviewer JSON, the try guide) lives in
+`blueprint/.state/avengers/` inside each worktree; it is Git-ignored and removed
+with the worktree. `avengers.mjs close` deletes the record after the wave lands.

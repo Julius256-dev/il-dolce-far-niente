@@ -62,7 +62,7 @@ completion path.
 
 <!-- ext:begin idfn-wave-merge -->
 Il Dolce Far Niente adds a third schema 2 `landing` value, `wave-merge`, written
-only by an `/avengers` merger. Its `baseRef` is the wave's integration branch
+only by an `/avengers` landing (`land.mjs`). Its `baseRef` is the wave's integration branch
 (`refs/heads/<avengers.integrationBranchPrefix><n>`) and its `baseCommit` is the
 item's fork point, an ancestor of the work branch. Prove a `wave-merge` archive
 exactly like a schema 2 `pull-request` archive: one unique squash commit with a

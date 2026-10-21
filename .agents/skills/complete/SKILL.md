@@ -325,8 +325,10 @@ and tests, must pass first.
 Follow only the configured path.
 
 <!-- ext:begin idfn-wave-merge -->
-An `/avengers` merger records `landing: wave-merge` and stops after Step 2: it
-squash-merges the work commit onto the wave's integration branch itself. See
+An `/avengers` landing (its `land.mjs` script) records `landing: wave-merge`
+and stops after Step 2: it squash-merges the work commit onto the wave's
+integration branch itself. Open, fixed and unverified findings stay in the live
+ledger and travel with the squash, exactly as Step 1 requires. See
 `reference/completion-recovery.md` for how `wave-merge` archives are proven.
 <!-- ext:end idfn-wave-merge -->
 

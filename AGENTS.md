@@ -306,7 +306,8 @@ publishes, sends, or performs destructive actions.
 Optional explicit-only skill: `avengers` builds the build plan's current
 frontier in parallel. Each item gets its own worktree, planner, implementer and
 fresh reviewers (Blueprint's lens review plus Matt Pocock's standards and spec
-axes), and a merger lands passing items one at a time on an integration branch.
+axes); a landing script archives and lands passing items one at a time on an
+integration branch, and a merger agent steps in only for conflicts.
 It stops for spec approval and again before the wave touches the default
 branch. It never pushes, deploys, publishes, or performs destructive actions.
 <!-- ext:end idfn-avengers -->

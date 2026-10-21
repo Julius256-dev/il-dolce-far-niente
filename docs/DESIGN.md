@@ -147,10 +147,10 @@ suffixes; `avengers` reads them. Cycles are invalid.
 | --- | --- | --- | --- |
 | planner | `.claude/agents/planner.md` | Opus 5.5, medium | specs in its worktree |
 | implementer | `.claude/agents/implementer.md` | Sonnet 5.5 | code, tests, spec checkboxes in its worktree |
-| merger | `.claude/agents/merger.md` | Sonnet 5.5 | the feature's `/complete` work commit, then the integration branch |
+| merger | `.claude/agents/merger.md` | Sonnet 5.5 | a merge of the wave into a feature branch, only after a conflicted landing |
 | reviewer-lens | `.claude/agents/reviewer-lens.md` | Opus 5.5, medium | `findings.md`, `review.md` |
-| reviewer-standards | `.claude/agents/reviewer-standards.md` | Opus 5.5, medium | nothing; returns new findings and verdicts on `fixed` ones |
-| reviewer-spec | `.claude/agents/reviewer-spec.md` | Opus 5.5, medium | nothing; returns new findings and verdicts on `fixed` ones |
+| reviewer-standards | `.claude/agents/reviewer-standards.md` | Opus 5.5, medium | `blueprint/.state/avengers/review-standards.json` only |
+| reviewer-spec | `.claude/agents/reviewer-spec.md` | Opus 5.5, medium | `blueprint/.state/avengers/review-spec.json` only |
 | explorer | `.claude/agents/explorer.md` | Sonnet 5.5 | `blueprint/research/` only |
 
 Orchestrators resolve each role with `skills/models/scripts/resolve.mjs` and pass
@@ -160,21 +160,46 @@ only accepts families); the agent file's `model` is a lower-precedence fallback.
 ## Landing a wave item
 
 1. The item is reviewed against its own diff: base = its fork point on the
-   integration branch, target = its review checkpoint.
-2. The merger applies `/complete` Steps 0–2 on the feature branch while the
-   review is current, recording `landing: wave-merge`, `baseRef` = the
-   integration branch and `baseCommit` = the fork point. Live evidence is
-   archived and reset, so no ledger travels between items.
-3. The merger squash-merges the work commit onto the integration branch (one
-   parent), resolving only build-plan ticks and additive conflicts, and reruns
-   Verify. Any other conflict sends the item back for rework and full re-review.
-4. A `wave-merge` archive is proven like a schema 2 pull-request archive. The
+   integration branch, target = its review checkpoint
+   (`avengers.mjs checkpoint`).
+2. `land.mjs` applies `/complete` Steps 0–2 on the feature branch while the
+   review is current: the safety pass (spec, steps, findings, receipt freshness,
+   Verify), the source-tree capture and annotation with `landing: wave-merge`,
+   `baseRef` = the integration branch and `baseCommit` = the fork point, the
+   archive with resolved findings, receipt and try guide, the plan tick and its
+   parent, the overview fingerprint, and the canonical stubs. Open, fixed and
+   unverified findings stay in the ledger, as `/complete` requires.
+3. It squash-merges the work commit onto the integration branch (one parent),
+   resolving the bookkeeping files deterministically: build-plan ticks are
+   unioned, ledgers are unioned by finding ID (a new entry whose bare ID is
+   taken gets the next free ID and a `landed from` note on its **Found** line),
+   and the fingerprint is recomputed. It then reruns Verify and proves the tip
+   carries the archive unchanged.
+4. Any other conflict, or a failed Verify, restores both branches to their state
+   before the run. The orchestrator hands a conflict to the merger agent, which
+   merges the wave into the feature branch; the item is then reviewed again in
+   full before it lands.
+5. A `wave-merge` archive is proven like a schema 2 pull-request archive. The
    wave reaches the default branch by fast-forward or a non-squash merge, so the
-   proof survives.
-5. Cross-item effects are covered by Verify after every landing and the
-   wave-wide integration audit. No subagent may push, merge to the
-default branch, publish or deploy; `.claude/hooks/block-remote-git.mjs` enforces
-this for every role.
+   proof survives. Cross-item effects are covered by Verify after every landing
+   and the wave-wide integration audit. No subagent may push, merge to the
+   default branch, publish or deploy; `.claude/hooks/block-remote-git.mjs`
+   enforces this for every role.
+
+## Keeping usage low
+
+Cost is dominated by how many turns the orchestrator takes and how much context
+each turn re-reads. So:
+
+- **Scripts do the bookkeeping.** `avengers.mjs` (preflight, setup, state,
+  verify, checkpoint, findings, record, gate, status) and `land.mjs` turn each
+  multi-step job into one call with a compact JSON answer.
+- **The orchestrator loads no other workflow skill.** Agents read the skill
+  they apply; the orchestrator passes paths, IDs and SHAs.
+- **Agents start without `AGENTS.md`.** Every subagent sets `omitClaudeMd: true`
+  and its page lists the files its role reads; reviewers and the implementer
+  preload only the discipline they use (`mp-code-review`, `mp-tdd`).
+- **No agent for the happy path of landing.** The merger runs only on conflict.
 
 ## Upstream sync
 
