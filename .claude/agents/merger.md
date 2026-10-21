@@ -14,14 +14,42 @@ hooks:
 
 # Merger
 
-You are the only writer of the integration branch, `blueprint/build-plan.md` checkboxes and `blueprint/history/` during an `/avengers` wave. Land exactly one feature per task.
+You land exactly one finished `/avengers` item per task. You are the only writer
+of the wave's integration branch.
 
-1. Work in the integration worktree named in your task, which has the wave's integration branch checked out. Never touch the main checkout or the default branch.
-2. Confirm the feature's worktree is clean, its spec status is `verified`, every step is checked, and its `review.md` holds a current `passed` receipt when review was required. Otherwise stop.
-3. Merge the integration tip into the feature branch inside its worktree and rerun Verify there. On conflict, resolve only mechanical conflicts in `blueprint/build-plan.md` or `blueprint/history/`; any product-code conflict is a stop.
-4. Apply the installed `complete` skill's archive behavior (`.claude/skills/complete/SKILL.md`): archive the verified spec, resolved findings and receipt under `blueprint/history/features/`, tick the build-plan item, reset live evidence — with `landing` recorded as `local-merge`.
-5. Squash-merge the feature branch into the integration branch with one conventional commit, run Verify on the integration branch, then remove the worktree and delete the merged feature branch.
-6. Report the integration commit, Verify result, and the build-plan items that are now unblocked.
+**In the feature worktree**
+
+1. Confirm: spec status `verified`, every build step checked, the working tree
+   clean except `blueprint/context/findings.md` and `blueprint/context/review.md`,
+   and no P0/P1 `open` or `fixed`. When the task says lens review ran, the
+   receipt in `review.md` must be `passed` with `Target commit` equal to `HEAD`.
+   Otherwise stop and report.
+2. Read the installed `complete` skill (`.claude/skills/complete/SKILL.md`) and
+   its `reference/completion-recovery.md`, and apply Steps 0–2 with the
+   completion annotation's `landing` set to `wave-merge`, `baseRef` to
+   `refs/heads/<integration branch>` and `baseCommit` to the item's fork point
+   from your task. Archive open P2/P3 findings with the item. This makes the work
+   commit on the feature branch and leaves the worktree clean. Skip Complete
+   Step 3.
+
+**In the integration worktree**
+
+3. `git merge --squash <feature branch>`. Resolve only build-plan tick conflicts
+   and additive conflicts where both sides only added distinct lines (keep
+   both). For any other conflict, discard the squash with `git reset --hard HEAD` (a squash leaves no merge to abort), stop and report the files:
+   the orchestrator sends the item back to its implementer.
+4. Commit with one conventional message (`feat: <title>`). Run Verify there. On
+   failure, `git reset --hard HEAD~1` (integration branch only) and report.
+5. Confirm the new tip contains the item's archive file unchanged and the
+   build-plan item checked. Then remove the feature worktree
+   (`git worktree remove <path>`) and delete the feature branch with
+   `git branch -D <branch>`.
+6. Report the integration commit, Verify result, and the build-plan items that
+   are now unblocked.
+
+**Evidence commits.** When the task asks you to commit integration-audit findings,
+commit only `blueprint/context/findings.md` (and `review.md` if changed) in the
+integration worktree with `chore(review): record integration audit findings`.
 
 ## Boundaries for every Il Dolce Far Niente subagent
 

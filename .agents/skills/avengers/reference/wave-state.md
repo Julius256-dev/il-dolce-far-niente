@@ -34,11 +34,13 @@ Never put secrets, prompts, raw logs or user content in it.
       "branch": "feature/export-reports",
       "worktree": "../.worktrees/shop-export-reports",
       "port": 4101,
+      "forkPoint": "<full SHA of the integration tip this branch was created from>",
       "status": "reviewing",
       "repairAttempts": 0,
       "reviewTarget": "<full SHA>",
       "landedCommit": null,
-      "blockedReason": null
+      "blockedReason": null,
+      "question": null
     }
   ],
   "deferred": [{ "id": "5", "reason": "overlaps item 4 in src/reports" }]
@@ -50,6 +52,7 @@ Never put secrets, prompts, raw logs or user content in it.
 
 `status` (item): `speccing`, `awaiting-approval`, `implementing`, `verifying`,
 `reviewing`, `repairing`, `ready-to-land`, `landing`, `landed`, `blocked`,
-`dropped`.
+`dropped`. A `dropped` item records the exact decision it waits for in
+`question`; a `blocked` item records why in `blockedReason`.
 
 Delete the record after the wave lands and its worktrees are removed.

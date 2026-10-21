@@ -53,8 +53,8 @@ state.
    and note if a parent item was split into sub-items (`4a`, `4b`, ...).
    <!-- ext:begin idfn-frontier -->
    When any leaf carries an `_(after: …)_` dependency suffix, also report the
-   **frontier**: unchecked leaves whose named blockers are all checked (or
-   `_(after: none)_`). When `blueprint/.state/avengers.json` exists, report the
+   **frontier**: unchecked leaves whose named blockers are all checked, that say
+   `_(after: none)_`, or that have no suffix and no unchecked leaf before them. When `blueprint/.state/avengers.json` exists, report the
    active wave: its integration branch and each item's status. Suggest
    `/avengers resume` for an unfinished wave, or `/avengers` when two or more
    frontier items are waiting and no single-feature work is active.

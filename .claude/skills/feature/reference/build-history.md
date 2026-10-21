@@ -24,7 +24,13 @@ directories. Require a valid branch name and no namespace-conflicting local
 branch ref (inspect `git for-each-ref refs/heads/`, including packed refs). An
 exact existing planned branch is allowed only when it is the current branch in
 this checkout, its `HEAD` equals the local default branch, and the working tree
-has no project changes. This is the pre-created worktree case. Any other exact
+has no project changes. This is the pre-created worktree case.
+<!-- ext:begin idfn-wave-branch -->
+Inside an `/avengers` wave the same case also applies when `HEAD` equals the
+wave's integration tip recorded for this item in `blueprint/.state/avengers.json`
+(the item's fork point) instead of the local default branch.
+<!-- ext:end idfn-wave-branch -->
+ Any other exact
 existing branch blocks the new spec.
 Also require no prior use of the archive path in available Git history:
 
@@ -46,7 +52,12 @@ require the exact resulting archive path. For an integrated local-merge archive,
 its unique introducing commit's sole parent must equal that base. For an
 integrated schema 2 `pull-request` archive, its unique squash commit must have one
 parent, that parent must descend from `baseCommit`, and the archive must be added
-unchanged there. For unfinished completion, use Complete's phase proof. The path
+unchanged there.
+<!-- ext:begin idfn-wave-merge -->
+A `wave-merge` archive (written by `/avengers`) is proven the same way as a
+schema 2 `pull-request` archive; see `../../complete/reference/completion-recovery.md`.
+<!-- ext:end idfn-wave-merge -->
+ For unfinished completion, use Complete's phase proof. The path
 checks this derived attempt; it never supplies the number. Missing or ambiguous
 proof stops without rewriting the archived spec.
 Settled history numbering and rollback selection do not require the annotation's

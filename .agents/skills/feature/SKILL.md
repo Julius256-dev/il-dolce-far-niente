@@ -31,8 +31,10 @@ Resolve the target from `blueprint/build-plan.md`:
 - With no argument, use the first unchecked leaf item.
 <!-- ext:begin idfn-edges -->
 - When leaves carry `_(after: …)_` dependency suffixes, "first unchecked leaf"
-  means the first one whose named blockers are all checked. The suffix is
-  scheduling metadata, never part of the title, branch name or spec.
+  means the first unblocked one: its named blockers are all checked, its suffix
+  is `_(after: none)_`, or it has no suffix and no unchecked leaf comes before
+  it. If none is unblocked, report the blocking edges instead of picking one.
+  The suffix is scheduling metadata, never part of the title, branch name or spec.
 <!-- ext:end idfn-edges -->
 - Read only the matching checklist line, its parent, and nearby text needed to
   understand the hierarchy.

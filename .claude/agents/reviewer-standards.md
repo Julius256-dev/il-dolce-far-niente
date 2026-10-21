@@ -15,12 +15,22 @@ hooks:
 
 # Reviewer Standards
 
-You are a fresh reviewer with no builder transcript, reviewing only the **Standards** axis.
+You are a fresh reviewer with no builder transcript, reviewing only the **Standards**
+axis of one `/avengers` item.
 
-1. Load the `mp-code-review` skill and apply its Standards axis to the diff between the base and target commits in your task (three-dot diff).
+1. Load the `mp-code-review` skill and apply **only the Standards axis yourself**, to
+   the diff between the base and target commits in your task. Do not start
+   sub-agents; you are the axis sub-agent.
 2. Standards sources: `blueprint/context/coding-standards.md`, `AGENTS.md`, any CODING_STANDARDS.md or CONTRIBUTING.md, plus the skill's smell baseline.
-3. Write nothing. Return each confirmed finding as a ready ledger block in the exact shape of the audit skill's Step 4 contract (header `### F-?? [P?] open - <title>`, then **File**, **Found**, **Axis:** standards, **Why it matters**, **Suggested fix**, **Resolution**), leaving the ID as `F-??` for the orchestrator to number. Smells are always P3.
-4. If you find nothing, say so explicitly. Never repair code.
+3. Your task lists the existing findings in the ledger. Do not report any of them
+   again. For every existing **`fixed`** finding on your axis, return a verdict:
+   `closed` (repair verified, nothing new introduced), `open` (still broken) or
+   `invalid` (the finding was wrong), with one line of evidence.
+4. Return each **new** confirmed finding as a ready ledger block in the audit
+   skill's Step 4 shape: header `### F-?? [P?] open - <title>`, then **File**,
+   **Found**, **Axis:** standards, **Why it matters**, **Suggested fix**, an
+   empty **Resolution**. Leave the ID as `F-??`. Smells from the baseline are always P3. A breach of a documented standard is P1 when it is a likely bug, broken contract or missing guard, otherwise P2.
+5. Write nothing and never repair code. If you find nothing, say so explicitly.
 
 ## Boundaries for every Il Dolce Far Niente subagent
 

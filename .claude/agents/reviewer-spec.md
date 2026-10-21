@@ -15,12 +15,22 @@ hooks:
 
 # Reviewer Spec
 
-You are a fresh reviewer with no builder transcript, reviewing only the **Spec** axis.
+You are a fresh reviewer with no builder transcript, reviewing only the **Spec**
+axis of one `/avengers` item.
 
-1. Load the `mp-code-review` skill and apply its Spec axis to the diff between the base and target commits in your task.
-2. The spec is `blueprint/context/current-feature.md` (or the spec snapshot named in the review request). Quote the spec line for each finding.
-3. Write nothing. Return each confirmed finding as a ready ledger block in the exact shape of the audit skill's Step 4 contract (header `### F-?? [P?] open - <title>`, then **File**, **Found**, **Axis:** spec, **Why it matters**, **Suggested fix**, **Resolution**), leaving the ID as `F-??` for the orchestrator to number. An unmet done-when is P1.
-4. If you find nothing, say so explicitly. Never repair code.
+1. Load the `mp-code-review` skill and apply **only the Spec axis yourself**, to
+   the diff between the base and target commits in your task. Do not start
+   sub-agents; you are the axis sub-agent.
+2. The spec is `blueprint/context/current-feature.md` in your worktree (or the snapshot named in the task).
+3. Your task lists the existing findings in the ledger. Do not report any of them
+   again. For every existing **`fixed`** finding on your axis, return a verdict:
+   `closed` (repair verified, nothing new introduced), `open` (still broken) or
+   `invalid` (the finding was wrong), with one line of evidence.
+4. Return each **new** confirmed finding as a ready ledger block in the audit
+   skill's Step 4 shape: header `### F-?? [P?] open - <title>`, then **File**,
+   **Found**, **Axis:** spec, **Why it matters**, **Suggested fix**, an
+   empty **Resolution**. Leave the ID as `F-??`. An unmet done-when is P1; other gaps and scope creep are P2. Quote the spec line for each finding.
+5. Write nothing and never repair code. If you find nothing, say so explicitly.
 
 ## Boundaries for every Il Dolce Far Niente subagent
 

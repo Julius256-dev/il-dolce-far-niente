@@ -113,6 +113,11 @@ request and receipt keep both execution fields absent.
    Independent mode accepts only a locally recorded remote default branch,
    local `main`, or local `master` as its enforceable base ref. Stop when none
    reliably covers the active work.
+   <!-- ext:begin idfn-wave-base -->
+   Inside an `/avengers` wave, the wave's local integration branch
+   (`<avengers.integrationBranchPrefix><n>`) is also an enforceable base ref, so
+   the merge base is the item's fork point and the review covers only its work.
+   <!-- ext:end idfn-wave-base -->
    The current full `HEAD` must be the approved application-code checkpoint.
    Include the verified spec when tracked; for a new ignored-spec request, prepare
    the exact local `Spec snapshot` under the reference contract. Never force-add
@@ -142,6 +147,11 @@ request and receipt keep both execution fields absent.
      project-local instructions, or capability, isolation, identity, model,
      completion, or access to the same ignored spec/snapshot inputs cannot be
      confirmed, use the manual path in the original checkout.
+     <!-- ext:begin idfn-lens-agent -->
+     The project-local `.claude/agents/reviewer-lens.md` installed with this
+     project counts as project-local instructions, not a global role: it may be
+     used as the fresh child when it is present.
+     <!-- ext:end idfn-lens-agent -->
 4. Record the full target SHA, full merge-base SHA, the exact local base ref
    used to calculate it, exact spec SHA-256, current adapter and model,
    requested reviewer adapter and model, requested execution from

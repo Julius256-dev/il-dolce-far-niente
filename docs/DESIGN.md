@@ -46,7 +46,7 @@ user's project.
   `mp-domain-modeling`, `mp-codebase-design`, `mp-code-review`,
   `mp-diagnosing-bugs`, `mp-research`, `mp-pr`, `mp-writing-for-agents`.
 - An orchestrator may load disciplines. It never invokes another orchestrator,
-  except `avengers`, which applies the documented behavior of `feature`,
+  except `avengers`, which applies the documented behavior of `brief`, `feature`,
   `implement`, `check`, `audit` and `complete` inside each worktree (the same way
   Blueprint's `continuous` does).
 - Every Matt Pocock folder carries `UPSTREAM.md` naming its source path and MIT
@@ -143,14 +143,32 @@ suffixes; `avengers` reads them. Cycles are invalid.
 | --- | --- | --- | --- |
 | planner | `.claude/agents/planner.md` | Opus 5.5, medium | specs in its worktree |
 | implementer | `.claude/agents/implementer.md` | Sonnet 5.5 | code, tests, spec checkboxes in its worktree |
-| merger | `.claude/agents/merger.md` | Sonnet 5.5 | integration branch, `build-plan.md`, `history/` |
+| merger | `.claude/agents/merger.md` | Sonnet 5.5 | the feature's `/complete` work commit, then the integration branch |
 | reviewer-lens | `.claude/agents/reviewer-lens.md` | Opus 5.5, medium | `findings.md`, `review.md` |
-| reviewer-standards | `.claude/agents/reviewer-standards.md` | Opus 5.5, medium | `findings.md` (axis: standards) |
-| reviewer-spec | `.claude/agents/reviewer-spec.md` | Opus 5.5, medium | `findings.md` (axis: spec) |
+| reviewer-standards | `.claude/agents/reviewer-standards.md` | Opus 5.5, medium | nothing; returns new findings and verdicts on `fixed` ones |
+| reviewer-spec | `.claude/agents/reviewer-spec.md` | Opus 5.5, medium | nothing; returns new findings and verdicts on `fixed` ones |
 | explorer | `.claude/agents/explorer.md` | Sonnet 5.5 | `blueprint/research/` only |
 
-Orchestrators pass the resolved role model as the per-call `model` parameter;
-the agent file's `model` is the fallback. No subagent may push, merge to the
+Orchestrators resolve each role with `skills/models/scripts/resolve.mjs` and pass
+the result as the per-call `model` parameter (the family name when the runtime
+only accepts families); the agent file's `model` is a lower-precedence fallback.
+
+## Landing a wave item
+
+1. The item is reviewed against its own diff: base = its fork point on the
+   integration branch, target = its review checkpoint.
+2. The merger applies `/complete` Steps 0–2 on the feature branch while the
+   review is current, recording `landing: wave-merge`, `baseRef` = the
+   integration branch and `baseCommit` = the fork point. Live evidence is
+   archived and reset, so no ledger travels between items.
+3. The merger squash-merges the work commit onto the integration branch (one
+   parent), resolving only build-plan ticks and additive conflicts, and reruns
+   Verify. Any other conflict sends the item back for rework and full re-review.
+4. A `wave-merge` archive is proven like a schema 2 pull-request archive. The
+   wave reaches the default branch by fast-forward or a non-squash merge, so the
+   proof survives.
+5. Cross-item effects are covered by Verify after every landing and the
+   wave-wide integration audit. No subagent may push, merge to the
 default branch, publish or deploy; `.claude/hooks/block-remote-git.mjs` enforces
 this for every role.
 

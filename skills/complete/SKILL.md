@@ -325,6 +325,12 @@ and tests, must pass first.
 
 Follow only the configured path.
 
+<!-- ext:begin idfn-wave-merge -->
+An `/avengers` merger records `landing: wave-merge` and stops after Step 2: it
+squash-merges the work commit onto the wave's integration branch itself. See
+`reference/completion-recovery.md` for how `wave-merge` archives are proven.
+<!-- ext:end idfn-wave-merge -->
+
 ### Local merge
 
 With `git.landing: "local-merge"`:

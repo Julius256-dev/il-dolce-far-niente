@@ -61,9 +61,11 @@ With no argument after pending completion has been reconciled:
 
 <!-- ext:begin idfn-edges -->
 When build-plan leaves carry `_(after: …)_` dependency suffixes, "next" means the
-next unchecked leaf in plan order whose named blockers are all checked; skip a
-leaf that names an unchecked item until its blockers land. The suffix is never
-part of the title or description.
+first unblocked unchecked leaf in plan order. A leaf is unblocked when every item
+its suffix names is checked, when its suffix is `_(after: none)_`, or, with no
+suffix, when no unchecked leaf comes before it. When unchecked leaves remain but
+none is unblocked, stop and report the blocking edges; never pick a blocked leaf.
+The suffix is never part of the title or description.
 
 <!-- ext:end idfn-edges -->
 `resume` explicitly resumes the active feature or its pending completion.
