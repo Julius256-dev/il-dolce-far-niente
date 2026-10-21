@@ -293,3 +293,18 @@ test("close refuses until the wave is in the default branch", (t) => {
   assert.ok(!fs.existsSync(wave.integrationWorktree));
   assert.ok(!fs.existsSync(path.join(root, "blueprint/.state/avengers.json")));
 });
+
+test("insert-only conflicts are unioned; the squash keeps both additions", (t) => {
+  const { root, wave } = startWave(t);
+  const a = item(wave, "1");
+  const b = item(wave, "2");
+  build(a.worktree, { id: "1", title: "Alpha thing", branch: a.branch, file: "shared.txt", content: "line one\nline two\nexport alpha\n" });
+  build(b.worktree, { id: "2", title: "Beta thing", branch: b.branch, file: "shared.txt", content: "line one\nline two\nexport beta\n" });
+  av(root, "checkpoint", "--id", "1");
+  av(root, "checkpoint", "--id", "2");
+  assert.equal(land(root, ...landArgs(wave, a)).code, 0);
+  const r = land(root, ...landArgs(wave, b));
+  assert.equal(r.code, 0, r.stdout + r.stderr);
+  assert.ok(r.json.bookkeeping.includes("additive union: shared.txt"));
+  assert.equal(fs.readFileSync(path.join(wave.integrationWorktree, "shared.txt"), "utf8"), "line one\nline two\nexport alpha\nexport beta\n");
+});

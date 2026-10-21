@@ -215,6 +215,12 @@ blocks only that item.
 - Subagents get paths, IDs and SHAs, never pasted file contents.
 - Gates never weaken: Verify, configured checks, fresh review and P0/P1 blocking
   apply to every item as in `/continuous`.
+- Feature-branch commits never reach the default branch: `land.mjs` squashes
+  them into one commit with its own message and no attribution. Do not rewrite
+  feature-branch history (for example to strip a runtime's trailer); it only
+  costs turns.
+- `land.mjs` already keeps both sides of insert-only conflicts; the merger is for
+  the rest.
 - A blocked item with a precise reason beats a fabricated pass.
 
 ## Formatting

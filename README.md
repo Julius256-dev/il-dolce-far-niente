@@ -66,6 +66,15 @@ claude plugin install il-dolce-far-niente@julius256-dev
 6. An integration audit checks the combined wave. You choose how it lands: local
    merge or pull request.
 
+### Keeping usage low
+
+The orchestrator is a coordinator: `avengers.mjs` and `land.mjs` do the
+bookkeeping and the `/complete` archive steps in one call each, agents start
+without `AGENTS.md` and read only their role's files, and the merger runs only
+when a landing conflicts. On a measured 4-item wave this cut orchestrator spend
+by 41% and the whole wave by 28%, with every gate still in place. See
+[docs/DESIGN.md](docs/DESIGN.md#keeping-usage-low).
+
 ## Commands
 
 | Command | What it does |

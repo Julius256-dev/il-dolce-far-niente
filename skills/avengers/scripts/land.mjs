@@ -16,6 +16,7 @@
 //
 // Prints one JSON object. Never pushes and never touches the default branch.
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import {
   CURRENT_FEATURE_STUB,
@@ -382,7 +383,37 @@ export function resolveBookkeeping(root, { base, ours, theirs, theirsBranch }) {
     if (!unmerged().has(PATHS.overview) && refreshOverviewHash(root)) git(root, ["add", "--", PATHS.overview]);
   }
 
+  // Additive conflicts: when both sides only inserted lines (an index of
+  // re-exports, a route list), keep both. Anything with a deletion or rewrite
+  // on either side stays for the merger.
+  for (const rel of unmerged()) {
+    if (Object.values(PATHS).includes(rel)) continue;
+    if (!insertOnly(root, base, ours, rel) || !insertOnly(root, base, theirs, rel)) continue;
+    const blobs = [ours, base, theirs].map((rev) => showFile(root, rev, rel));
+    if (blobs.some((b) => b === null)) continue;
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "avengers-union-"));
+    try {
+      const files = ["ours", "base", "theirs"].map((name, i) => {
+        const file = path.join(dir, name);
+        fs.writeFileSync(file, blobs[i]);
+        return file;
+      });
+      const merged = gitTry(root, ["merge-file", "-p", "--union", ...files]).out;
+      writeResolved(root, rel, merged.endsWith("\n") || merged === "" ? merged : `${merged}\n`);
+      notes.push(`additive union: ${rel}`);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
   return { remaining: [...unmerged()], notes, renumbered };
+}
+
+function insertOnly(root, from, to, rel) {
+  const r = gitTry(root, ["diff", "--numstat", from, to, "--", rel]);
+  if (!r.ok || !r.out) return false;
+  const [added, deleted] = r.out.split("\t");
+  return deleted === "0" && Number(added) > 0;
 }
 
 function promoteOnly(text) {
