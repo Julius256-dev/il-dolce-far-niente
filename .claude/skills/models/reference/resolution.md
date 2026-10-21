@@ -17,6 +17,58 @@ exact order, so the same configuration always gives the same answer.
 | `reviewer-spec` | Spec axis (`mp-code-review`) |
 | `explorer` | research and code mapping |
 
+## Compute it with the script
+
+Orchestrators and `/models` MUST get the resolution by running the resolver,
+never by working through the layers below by hand. From the project root, run
+the first of these that exists:
+
+```text
+node .claude/skills/models/scripts/resolve.mjs [options]
+node .agents/skills/models/scripts/resolve.mjs [options]
+```
+
+Options: a per-run override per role (`--planner`, `--implementer`, `--merger`,
+`--explorer`, `--reviewer-lens`, `--reviewer-standards`, `--reviewer-spec`, each
+followed by a model), `--reviewers <model>` for all three reviewer roles,
+`--effort-<role> <level>` and `--effort-reviewers <level>`, `--main <model>`,
+`--role <name>` to print one role, and `--text` for a table. Pass the command's
+own per-run overrides through these flags.
+
+It prints JSON:
+
+```json
+{
+  "main": { "model": "claude-opus-5-5", "family": "opus", "source": "team" },
+  "roles": {
+    "planner": {
+      "model": "claude-opus-5-5",
+      "family": "opus",
+      "effort": "medium",
+      "source": "team",
+      "effortSource": "team"
+    }
+  },
+  "warnings": []
+}
+```
+
+- `model` - the value to pass as the subagent call's `model`.
+- `family` - what to pass instead when the runtime accepts only family names
+  (`opus`, `sonnet`, `haiku`, `fable`; aliases, `inherit`, `best` and `opusplan`
+  map to themselves; `null` for an ID with no known family).
+- `effort` - the effort to pass, or `null` to pass none.
+- `source` - the winning layer for the model: `override`, `local`, `team`,
+  `subagentDefault`, `agent-file` or `inherit` (`main` uses `override`, `local`,
+  `team` or `default`). `effortSource` is the same for effort, or `none`.
+- `warnings` - `reviewerMustDiffer` conflicts, aliases in team config, and keys
+  the personal file may not set (those are ignored). Show every warning before
+  the run.
+
+An invalid value anywhere exits with status 1 and a message on stderr: stop and
+point to `/models`. If neither script exists, say so and stop rather than
+guessing.
+
 ## Order, highest first
 
 For a subagent role `R`:
@@ -29,9 +81,11 @@ For a subagent role `R`:
 5. The `model` field in `.claude/agents/R.md`.
 6. `inherit` (the main session's model).
 
-Effort follows the same order using `models.effort.R`; with no value anywhere,
-pass no effort and let the runtime default apply. The `--effort-reviewers` option
-sets all three reviewer roles.
+Effort follows the same order using `models.effort.R` (there is no effort
+`subagentDefault`); with no value anywhere, pass no effort and let the runtime
+default apply. An empty `"effort": {}` sets no effort for any role. The
+`--effort-reviewers` option sets all three reviewer roles. A role missing from
+`models.roles` falls through to the next layer; the parser never fills it in.
 
 ## Valid values
 
@@ -65,7 +119,8 @@ and points to `/models`.
 
 ## Reviewer independence
 
-When `models.reviewerMustDiffer` is true, compare each reviewer role's resolved
-model with the implementer's. If they match, warn before the run and offer the
+When `models.reviewerMustDiffer` is true (the default; the personal file's value
+wins), the resolver compares each reviewer role's resolved model with the
+implementer's, treating `inherit` as the main model. If they match, warn before the run and offer the
 next stronger alternative. Reviewers stay independent in every case because they
 start with no builder transcript.

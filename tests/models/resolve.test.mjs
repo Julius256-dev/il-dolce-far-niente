@@ -181,10 +181,17 @@ test("reviewerMustDiffer warns when a reviewer matches the implementer", (t) => 
   assert.match(result.warnings[1], /reviewer-spec resolves to claude-sonnet-5-5/);
   const off = resolve(project(t, { team, local: { models: { reviewerMustDiffer: false } } }));
   assert.deepEqual(off.warnings, []);
+  // inherit runs on the main model, so it conflicts with an implementer on that model.
+  const inherited = resolve(project(t, {
+    team: { models: { main: "claude-opus-5-5", roles: { implementer: "claude-opus-5-5", "reviewer-lens": "inherit", "reviewer-standards": "claude-fable-1", "reviewer-spec": "claude-fable-1" } } }
+  }));
+  assert.equal(inherited.warnings.length, 1);
+  assert.match(inherited.warnings[0], /reviewer-lens resolves to claude-opus-5-5/);
 });
 
 test("aliases in team config warn, aliases in the local file do not", (t) => {
-  const result = resolve(project(t, { team: { models: { main: "opus", roles: { merger: "sonnet[1m]" } } }, local: { models: { roles: { planner: "opus" } } } }));
+  const team = { models: { main: "opus", roles: { merger: "sonnet[1m]" }, reviewerMustDiffer: false } };
+  const result = resolve(project(t, { team, local: { models: { roles: { planner: "opus" } } } }));
   assert.equal(result.warnings.length, 2);
   assert.match(result.warnings[0], /models\.main uses the alias "opus"/);
   assert.match(result.warnings[1], /models\.roles\.merger uses the alias "sonnet\[1m\]"/);

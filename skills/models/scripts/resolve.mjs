@@ -247,9 +247,11 @@ function resolve(options, team, local, warnings) {
 
   const mustDiffer = local.reviewerMustDiffer ?? team.reviewerMustDiffer ?? DEFAULT_REVIEWER_MUST_DIFFER;
   if (mustDiffer) {
-    const implementer = result.roles.implementer.model;
+    // inherit runs on the main model, so compare what each role actually gets.
+    const effective = (model) => (model === "inherit" ? mainModel : model);
+    const implementer = effective(result.roles.implementer.model);
     for (const role of REVIEWERS) {
-      if (result.roles[role].model === implementer) {
+      if (effective(result.roles[role].model) === implementer) {
         warnings.push(
           `reviewerMustDiffer: ${role} resolves to ${implementer}, the same model as implementer. Choose a different reviewer model or run /models.`
         );

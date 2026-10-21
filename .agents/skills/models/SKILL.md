@@ -17,7 +17,10 @@ This skill reads and writes model settings only. It never edits code, specs or
 other configuration, and never commits.
 
 Read `reference/resolution.md` first; it is the contract for roles, precedence
-and valid values.
+and valid values. Never resolve by hand: run the resolver it names (the first of
+`node .claude/skills/models/scripts/resolve.mjs` and
+`node .agents/skills/models/scripts/resolve.mjs` that exists, from the project
+root) and use its JSON.
 
 ## Input
 
@@ -29,20 +32,19 @@ and valid values.
 
 ## Show
 
-Read `blueprint/config.json`, `blueprint/config.local.json` when present, the
-`model` and `effort` fields of `.claude/agents/*.md`, and the session's current
-main model when the runtime exposes it. Present one table:
+Run the resolver (add `--text` for a ready table). It reads
+`blueprint/config.json`, `blueprint/config.local.json` when present, and the
+`model` and `effort` fields of `.claude/agents/*.md`. Present one table:
 
 | Role | Model | Effort | Comes from |
 | --- | --- | --- | --- |
 
-"Comes from" names the winning layer (personal file, team file, subagent default,
-agent file, inherit). Below it, flag:
-
-- invalid values;
-- `reviewerMustDiffer` conflicts;
-- aliases in team config (suggest full IDs);
-- a main-model setting that differs from the session's current model.
+"Comes from" is each role's `source` (`override`, `local`, `team`,
+`subagentDefault`, `agent-file`, `inherit`); `effort` `null` means none is
+passed. Below it, list every entry in `warnings` (`reviewerMustDiffer`
+conflicts, aliases in team config, keys the personal file may not set), and flag
+a `main.model` that differs from the session's current model when the runtime
+exposes it. A non-zero exit means an invalid value: show its message.
 
 ## Change
 
@@ -58,7 +60,8 @@ project) or **personal** (`blueprint/config.local.json`, Git-ignored). Make sure
 the line when missing, after saying so.
 
 Edit only the `models` object. Keep every other key and the file's formatting.
-Validate the result against `reference/resolution.md` before writing.
+Validate the result against `reference/resolution.md` before writing, then run
+the resolver again and show its table so the user sees the effective result.
 
 ## The main agent
 

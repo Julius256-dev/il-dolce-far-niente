@@ -456,7 +456,7 @@ test("models leaves unlisted roles and effort empty so lower layers apply", () =
   });
   assert.deepEqual(partial.models.roles, { implementer: "claude-sonnet-5-5" });
   assert.deepEqual(partial.models.effort, { planner: "high" });
-  assert.equal(partial.models.roles.planner, undefined);
+  assert.equal((partial.models.roles as Record<string, string | undefined>).planner, undefined);
 
   // The restricted profile writes "effort": {} to mean "pass no effort".
   const restricted = parseProjectConfig({
