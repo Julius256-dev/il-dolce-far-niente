@@ -641,6 +641,15 @@ async function validateInstall(
         (file) => `.claude/skills/${file}`
       )
     );
+    // ext:begin idfn-claude-extras
+    for (const dir of ["agents", "hooks"]) {
+      expectedManagedFiles.push(
+        ...(await listFiles(path.join(targetDir, ".claude", dir))).map(
+          (file) => `.claude/${dir}/${file}`
+        )
+      );
+    }
+    // ext:end idfn-claude-extras
   }
 
   const installedManagedFiles = Object.keys(manifest.managedFiles).sort();
