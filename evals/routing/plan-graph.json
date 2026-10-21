@@ -1,0 +1,35 @@
+{
+  "skill": "plan-graph",
+  "positive": [
+    {
+      "prompt": "Run /plan-graph",
+      "top_k": 1
+    },
+    {
+      "prompt": "Add blocking dependency edges to the remaining build plan so independent items can run in parallel",
+      "top_k": 3
+    },
+    {
+      "prompt": "Break the remaining build plan into tracer-bullet vertical slices and show the frontier",
+      "top_k": 3
+    },
+    {
+      "prompt": "Which build-plan items depend on each other? Record the after edges and reject any cycle",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /feature 4 and write the buildable spec",
+      "owner": "feature"
+    },
+    {
+      "prompt": "Give me a read-only briefing on build-plan feature 3: scope, dependencies, and size",
+      "owner": "brief"
+    },
+    {
+      "prompt": "Build several unblocked build-plan features at once in parallel Git worktrees",
+      "owner": "avengers"
+    }
+  ]
+}

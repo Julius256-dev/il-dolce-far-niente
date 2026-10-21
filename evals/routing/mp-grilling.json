@@ -1,0 +1,27 @@
+{
+  "skill": "mp-grilling",
+  "positive": [
+    {
+      "prompt": "Grill me on this plan until we reach a shared understanding",
+      "top_k": 3
+    },
+    {
+      "prompt": "Stress-test my thinking about this decision with hard questions",
+      "top_k": 3
+    },
+    {
+      "prompt": "Ask me relentless questions about this idea, with your recommended answers",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /mp-grill and also record ADRs and glossary terms as we go",
+      "owner": "mp-grill"
+    },
+    {
+      "prompt": "Run /discovery to draft the project plan and build plan",
+      "owner": "discovery"
+    }
+  ]
+}

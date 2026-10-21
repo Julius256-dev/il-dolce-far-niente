@@ -1,0 +1,56 @@
+{
+  "description": "Classified or regulated code: parallel builds off, every gate on, a named human approves each landing. Only models the client approved in writing.",
+  "config": {
+    "profile": "restricted",
+    "git": {
+      "landing": "pull-request"
+    },
+    "workflow": {
+      "stepReview": "every",
+      "checkpointCommits": "enabled"
+    },
+    "qualityGates": {
+      "regular": {
+        "audit": "always",
+        "independentReview": "always",
+        "check": "always",
+        "tryGuide": "when-testable"
+      },
+      "continuous": {
+        "audit": "always",
+        "independentReview": "always",
+        "check": "always",
+        "tryGuide": "when-testable"
+      }
+    },
+    "avengers": {
+      "maxConcurrent": 1,
+      "specApproval": "each",
+      "finalIntegrationAudit": true,
+      "serializeWhen": [
+        "sensitive",
+        "shared-files",
+        "migration",
+        "auth",
+        "payments",
+        "config"
+      ]
+    },
+    "models": {
+      "main": "inherit",
+      "subagentDefault": "inherit",
+      "roles": {
+        "planner": "inherit",
+        "implementer": "inherit",
+        "merger": "inherit",
+        "reviewer-lens": "inherit",
+        "reviewer-standards": "inherit",
+        "reviewer-spec": "inherit",
+        "explorer": "inherit"
+      },
+      "effort": {},
+      "reviewerMustDiffer": false
+    }
+  },
+  "notes": "Set models to the client-approved model before use; the preset deliberately inherits the session model so nothing is assumed."
+}

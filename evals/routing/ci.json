@@ -1,0 +1,12 @@
+{
+  "skill": "ci",
+  "positive": [
+    { "prompt": "Run /ci for this project", "top_k": 1 },
+    { "prompt": "Add automatic GitHub Actions checks for pull requests", "top_k": 3 },
+    { "prompt": "Set up one Verify command and make GitHub run it on every PR", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /tests and add a unit test runner to this app", "owner": "tests" },
+    { "prompt": "Run /release to prepare the app for a Vercel deployment", "owner": "release" }
+  ]
+}

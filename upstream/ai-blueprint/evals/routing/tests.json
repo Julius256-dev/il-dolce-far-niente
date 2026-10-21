@@ -1,0 +1,17 @@
+{
+  "skill": "tests",
+  "positive": [
+    {"prompt": "Run /tests", "top_k": 1},
+    {"prompt": "Add the stack-native unit test runner to this project", "top_k": 3},
+    {"prompt": "Set up unit testing, add one example test, and document the test command", "top_k": 3},
+    {"prompt": "Run /tests unit", "top_k": 1},
+    {"prompt": "Run /tests browser", "top_k": 1},
+    {"prompt": "Run $tests browser", "top_k": 1},
+    {"prompt": "Install Playwright and create a repeatable browser test harness", "top_k": 3},
+    {"prompt": "Set up end-to-end browser testing and document the test:browser command", "top_k": 3}
+  ],
+  "negative": [
+    {"prompt": "Run /check and prove the current feature works in the running app", "owner": "check"},
+    {"prompt": "Run /ci and make GitHub execute the existing Verify command", "owner": "ci"}
+  ]
+}

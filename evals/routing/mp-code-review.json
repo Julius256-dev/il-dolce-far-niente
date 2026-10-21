@@ -1,0 +1,27 @@
+{
+  "skill": "mp-code-review",
+  "positive": [
+    {
+      "prompt": "Review the changes since main along two axes: coding standards and the spec",
+      "top_k": 3
+    },
+    {
+      "prompt": "Review my branch since commit abc123 for Fowler code smells and spec drift",
+      "top_k": 3
+    },
+    {
+      "prompt": "Do a two-axis standards and spec review of this PR diff",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /audit security on the full project and record findings",
+      "owner": "audit"
+    },
+    {
+      "prompt": "Check the running app against the done-when criteria of the active spec",
+      "owner": "check"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "skill": "mp-pr",
+  "positive": [
+    {
+      "prompt": "Write the PR body for this branch",
+      "top_k": 3
+    },
+    {
+      "prompt": "Draft a pull request description with before and after evidence and merge danger",
+      "top_k": 3
+    },
+    {
+      "prompt": "Edit this pull request description to show the summary as a diagram",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /complete and land the finished feature",
+      "owner": "complete"
+    },
+    {
+      "prompt": "Set up GitHub Actions Verify checks for pull requests",
+      "owner": "ci"
+    }
+  ]
+}

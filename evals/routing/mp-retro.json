@@ -1,0 +1,27 @@
+{
+  "skill": "mp-retro",
+  "positive": [
+    {
+      "prompt": "Run /mp-retro",
+      "top_k": 1
+    },
+    {
+      "prompt": "Do a retrospective on this coding session and suggest environment improvements",
+      "top_k": 3
+    },
+    {
+      "prompt": "After the avengers wave, what should change in coding standards, CI checks, or AGENTS.md?",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /status and suggest the next action",
+      "owner": "status"
+    },
+    {
+      "prompt": "Run /doctor to check Blueprint health and workflow drift",
+      "owner": "doctor"
+    }
+  ]
+}

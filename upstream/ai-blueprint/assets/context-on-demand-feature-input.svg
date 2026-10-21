@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title desc">
+  <title id="title">Paired internal Feature input observations</title>
+  <desc id="desc">Horizontal bars compare published 1.4.1 and the on-demand 1.5 candidate. Input falls from 266,680 to 186,016 tokens for an ordinary task tracker and from 512,625 to 227,778 tokens for a complex reporting feature.</desc>
+  <rect width="900" height="520" rx="24" fill="#f8fafc"/>
+  <text x="48" y="56" fill="#0f172a" font-family="Inter,Arial,sans-serif" font-size="28" font-weight="700">On-demand Feature input</text>
+  <text x="48" y="86" fill="#475569" font-family="Inter,Arial,sans-serif" font-size="16">Paired internal Codex runs. Same fixture and prompt within each pair.</text>
+
+  <line x1="250" y1="120" x2="250" y2="430" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="362" y1="120" x2="362" y2="430" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 6"/>
+  <line x1="474" y1="120" x2="474" y2="430" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 6"/>
+  <line x1="586" y1="120" x2="586" y2="430" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 6"/>
+  <line x1="698" y1="120" x2="698" y2="430" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 6"/>
+  <line x1="810" y1="120" x2="810" y2="430" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 6"/>
+  <text x="250" y="454" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">0</text>
+  <text x="362" y="454" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">100k</text>
+  <text x="474" y="454" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">200k</text>
+  <text x="586" y="454" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">300k</text>
+  <text x="698" y="454" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">400k</text>
+  <text x="810" y="454" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">500k</text>
+
+  <text x="48" y="150" fill="#0f172a" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700">Ordinary task tracker</text>
+  <text x="48" y="190" fill="#334155" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="600">Published 1.4.1</text>
+  <rect x="250" y="170" width="299" height="30" rx="7" fill="#f97316"/>
+  <text x="561" y="191" fill="#9a3412" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700">266.7k</text>
+  <text x="48" y="235" fill="#334155" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="600">On-demand 1.5</text>
+  <rect x="250" y="215" width="208" height="30" rx="7" fill="#2563eb"/>
+  <text x="470" y="236" fill="#1d4ed8" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700">186.0k</text>
+  <rect x="686" y="172" width="124" height="28" rx="14" fill="#dbeafe"/>
+  <text x="748" y="191" fill="#1d4ed8" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" text-anchor="middle">30.2% less</text>
+
+  <text x="48" y="302" fill="#0f172a" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700">Complex reporting feature</text>
+  <text x="48" y="342" fill="#334155" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="600">Published 1.4.1</text>
+  <rect x="250" y="322" width="574" height="30" rx="7" fill="#f97316"/>
+  <text x="812" y="375" fill="#9a3412" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" text-anchor="end">512.6k</text>
+  <text x="48" y="407" fill="#334155" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="600">On-demand 1.5</text>
+  <rect x="250" y="387" width="255" height="30" rx="7" fill="#2563eb"/>
+  <text x="517" y="408" fill="#1d4ed8" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700">227.8k</text>
+  <rect x="686" y="389" width="124" height="28" rx="14" fill="#dbeafe"/>
+  <text x="748" y="408" fill="#1d4ed8" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" text-anchor="middle">55.6% less</text>
+
+  <text x="48" y="490" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="12">Internal release observations, not a reproducible public benchmark</text>
+  <text x="852" y="490" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="12" text-anchor="end">Lower is better</text>
+</svg>

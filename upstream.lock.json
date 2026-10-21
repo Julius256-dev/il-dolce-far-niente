@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "sources": {
+    "ai-blueprint": {
+      "repo": "https://github.com/aiblueprinthq/ai-blueprint",
+      "ref": "main",
+      "prefix": "upstream/ai-blueprint",
+      "commit": "a31461341770fe2fc88b0372fc9f49f15acda652",
+      "version": "1.13.0",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Brad Traversy"
+    },
+    "mattpocock-skills": {
+      "repo": "https://github.com/mattpocock/skills",
+      "ref": "main",
+      "prefix": "upstream/mattpocock-skills",
+      "commit": "5beb35b040e3de97e54fa9e386d7e42d15c295c2",
+      "version": "1.3.1",
+      "license": "MIT",
+      "copyright": "Copyright (c) 2026 Matt Pocock"
+    }
+  },
+  "mappings": [
+    {
+      "source": "ai-blueprint",
+      "from": ".claude/skills",
+      "to": "skills"
+    },
+    {
+      "source": "ai-blueprint",
+      "from": "blueprint",
+      "to": "blueprint"
+    },
+    {
+      "source": "ai-blueprint",
+      "from": "AGENTS.md",
+      "to": "AGENTS.md"
+    },
+    {
+      "source": "ai-blueprint",
+      "from": "CLAUDE.md",
+      "to": "CLAUDE.md"
+    },
+    {
+      "source": "ai-blueprint",
+      "from": "evals",
+      "to": "evals"
+    },
+    {
+      "source": "ai-blueprint",
+      "from": "tsconfig.json",
+      "to": "tsconfig.json"
+    },
+    {
+      "source": "ai-blueprint",
+      "from": "scripts",
+      "to": "scripts/blueprint"
+    },
+    {
+      "source": "ai-blueprint",
+      "from": "packages/create-ai-blueprint",
+      "to": "packages/il-dolce-far-niente",
+      "exclude": [
+        "README.md",
+        "LICENSE"
+      ],
+      "rename": {
+        "bin/create-ai-blueprint.ts": "bin/il-dolce-far-niente.ts"
+      }
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/code-review",
+      "to": "skills/mp-code-review",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/tdd",
+      "to": "skills/mp-tdd",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/to-tickets",
+      "to": "skills/plan-graph",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/triage",
+      "to": "skills/mp-triage",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/wayfinder",
+      "to": "skills/mp-wayfinder",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/improve-codebase-architecture",
+      "to": "skills/mp-architecture",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/retro",
+      "to": "skills/mp-retro",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/grill-with-docs",
+      "to": "skills/mp-grill",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/codebase-design",
+      "to": "skills/mp-codebase-design",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/diagnosing-bugs",
+      "to": "skills/mp-diagnosing-bugs",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/research",
+      "to": "skills/mp-research",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/pr",
+      "to": "skills/mp-pr",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/domain-modeling",
+      "to": "skills/mp-domain-modeling",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/productivity/grilling",
+      "to": "skills/mp-grilling",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/productivity/writing-for-agents",
+      "to": "skills/mp-writing-for-agents",
+      "transform": "matt"
+    },
+    {
+      "source": "mattpocock-skills",
+      "from": "skills/engineering/setup-matt-pocock-skills",
+      "to": "skills/onboard/reference/trackers",
+      "include": [
+        "issue-tracker-github.md",
+        "issue-tracker-gitlab.md",
+        "issue-tracker-local.md",
+        "triage-labels.md",
+        "domain.md"
+      ],
+      "transform": "matt"
+    }
+  ],
+  "renames": {
+    "code-review": "mp-code-review",
+    "tdd": "mp-tdd",
+    "to-tickets": "plan-graph",
+    "triage": "mp-triage",
+    "wayfinder": "mp-wayfinder",
+    "improve-codebase-architecture": "mp-architecture",
+    "retro": "mp-retro",
+    "grill-with-docs": "mp-grill",
+    "codebase-design": "mp-codebase-design",
+    "diagnosing-bugs": "mp-diagnosing-bugs",
+    "research": "mp-research",
+    "pr": "mp-pr",
+    "domain-modeling": "mp-domain-modeling",
+    "grilling": "mp-grilling",
+    "writing-for-agents": "mp-writing-for-agents",
+    "grill-me": "mp-grill",
+    "setup-matt-pocock-skills": "onboard",
+    "to-spec": "feature",
+    "implement-spec": "avengers"
+  }
+}

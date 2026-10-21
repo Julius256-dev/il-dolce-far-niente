@@ -1,0 +1,60 @@
+{
+  "name": "create-ai-blueprint",
+  "version": "1.13.0",
+  "description": "Install a file-backed, spec-driven AI development workflow into a scaffolded app.",
+  "license": "MIT",
+  "author": "Brad Traversy",
+  "type": "module",
+  "homepage": "https://ai-blueprint.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aiblueprinthq/ai-blueprint.git",
+    "directory": "packages/create-ai-blueprint"
+  },
+  "bugs": {
+    "url": "https://github.com/aiblueprinthq/ai-blueprint/issues"
+  },
+  "keywords": [
+    "ai",
+    "ai-coding",
+    "blueprint",
+    "codex",
+    "claude",
+    "claude-code",
+    "opencode",
+    "antigravity",
+    "agent",
+    "context-engineering",
+    "spec-driven-development",
+    "workflow",
+    "scaffold"
+  ],
+  "bin": {
+    "create-ai-blueprint": "dist/bin/create-ai-blueprint.js",
+    "blueprint": "dist/bin/blueprint.js"
+  },
+  "dependencies": {
+    "@inquirer/checkbox": "^4.2.4"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsx --test test/build-plan.test.ts test/current-work.test.ts test/dashboard.test.ts test/findings.test.ts test/history.test.ts test/install.test.ts test/project-config.test.ts test/project-metadata.test.ts test/project-root.test.ts test/review.test.ts test/run-state.test.ts test/status.test.ts test/update.test.ts",
+    "check:pack": "npm pack --dry-run",
+    "prepare-template": "tsx scripts/prepare-template.ts",
+    "prepack": "npm run build && npm run prepare-template",
+    "postpack": "tsx scripts/clean-template.ts"
+  },
+  "files": [
+    "dist/",
+    "template/",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

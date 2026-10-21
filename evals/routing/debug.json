@@ -1,0 +1,13 @@
+{
+  "skill": "debug",
+  "positive": [
+    { "prompt": "Run /debug for the failing cart total test", "top_k": 1 },
+    { "prompt": "Why does the production build fail? Reproduce and diagnose it before changing code", "top_k": 3 },
+    { "prompt": "Find the root cause of this unexpected 500 regression without fixing it yet", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /fix and write a spec for this confirmed greeting bug", "owner": "fix" },
+    { "prompt": "Run /implement and repair the failing step in the active spec", "owner": "implement" },
+    { "prompt": "Explore an idea against the codebase and compare alternatives without writing files or a spec", "owner": "explore" }
+  ]
+}

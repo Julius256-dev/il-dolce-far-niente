@@ -1,0 +1,16 @@
+{
+  "name": "julius256-dev",
+  "description": "Julius Okuyat's Claude Code plugins, including Il Dolce Far Niente.",
+  "owner": {
+    "name": "Julius Okuyat",
+    "url": "https://github.com/Julius256-dev"
+  },
+  "plugins": [
+    {
+      "name": "il-dolce-far-niente",
+      "source": "./plugin",
+      "description": "Install and update Il Dolce Far Niente in a project: AI Blueprint's gated feature loop, parallel /avengers builds, Matt Pocock's engineering skills and per-role models.",
+      "category": "development"
+    }
+  ]
+}

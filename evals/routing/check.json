@@ -1,0 +1,47 @@
+{
+  "skill": "check",
+  "positive": [
+    {
+      "prompt": "Run /check for the current feature",
+      "top_k": 1
+    },
+    {
+      "prompt": "Prove the done-when criteria against the running app and show evidence",
+      "top_k": 3
+    },
+    {
+      "prompt": "Verify the feature's real behavior without editing the source",
+      "top_k": 3
+    },
+    {
+      "prompt": "Run /check guide",
+      "top_k": 1
+    },
+    {
+      "prompt": "Tell me exactly how to manually test this feature myself",
+      "top_k": 3
+    },
+    {
+      "prompt": "Give me a click-by-click review guide with expected and incorrect results",
+      "top_k": 3
+    },
+    {
+      "prompt": "Run /check guide latest",
+      "top_k": 1
+    },
+    {
+      "prompt": "Run $check guide for step 2",
+      "top_k": 1
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /implement and fix the failing behavior in the source",
+      "owner": "implement"
+    },
+    {
+      "prompt": "Run /status and tell me what is in progress",
+      "owner": "status"
+    }
+  ]
+}

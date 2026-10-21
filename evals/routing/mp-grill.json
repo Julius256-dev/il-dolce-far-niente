@@ -1,0 +1,27 @@
+{
+  "skill": "mp-grill",
+  "positive": [
+    {
+      "prompt": "Run /mp-grill",
+      "top_k": 1
+    },
+    {
+      "prompt": "Run /mp-grill on the new billing design and record ADRs as we go",
+      "top_k": 1
+    },
+    {
+      "prompt": "Relentless interview to sharpen this design and create domain docs like ADRs and glossary",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Stress-test my thinking about this decision",
+      "owner": "mp-grilling"
+    },
+    {
+      "prompt": "Run /discovery for a deep multi-turn planning conversation",
+      "owner": "discovery"
+    }
+  ]
+}

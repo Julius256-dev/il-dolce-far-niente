@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500" role="img" aria-labelledby="title desc">
+  <title id="title">Security boundary input tradeoff</title>
+  <desc id="desc">The published 1.4.1 workflow used 295,824 tokens in one turn and wrote a spec with invented security contracts. The on-demand 1.5 candidate used 652,928 tokens across three turns and stopped rather than inventing the remaining trust boundary.</desc>
+  <rect width="900" height="500" rx="24" fill="#f8fafc"/>
+  <text x="48" y="56" fill="#0f172a" font-family="Inter,Arial,sans-serif" font-size="28" font-weight="700">Security fixture: the cost of a safe stop</text>
+  <text x="48" y="86" fill="#475569" font-family="Inter,Arial,sans-serif" font-size="16">Different turn counts and different quality outcomes. This is not an efficiency benchmark.</text>
+
+  <line x1="250" y1="126" x2="250" y2="320" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="390" y1="126" x2="390" y2="320" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 6"/>
+  <line x1="530" y1="126" x2="530" y2="320" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 6"/>
+  <line x1="670" y1="126" x2="670" y2="320" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 6"/>
+  <line x1="810" y1="126" x2="810" y2="320" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 6"/>
+  <text x="250" y="344" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">0</text>
+  <text x="390" y="344" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">175k</text>
+  <text x="530" y="344" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">350k</text>
+  <text x="670" y="344" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">525k</text>
+  <text x="810" y="344" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13" text-anchor="middle">700k</text>
+
+  <text x="48" y="168" fill="#334155" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="700">Published 1.4.1</text>
+  <text x="48" y="190" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13">One turn</text>
+  <rect x="250" y="151" width="237" height="42" rx="8" fill="#f97316"/>
+  <text x="499" y="178" fill="#9a3412" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="700">295.8k</text>
+
+  <text x="48" y="263" fill="#334155" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="700">On-demand 1.5</text>
+  <text x="48" y="285" fill="#64748b" font-family="Inter,Arial,sans-serif" font-size="13">Three turns</text>
+  <rect x="250" y="246" width="522" height="42" rx="8" fill="#2563eb"/>
+  <text x="784" y="273" fill="#1d4ed8" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="700">652.9k</text>
+
+  <rect x="48" y="382" width="380" height="76" rx="14" fill="#fff7ed" stroke="#fed7aa"/>
+  <text x="68" y="410" fill="#9a3412" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700">Regular outcome</text>
+  <text x="68" y="436" fill="#7c2d12" font-family="Inter,Arial,sans-serif" font-size="13">Completed by inventing missing security contracts</text>
+
+  <rect x="452" y="382" width="400" height="76" rx="14" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="472" y="410" fill="#1d4ed8" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700">On-demand outcome</text>
+  <text x="472" y="436" fill="#1e40af" font-family="Inter,Arial,sans-serif" font-size="13">Asked for decisions, then stopped at the trust boundary</text>
+</svg>

@@ -1,0 +1,27 @@
+{
+  "skill": "mp-architecture",
+  "positive": [
+    {
+      "prompt": "Run /mp-architecture",
+      "top_k": 1
+    },
+    {
+      "prompt": "Scan the codebase for architectural friction and deepening opportunities in an HTML report",
+      "top_k": 3
+    },
+    {
+      "prompt": "Review the architecture for shallow modules we could turn into deep ones",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /audit quality on the full project",
+      "owner": "audit"
+    },
+    {
+      "prompt": "Explore an idea against the actual codebase and compare tradeoffs",
+      "owner": "explore"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "skill": "mp-research",
+  "positive": [
+    {
+      "prompt": "Research the Stripe webhook retry behavior from the official docs and save cited findings",
+      "top_k": 3
+    },
+    {
+      "prompt": "Gather primary-source facts about this library API in a background agent",
+      "top_k": 3
+    },
+    {
+      "prompt": "Investigate how the Postgres advisory lock API works and write it up with citations",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Explore whether this refactor would help, comparing alternatives against the codebase",
+      "owner": "explore"
+    },
+    {
+      "prompt": "Run /brief on the next build-plan feature",
+      "owner": "brief"
+    }
+  ]
+}

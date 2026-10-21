@@ -1,0 +1,31 @@
+{
+  "skill": "mp-triage",
+  "positive": [
+    {
+      "prompt": "Run /mp-triage",
+      "top_k": 1
+    },
+    {
+      "prompt": "Triage the open issues: which need my attention?",
+      "top_k": 3
+    },
+    {
+      "prompt": "Move issue #42 to ready-for-agent and write an agent brief",
+      "top_k": 3
+    },
+    {
+      "prompt": "Triage this external PR and label it needs-info",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Write a spec for this confirmed bug with /fix",
+      "owner": "fix"
+    },
+    {
+      "prompt": "Run /feature for the next build-plan item",
+      "owner": "feature"
+    }
+  ]
+}

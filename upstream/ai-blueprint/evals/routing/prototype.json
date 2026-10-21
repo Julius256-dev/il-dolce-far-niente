@@ -1,0 +1,12 @@
+{
+  "skill": "prototype",
+  "positive": [
+    { "prompt": "Run /prototype for the dashboard", "top_k": 1 },
+    { "prompt": "Create throwaway static HTML and CSS mockups before we build the UI", "top_k": 3 },
+    { "prompt": "Help me lock the visual theme and page layout with a quick mockup", "top_k": 3 }
+  ],
+  "negative": [
+    { "prompt": "Run /feature and write the implementation spec for the dashboard", "owner": "feature" },
+    { "prompt": "Run /implement and port the approved mockup into the real app", "owner": "implement" }
+  ]
+}

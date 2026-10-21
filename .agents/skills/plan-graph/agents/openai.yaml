@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Graph"
+  short_description: "Add blocking edges to the build plan"
+policy:
+  allow_implicit_invocation: false

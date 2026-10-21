@@ -1,0 +1,68 @@
+{
+  "name": "il-dolce-far-niente",
+  "version": "0.1.0",
+  "description": "Install Il Dolce Far Niente — AI Blueprint's gated feature loop plus parallel /avengers builds and Matt Pocock's engineering skills — into a scaffolded app.",
+  "license": "MIT",
+  "author": "Julius Okuyat",
+  "type": "module",
+  "homepage": "https://github.com/Julius256-dev/il-dolce-far-niente",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Julius256-dev/il-dolce-far-niente.git",
+    "directory": "packages/il-dolce-far-niente"
+  },
+  "bugs": {
+    "url": "https://github.com/Julius256-dev/il-dolce-far-niente/issues"
+  },
+  "keywords": [
+    "ai",
+    "ai-coding",
+    "ai-blueprint",
+    "blueprint",
+    "il-dolce-far-niente",
+    "avengers",
+    "parallel-agents",
+    "git-worktree",
+    "subagents",
+    "claude",
+    "claude-code",
+    "codex",
+    "opencode",
+    "antigravity",
+    "agent",
+    "agent-skills",
+    "context-engineering",
+    "spec-driven-development",
+    "tdd",
+    "workflow",
+    "scaffold"
+  ],
+  "bin": {
+    "il-dolce-far-niente": "dist/bin/il-dolce-far-niente.js",
+    "blueprint": "dist/bin/blueprint.js"
+  },
+  "dependencies": {
+    "@inquirer/checkbox": "^4.2.4"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsx --test test/build-plan.test.ts test/current-work.test.ts test/dashboard.test.ts test/findings.test.ts test/history.test.ts test/install.test.ts test/project-config.test.ts test/project-metadata.test.ts test/project-root.test.ts test/review.test.ts test/run-state.test.ts test/status.test.ts test/update.test.ts",
+    "check:pack": "npm pack --dry-run",
+    "prepare-template": "tsx scripts/prepare-template.ts",
+    "prepack": "npm run build && npm run prepare-template",
+    "postpack": "tsx scripts/clean-template.ts"
+  },
+  "files": [
+    "dist/",
+    "template/",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "version": "0.7.0",
+  "adapters": [
+    "claude",
+    "codex"
+  ],
+  "managedFiles": {}
+}

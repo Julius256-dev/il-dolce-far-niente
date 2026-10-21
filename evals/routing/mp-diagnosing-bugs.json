@@ -1,0 +1,27 @@
+{
+  "skill": "mp-diagnosing-bugs",
+  "positive": [
+    {
+      "prompt": "This flaky bug is hard to pin down; build a tight red-capable feedback loop",
+      "top_k": 3
+    },
+    {
+      "prompt": "Diagnose a performance regression with ranked falsifiable hypotheses",
+      "top_k": 3
+    },
+    {
+      "prompt": "Minimise the repro and instrument with tagged debug logs to find the root cause of this hard bug",
+      "top_k": 3
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Run /debug: npm test fails in cart-total.test.js",
+      "owner": "debug"
+    },
+    {
+      "prompt": "Write a spec for this confirmed bug fix with /fix",
+      "owner": "fix"
+    }
+  ]
+}
