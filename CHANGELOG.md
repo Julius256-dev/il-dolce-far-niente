@@ -6,12 +6,12 @@
   from `site/` by the Website workflow.
 - A shorter README built around a five-step quick start, with what the name
   means.
-- A new identity: an original stitched-script "Dolce far niente" wordmark and
-  a patch mark (also the plugin icon), and a landing page built around a lido
-  awning, a live wave board and a word-by-word gloss of the name. Fonts are
-  self-hosted (Bricolage Grotesque, JetBrains Mono, both SIL OFL).
+- A new identity and website: a simple mark (three lanes merging into one),
+  a clean landing page modelled on AI Blueprint's structure with a live wave
+  diagram, an animated install terminal and a word-by-word gloss of the name.
+  Fonts are self-hosted (Geist and Geist Mono, SIL OFL).
 
-## 0.3.0 - unreleased
+## 0.3.0 - 2026-10-22
 
 The first published version. It includes everything listed under 0.1.0 below,
 which was never published on its own.
