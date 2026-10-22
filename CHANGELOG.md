@@ -11,7 +11,7 @@
   diagram, an animated install terminal and a word-by-word gloss of the name.
   Fonts are self-hosted (Geist and Geist Mono, SIL OFL).
 
-## 0.3.0 - unreleased
+## 0.3.0 - 2026-10-22
 
 The first published version. It includes everything listed under 0.1.0 below,
 which was never published on its own.
