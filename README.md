@@ -60,10 +60,20 @@ claude plugin install il-dolce-far-niente@julius256-dev
 4. Fresh **reviewers** check each item: Blueprint's quality, security,
    performance and tests lens, plus Matt Pocock's standards and spec axes. P0/P1
    findings block landing; repairs are re-reviewed in full.
-5. A single **merger** lands passing items one at a time onto `wave/<n>`,
-   archiving each like `/complete`.
+5. A landing script archives each passing item exactly like `/complete` and
+   squash-merges it onto `wave/<n>`, one at a time. A **merger** agent steps in
+   only when a landing conflicts.
 6. An integration audit checks the combined wave. You choose how it lands: local
    merge or pull request.
+
+### Keeping usage low
+
+The orchestrator is a coordinator: `avengers.mjs` and `land.mjs` do the
+bookkeeping and the `/complete` archive steps in one call each, agents start
+without `AGENTS.md` and read only their role's files, and the merger runs only
+when a landing conflicts. On a measured 4-item wave this cut orchestrator spend
+by 41% and the whole wave by 28%, with every gate still in place. See
+[docs/DESIGN.md](docs/DESIGN.md#keeping-usage-low).
 
 ## Commands
 
@@ -117,7 +127,7 @@ In Codex use `$name` instead of `/name`.
 | --- | --- |
 | Main agent | Opus 5.5 (`claude-opus-5-5`) |
 | Planner, lens / standards / spec reviewers | Opus 5.5, medium effort |
-| Implementer, merger, explorer | Sonnet 5.5 (`claude-sonnet-5-5`) |
+| Implementer, merger (conflicts only), explorer | Sonnet 5.5 (`claude-sonnet-5-5`) |
 
 Team defaults live in `blueprint/config.json` under `models`; personal overrides
 in the Git-ignored `blueprint/config.local.json`. Orchestrators pass each role's
