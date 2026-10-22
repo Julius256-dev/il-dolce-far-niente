@@ -64,10 +64,44 @@
       "migration",
       "auth",
       "payments",
+      "sms",
       "config"
     ],
     "finalIntegrationAudit": true,
     "portBase": 4100
+  },
+  "sensitive": {
+    "patterns": {
+      "payments": [
+        "pesapal",
+        "flutterwave",
+        "paystack",
+        "stripe",
+        "escrow",
+        "payouts?",
+        "disburse",
+        "refund",
+        "mobile[ _-]?money",
+        "\\bmomo\\b",
+        "payment"
+      ],
+      "sms": [
+        "africa'?s[ _-]?talking",
+        "africastalking",
+        "\\bsms\\b",
+        "\\bussd\\b"
+      ],
+      "webhooks": [
+        "webhook"
+      ]
+    }
+  },
+  "research": {
+    "web": true
+  },
+  "dataHandling": {
+    "sourceMayLeavePremises": null,
+    "approvalRecord": null
   },
   "models": {
     "main": "claude-opus-5-5",

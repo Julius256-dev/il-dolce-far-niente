@@ -30,6 +30,22 @@ In a Blueprint project the improvement targets are: `blueprint/context/coding-st
 
 4. Present these candidates to the user, in order of severity.
 
+<!-- ext:begin idfn-retro-record -->
+5. **Record every candidate, so nothing lives only in chat.** Write
+   `blueprint/research/retro-<YYYY-MM-DD>[-wave-<n>].md`: the session or wave
+   reviewed, each candidate with its evidence (file, finding ID, commit or log
+   line), and what happened to it. Then route each one the user accepts:
+   - **Apply now** (a standards line, an `AGENTS.md` pointer, a Verify or CI
+     check through `/ci`): make the change after the user approves it.
+   - **Plan it**: propose one build-plan line, following `/feature`'s
+     plan-addition behavior, and write it after approval.
+   - **Track it**: append a P3 `open` finding to
+     `blueprint/context/findings.md` under Audit's Step 4 contract, with
+     **Found:** `<date> by /mp-retro`.
+   A candidate the user declines is marked declined in the note, with the
+   reason, so the next retro does not raise it again.
+<!-- ext:end idfn-retro-record -->
+
 ## Reference
 
 ### Implementation vs Review

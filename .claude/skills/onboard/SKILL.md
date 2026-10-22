@@ -239,28 +239,50 @@ instead of guessing, such as:
 If no changes are needed, say so.
 
 <!-- ext:begin idfn-onboard -->
-## Step 4b - choose a profile, tracker and models
+## Step 4b - profile, tracker, models, team conventions and cadence
 
-Il Dolce Far Niente adds three short choices. Show current values first and
+Il Dolce Far Niente adds these short choices. Show current values first and
 change only what the user picks.
 
 1. **Profile.** Offer the presets in `reference/profiles/`: `client-delivery`
    (every spec approved, full review panel, pull-request landing),
    `product` (batched spec approval, review when sensitive), `restricted`
-   (parallel builds off, every gate on, client-approved models only) or keep
-   `custom`. Applying a profile writes its values into `blueprint/config.json`
-   and sets `profile`; show the diff before writing. The `restricted` profile
-   must not be applied without asking whether AI-assisted coding and the chosen
-   model provider are approved for this codebase.
-2. **Tracker.** Ask where issues live: local files (`blueprint/tickets/`,
+   (classified or regulated code) or keep `custom`. Applying a profile writes
+   its values into `blueprint/config.json` and sets `profile`; show the diff
+   before writing.
+   **Restricted first asks one question: may this source code leave the
+   premises at all?** Follow `reference/restricted.md`. When
+   `dataHandling.sourceMayLeavePremises` is not yet recorded, stop onboarding:
+   the client must answer in writing and someone records it by hand before an
+   agent reads the code. When it is recorded, keep the recorded `dataHandling`
+   and `research` values, and offer to merge that reference's enforcement block
+   into `.claude/settings.json` (show the diff; write only after a yes).
+2. **Sensitive work.** Show `sensitive.patterns`. Payments (PesaPal,
+   Flutterwave, escrow, payouts) and SMS (Africa's Talking and its webhooks) are
+   always sensitive and cannot be removed; offer to add project-specific
+   categories, such as national IDs or health records.
+3. **Tracker.** Ask where issues live: local files (`blueprint/tickets/`,
    recommended when unsure), GitHub Issues or GitLab. Then the triage label
    strings, recommending the canonical names. Write `tracker` in the config and
    `blueprint/context/tracker.md` from the matching guide in
    `reference/trackers/`, and offer `GLOSSARY.md` and `docs/adr/` as the domain
    docs (`domainDocs`), created lazily by the skills that use them.
-3. **Models.** Show the resolved model per role (see
+4. **Models.** Show the resolved model per role (see
    `../models/reference/resolution.md`) and offer the `/models` change flow, or
-   accept the profile's values.
+   accept the profile's values. A restricted project uses only the models the
+   client approved, or `inherit` and family aliases on a local gateway.
+5. **Team conventions.** When tuning `blueprint/context/coding-standards.md`,
+   keep its `Team conventions` section and align it with the real project: the
+   branch prefixes in `git`, the package manager the lockfile shows, and the
+   stack sections in `reference/standards/` for Expo or Flutter. Offer to merge
+   the `attribution` settings from `blueprint/context/ai-interaction.md` into
+   `.claude/settings.json` so tools stop adding AI attribution to commits and
+   pull requests (write only after a yes).
+6. **Cadence.** Explain the team rhythm: `/mp-retro` after every `/avengers`
+   wave, and `/mp-architecture` once a week per active repository. Both record
+   their results in `blueprint/research/`, the findings ledger and the build
+   plan, never only in chat. When the runtime can create scheduled tasks, offer
+   a weekly `/mp-architecture` run; create it only after a yes.
 
 Add `blueprint/config.local.json` to `.gitignore` so personal model overrides
 never get committed.

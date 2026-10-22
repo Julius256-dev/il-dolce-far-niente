@@ -124,6 +124,14 @@ Il Dolce Far Niente adds optional keys; a missing key means its default:
   off), `specApproval` (`batch` or `each`), `integrationBranchPrefix`,
   `worktreeRoot`, `serializeWhen`, `finalIntegrationAudit` and `portBase`.
 - `models` - the model and effort per role; see Models below.
+- `sensitive` - `patterns` per category that always count as sensitive for the
+  `when-sensitive` gates and `/avengers` serialization. Payments (PesaPal,
+  Flutterwave, escrow, payouts) and SMS (Africa's Talking, including webhooks)
+  are built in and cannot be removed.
+- `research` - `web: false` keeps agents off web search and fetch.
+- `dataHandling` - for the `restricted` profile, the client's written answer to
+  whether source code may leave the premises (`sourceMayLeavePremises`) and where
+  that answer is filed. See the onboard skill's `reference/restricted.md`.
 
 `blueprint/config.local.json` is a personal, Git-ignored override that may set
 only `models` and `avengers.maxConcurrent`. It never changes safety settings.

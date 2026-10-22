@@ -1,5 +1,5 @@
 {
-  "description": "Classified or regulated code: parallel builds off, every gate on, a named human approves each landing. Only models the client approved in writing.",
+  "description": "Classified or regulated code: confirm in writing whether source may leave the premises before any agent runs; parallel builds off, web research off, every gate on, a named human approves each landing.",
   "config": {
     "profile": "restricted",
     "git": {
@@ -33,8 +33,16 @@
         "migration",
         "auth",
         "payments",
+        "sms",
         "config"
       ]
+    },
+    "research": {
+      "web": false
+    },
+    "dataHandling": {
+      "sourceMayLeavePremises": null,
+      "approvalRecord": null
     },
     "models": {
       "main": "inherit",
@@ -52,5 +60,5 @@
       "reviewerMustDiffer": false
     }
   },
-  "notes": "Set models to the client-approved model before use; the preset deliberately inherits the session model so nothing is assumed."
+  "notes": "Record the client's written answer in dataHandling before any agent session. If source may not leave the premises, run against a locally hosted model through an Anthropic-compatible gateway and keep models on inherit or family aliases. See reference/restricted.md."
 }

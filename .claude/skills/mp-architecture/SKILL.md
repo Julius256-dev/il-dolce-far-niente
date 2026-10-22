@@ -81,3 +81,19 @@ This command changes no code. A candidate the user wants to act on becomes one o
 - **A P2 or P3 finding** in `blueprint/context/findings.md`, following the audit skill's Step 4 ledger contract (next sequential ID, status `open`), when the user wants it tracked but not planned yet.
 
 The user picks which; never do both silently.
+
+<!-- ext:begin idfn-architecture-record -->
+### 5. Keep a durable record
+
+The HTML report lives in the temp folder and disappears. Before finishing,
+write `blueprint/research/architecture-<YYYY-MM-DD>.md`: each candidate in one
+or two lines (files, the friction, the deepening idea) and its outcome:
+planned (the build-plan line), tracked (the finding ID), rejected (the ADR, if
+any) or not discussed. The next weekly run reads the latest note first and does
+not re-suggest a rejected or already planned candidate.
+
+When the run is unattended (a scheduled weekly task, so nobody can pick or
+grill), skip the grilling loop: record every candidate as a P3 `unverified`
+finding with **Found:** `<date> by /mp-architecture (scheduled)`, list them in
+the note as awaiting review, and never write the build plan.
+<!-- ext:end idfn-architecture-record -->

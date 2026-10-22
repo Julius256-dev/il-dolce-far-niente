@@ -28,6 +28,7 @@
         "migration",
         "auth",
         "payments",
+        "sms",
         "config"
       ]
     },

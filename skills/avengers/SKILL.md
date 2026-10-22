@@ -78,11 +78,15 @@ Keep the returned `gates`, `independentExecution`, `maxRepairAttempts`,
 
 ## Step 2 - choose and set up the wave
 
-Take `frontier` items in plan order up to `maxConcurrent` (or `--max`). Defer an
-item whose plan line clearly overlaps an earlier pick in a non-additive way or
-shares a `serializeWhen` category with it; additive registry files (an index of
-re-exports, a route list, a changelog) never count as overlap. Show the picks
-and deferrals, then run:
+Take `frontier` items in plan order up to `maxConcurrent` (or `--max`). Each
+frontier entry carries `sensitive`: the categories its plan line matched in
+`sensitive.patterns` (payments, SMS and webhooks by default). Defer an item
+whose plan line clearly overlaps an earlier pick in a non-additive way or shares
+a non-pattern `serializeWhen` category with it (auth, migration, shared config);
+additive registry files (an index of re-exports, a route list, a changelog)
+never count as overlap. `setup` itself defers any item that shares a pattern
+category in `serializeWhen` (payments and SMS by default) with an earlier pick.
+Show the picks and deferrals, then run:
 
     avengers.mjs setup --items <ids> [--install "<frozen install command>"] [--model-args "<overrides>"]
 
@@ -100,13 +104,18 @@ planner) or drops items. Set activity `ready` while waiting, and record each
 item with `state set --id <n> --status awaiting-approval|implementing|dropped
 [--question "<decision>"]`. A dropped item keeps its worktree and spec.
 
-Re-check overlap with each report's **Files / areas**; defer a newly
-conflicting later item with `state set --status blocked --reason "overlaps <n>"`
-until the earlier one lands.
+Re-check overlap with each report's **Files / areas**, and run
+`avengers.mjs classify --id <n>` for each item; a `serializeAfter` answer means
+the item now shares a serialized category (for example payments) with an
+earlier one. Defer a newly conflicting later item with `state set --status
+blocked --reason "overlaps <n>"` until the earlier one lands.
 
 **Gate choice per item**, from `gates` and the planner's `Sensitive` and
 `Behavioral` lines: lens review runs when `audit` or `independentReview` is
-`always`, or `when-sensitive` and the item is sensitive. Check runs when `check`
+`always`, or `when-sensitive` and the item is sensitive. An item is sensitive
+when the planner says so **or** the scripts found any category (`sensitive` in
+`setup`, `classify` or `checkpoint`); payments and SMS always are, so never
+override a script hit. Check runs when `check`
 is `always`, or `when-behavioral` and the item is behavioral. A try guide is
 written when `tryGuide` is `always`, `when-testable`, or `when-user-facing` and
 the item is user-facing.
@@ -122,7 +131,8 @@ it finishes; one failure stops only its item.
 For each finished item:
 
 1. `avengers.mjs verify --id <n>`. Failure → repair (below).
-2. `avengers.mjs checkpoint --id <n>` → `base`, `target`, `files`.
+2. `avengers.mjs checkpoint --id <n>` → `base`, `target`, `files`,
+   `sensitive`. A new hit turns the lens review on for this item.
 3. `avengers.mjs findings --id <n>`, then start **reviewer-standards** and
    **reviewer-spec** in parallel. Task: worktree, base, target, and that
    findings list. They write `blueprint/.state/avengers/review-<axis>.json`.
@@ -184,7 +194,9 @@ report. Then ask how to land, following `landing`:
   its proof commit.
 
 Then `avengers.mjs close` (it refuses until the wave is in the default branch)
-and set activity `completed`.
+and set activity `completed`. End by recommending `/mp-retro` on this wave while
+its findings, receipts and logs are fresh; it records what it finds in
+`blueprint/research/`, the findings ledger and the build plan.
 
 ## Resume
 
@@ -209,6 +221,7 @@ blocks only that item.
 - dropped and deferred items, with the exact question for each decision
 - integration audit and Verify results, build-plan progress, next frontier
 - the landing choice awaiting a yes, and that nothing was pushed
+- the next step after landing: `/mp-retro` on this wave
 
 ## Rules
 

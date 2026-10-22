@@ -31,9 +31,14 @@ tells you to read. Nothing else up front.
 4. Name the test seams in `## Testing` so the implementer can work red-green
    without asking, and list every file and area you expect to touch under
    `## Files / areas`.
-5. Do not write code. Report any unanswered product, data, auth, billing or
+5. Payments and SMS are always sensitive: any payment provider (PesaPal,
+   Flutterwave and others), escrow, payouts, refunds, mobile money, SMS, USSD and
+   messaging gateways such as Africa's Talking, and the webhooks they call. Also
+   check the `sensitive.patterns` categories in `blueprint/config.json`. When in
+   doubt, say sensitive.
+6. Do not write code. Report any unanswered product, data, auth, billing or
    visual decision instead of inventing one.
-6. With `--autopilot` in your task, also self-review the spec the way
+7. With `--autopilot` in your task, also self-review the spec the way
    `/continuous` does before reporting; nobody approves it.
 
 **Final report** (the orchestrator shows it to the user as the approval packet,
@@ -45,7 +50,7 @@ so keep it to these lines):
     Files / areas: <comma-separated>
     Done when: <the key observable outcomes>
     Test seams: <seams>
-    Sensitive: <no | auth | payments | personal data | migration | shared config | other: ...>
+    Sensitive: <no | auth | payments | sms | personal data | migration | shared config | other: ...>
     Behavioral: <yes | no> (changes runtime behavior a user or caller can observe)
     User-facing: <yes | no>
     Decisions needed: <none | the exact questions>

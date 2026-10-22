@@ -9,6 +9,14 @@ description: Investigate a question against high-trust primary sources (official
 
 Spin up a **background agent** (the `explorer` role model from `models.roles` in `blueprint/config.json`, when set) to do the research, so you keep working while it reads.
 
+<!-- ext:begin idfn-research-offline -->
+When `research.web` is `false` in `blueprint/config.json` (the `restricted`
+profile), the agent may not use web tools: a hook blocks them. Primary sources
+are then the repository, its installed dependencies (`node_modules`, the pub
+cache, vendored SDKs) and documentation already checked in. Say in the note
+which questions could not be answered offline instead of guessing.
+<!-- ext:end idfn-research-offline -->
+
 Its job:
 
 1. Investigate the question against **primary sources** (official docs, source code, specs, first-party APIs), not a secondary write-up of them. Follow every claim back to the source that owns it.

@@ -75,7 +75,7 @@ export function project(t, { worktreeRoot = "../wt" } = {}) {
   write("blueprint/context/findings.md", FINDINGS_STUB);
   write("blueprint/context/review.md", REVIEW_STUB);
   write("blueprint/history/features/README.md", "# Completed features\n");
-  write("blueprint/.state/.gitignore", "backups/\nstaging/\nrun.json\navengers.json\n");
+  write("blueprint/.state/.gitignore", "backups/\nstaging/\nrun.json\navengers.json\navengers/\nevidence/\n");
   g(root, "init", "-q", "-b", "main");
   g(root, "config", "user.name", "Test");
   g(root, "config", "user.email", "test@example.com");

@@ -308,3 +308,46 @@ test("insert-only conflicts are unioned; the squash keeps both additions", (t) =
   assert.ok(r.json.bookkeeping.includes("additive union: shared.txt"));
   assert.equal(fs.readFileSync(path.join(wave.integrationWorktree, "shared.txt"), "utf8"), "line one\nline two\nexport alpha\nexport beta\n");
 });
+
+function setPlan(root, plan) {
+  fs.writeFileSync(path.join(root, "blueprint/build-plan.md"), plan);
+  const hash = overviewHash(fs.readFileSync(path.join(root, "blueprint/project-plan.md")), Buffer.from(plan));
+  fs.writeFileSync(path.join(root, "blueprint/context/project-overview.md"), `# Test - Project Overview\n\n<!-- blueprint:source-hash ${hash} -->\n\nBody.\n`);
+  g(root, "commit", "-qam", "docs: plan");
+}
+
+test("payments and SMS items are flagged sensitive and never share a wave", (t) => {
+  const { root } = project(t);
+  setPlan(root, `# Build Plan
+
+- [ ] 1. **Checkout** - pay with PesaPal _(after: none)_
+- [ ] 2. **Seller payouts** - Flutterwave escrow release _(after: none)_
+- [ ] 3. **Order texts** - Africa's Talking SMS and its delivery webhook _(after: none)_
+- [ ] 4. **About page** - static copy _(after: none)_
+`);
+  const pre = av(root, "preflight").json;
+  assert.deepEqual(pre.frontier.map((f) => [f.id, f.sensitive]), [
+    ["1", ["payments"]],
+    ["2", ["payments"]],
+    ["3", ["sms", "webhooks"]],
+    ["4", []]
+  ]);
+  const setup = av(root, "setup", "--items", "1,2,3").json;
+  assert.deepEqual(setup.items.map((i) => i.id), ["1", "3"]);
+  assert.deepEqual(setup.deferred, [{ id: "2", reason: "serialized after item 1 (payments)" }]);
+});
+
+test("checkpoint and classify catch sensitive work the plan line did not name", (t) => {
+  const { root } = project(t);
+  const wave = av(root, "setup", "--items", "1,2").json;
+  const a = item(wave, "1");
+  const b = item(wave, "2");
+  assert.deepEqual(a.sensitive, []);
+  build(a.worktree, { id: "1", title: "Alpha thing", branch: a.branch, file: "a.txt", content: "import AfricasTalking from 'africastalking';\n" });
+  build(b.worktree, { id: "2", title: "Beta thing", branch: b.branch, file: "b.txt", content: "sendSms(to)\n// africa's talking callback\n" });
+  const cp = av(root, "checkpoint", "--id", "1").json;
+  assert.deepEqual(Object.keys(cp.sensitive), ["sms"]);
+  const c = av(root, "classify", "--id", "2").json;
+  assert.deepEqual(c.categories, ["sms"]);
+  assert.deepEqual(c.serializeAfter, { with: "1", categories: ["sms"] });
+});

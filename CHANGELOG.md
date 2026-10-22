@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.3.0 - unreleased
+
+- **Payments and SMS are always sensitive.** PesaPal, Flutterwave, escrow,
+  payouts, mobile money, Africa's Talking and their webhooks trigger audit and
+  independent review under `when-sensitive`. New `sensitive.patterns` config
+  adds project categories. `/avengers` detects them from plan lines, specs and
+  diffs, turns on the lens review, and never builds two payment or two SMS items
+  in the same wave (`sms` joins `serializeWhen`).
+- **Verify recipes per stack** in `/ci`: Next.js/TypeScript with pnpm,
+  Expo/React Native, Flutter, and mixed repositories.
+- **Mobile check recipe** in `/check`: component or widget tests, then a
+  simulator screenshot, Flutter golden or Expo web screenshot, so the check gate
+  finishes on Expo and Flutter features.
+- **Restricted repositories:** a written-confirmation process
+  (`skills/onboard/reference/restricted.md`), `dataHandling` and `research.web`
+  config, and `.claude/hooks/data-handling.mjs`, which refuses prompts until the
+  answer is recorded, refuses cloud endpoints when code may not leave the
+  premises, and blocks web research when it is off.
+- **Team cadence:** `/mp-retro` after every wave and `/mp-architecture` weekly
+  now write `blueprint/research/` notes and route accepted items to the
+  findings ledger or the build plan; `/onboard` offers the weekly schedule.
+- **Team conventions** open the coding-standards template: Conventional
+  Commits, no AI attribution, branch prefixes, pnpm over Bun. Expo and Flutter
+  standards are starting points for `/onboard`.
+
 ## 0.1.0 - unreleased
 
 First release.

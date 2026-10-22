@@ -75,6 +75,25 @@ when a landing conflicts. On a measured 4-item wave this cut orchestrator spend
 by 41% and the whole wave by 28%, with every gate still in place. See
 [docs/DESIGN.md](docs/DESIGN.md#keeping-usage-low).
 
+## Team defaults
+
+- **Payments and SMS are always sensitive.** PesaPal, Flutterwave, escrow,
+  payouts and Africa's Talking (including webhooks) get audit and independent
+  review automatically, and `/avengers` never builds two of them in one wave.
+  Add your own categories under `sensitive.patterns`.
+- **One Verify per repo, any stack.** `/ci` has recipes for Next.js (pnpm),
+  Expo and Flutter, and `/check` proves mobile features with widget tests plus a
+  simulator screenshot or golden image.
+- **Restricted work.** Before any agent touches classified code, get the
+  client's written answer to "may the source leave the premises?" and record it.
+  A hook enforces it; with "no", run on a locally hosted model with web research
+  off. See [docs/RESTRICTED.md](docs/RESTRICTED.md).
+- **Cadence.** `/mp-retro` after every wave, `/mp-architecture` weekly; their
+  results land in `blueprint/research/`, the findings ledger and the build plan.
+- **Conventions.** New repos start with Conventional Commits, no AI attribution,
+  `feature/`/`fix/`/`rollback/` branches and pnpm over Bun in
+  `coding-standards.md`.
+
 ## Commands
 
 | Command | What it does |

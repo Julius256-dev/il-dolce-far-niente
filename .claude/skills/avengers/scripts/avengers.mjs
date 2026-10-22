@@ -11,7 +11,8 @@
 //   state set --id 3 --status reviewing [--reason ..] [--question ..] [--repair +1]
 //   state wave --status integrating
 //   verify (--id 3 | --integration)     run the documented Verify command
-//   checkpoint --id 3              spec -> verified, review checkpoint commit, target/base SHAs
+//   checkpoint --id 3              spec -> verified, review checkpoint commit, target/base SHAs, sensitive hits
+//   classify --id 3                sensitive categories from spec + diff, and any item to serialize after
 //   findings --id 3                compact ledger listing for reviewer tasks
 //   record --id 3                  record reviewer JSON from blueprint/.state/avengers/review-*.json
 //   gate --id 3 [--lens-required]  pass/fail for landing
@@ -26,6 +27,7 @@ import {
   FINDINGS_STUB,
   PATHS,
   REVIEW_STUB,
+  classifySensitive,
   computeFrontier,
   currentBranch,
   defaultBranch,
@@ -144,6 +146,8 @@ export function preflight(cwd) {
   if (record && record.status !== "landed") problems.push(`Wave ${record.wave} is still recorded; use /avengers resume.`);
   const plan = readText(path.join(root, PATHS.plan)) ?? "";
   const { frontier, blocked, unknownDependencies } = computeFrontier(plan);
+  const lines = planLines(plan);
+  for (const item of frontier) item.sensitive = Object.keys(classifySensitive(lines.get(item.id), config.sensitivePatterns));
   return {
     ready: problems.length === 0,
     problems,
@@ -158,6 +162,9 @@ export function preflight(cwd) {
     maxRepairAttempts: config.continuous.maxRepairAttempts,
     finalIntegrationAudit: config.avengers.finalIntegrationAudit,
     landing: config.git.landing,
+    profile: config.profile,
+    research: config.research,
+    sensitiveCategories: Object.keys(config.sensitivePatterns),
     frontier,
     blocked: blocked.map((b) => ({ id: b.id, waitingOn: b.waitingOn })),
     unknownDependencies
@@ -192,6 +199,31 @@ function nextWaveNumber(root, prefix) {
   const refs = gitTry(root, ["for-each-ref", "--format=%(refname:short)", `refs/heads/${prefix}`]).out.split("\n");
   const nums = refs.map((r) => Number(r.slice(prefix.length))).filter((n) => Number.isInteger(n) && n > 0);
   return nums.length ? Math.max(...nums) + 1 : 1;
+}
+
+/** Each plan item's own line plus its parent's, for classification. */
+function planLines(text) {
+  const { lines, items } = parsePlan(text);
+  const parentOf = new Map();
+  for (const item of items) for (const child of item.children) parentOf.set(child, item);
+  return new Map(items.map((i) => [i.id, `${parentOf.get(i.id) ? lines[parentOf.get(i.id).index] : ""}\n${lines[i.index]}`]));
+}
+
+/** The categories that serialize two items under avengers.serializeWhen. */
+export function serializeOn(categories, serializeWhen) {
+  if (serializeWhen.includes("sensitive")) return [...categories];
+  return categories.filter((c) => serializeWhen.includes(c));
+}
+
+/** The first active item that shares a serializing category with these categories. */
+function serializeConflict(record, categories, serializeWhen, selfId) {
+  const mine = serializeOn(categories, serializeWhen);
+  for (const other of record.items) {
+    if (other.id === selfId || ["landed", "dropped"].includes(other.status)) continue;
+    const shared = mine.filter((c) => serializeOn(other.sensitive ?? [], serializeWhen).includes(c));
+    if (shared.length) return { with: other.id, categories: shared };
+  }
+  return null;
 }
 
 function planItems(text) {
@@ -290,13 +322,8 @@ export function setup(cwd, { items, install, modelArgs }) {
     items: [],
     deferred: []
   };
-  const plan = planItems(readText(path.join(integrationWorktree, PATHS.plan)) ?? "");
-  const slots = freeSlots(record, ids.length);
-  ids.forEach((id, i) => {
-    const created = createItem(root, record, config, plan.get(id), slots[i], install);
-    if (created.skipped) record.deferred.push({ id, reason: created.reason });
-    else record.items.push(created);
-  });
+  const planText = readText(path.join(integrationWorktree, PATHS.plan)) ?? "";
+  placeItems(root, record, config, planText, ids, install);
   saveRecord(root, record);
   return {
     wave: n,
@@ -321,21 +348,40 @@ export function add(cwd, { items, install }) {
   if (off.length) stop("not-on-frontier", `Items ${off.join(", ")} are not on the frontier.`);
   const active = record.items.filter((i) => !["landed", "dropped", "blocked"].includes(i.status)).length;
   if (active + ids.length > config.avengers.maxConcurrent) stop("capacity", `Only ${config.avengers.maxConcurrent - active} slots are free.`);
-  const plan = planItems(readText(path.join(record.integrationWorktree, PATHS.plan)) ?? "");
-  const slots = freeSlots(record, ids.length);
-  const added = [];
-  ids.forEach((id, i) => {
-    record.deferred = record.deferred.filter((d) => d.id !== id);
-    const created = createItem(root, record, config, plan.get(id), slots[i], install);
-    if (created.skipped) record.deferred.push({ id, reason: created.reason });
-    else {
-      record.items.push(created);
-      added.push(brief(created));
-    }
-  });
+  const planText = readText(path.join(record.integrationWorktree, PATHS.plan)) ?? "";
+  const added = placeItems(root, record, config, planText, ids, install).map(brief);
   if (record.status === "integrating" && added.length) record.status = "building";
   saveRecord(root, record);
   return { added, deferred: record.deferred };
+}
+
+/**
+ * Create worktrees for the items in order, deferring any item that shares a
+ * serializing sensitive category (payments, SMS, ...) with an active item.
+ */
+function placeItems(root, record, config, planText, ids, install) {
+  const plan = planItems(planText);
+  const lines = planLines(planText);
+  const placed = [];
+  for (const id of ids) {
+    record.deferred = record.deferred.filter((d) => d.id !== id);
+    const categories = Object.keys(classifySensitive(lines.get(id), config.sensitivePatterns));
+    const conflict = serializeConflict(record, categories, config.avengers.serializeWhen, id);
+    if (conflict) {
+      record.deferred.push({ id, reason: `serialized after item ${conflict.with} (${conflict.categories.join(", ")})` });
+      continue;
+    }
+    const [slot] = freeSlots(record, 1);
+    const created = createItem(root, record, config, plan.get(id), slot, install);
+    if (created.skipped) {
+      record.deferred.push({ id, reason: created.reason });
+      continue;
+    }
+    created.sensitive = categories;
+    record.items.push(created);
+    placed.push(created);
+  }
+  return placed;
 }
 
 function parseIds(value) {
@@ -354,6 +400,7 @@ function brief(item) {
     port: item.port,
     forkPoint: item.forkPoint,
     status: item.status,
+    sensitive: item.sensitive ?? [],
     ...(item.blockedReason ? { blockedReason: item.blockedReason } : {})
   };
 }
@@ -431,10 +478,13 @@ export function checkpoint(cwd, args) {
   const files = git(worktree, ["diff", "--name-only", `${item.forkPoint}..${target}`]).split("\n").filter(Boolean);
   item.reviewTarget = target;
   item.status = "reviewing";
+  const sensitive = classifyItem(worktree, item, readConfig(root));
+  item.sensitive = [...new Set([...(item.sensitive ?? []), ...Object.keys(sensitive)])];
   saveRecord(root, record);
   return {
     id: item.id,
     worktree,
+    sensitive,
     base: item.forkPoint,
     baseRef: `refs/heads/${record.integrationBranch}`,
     target,
@@ -442,6 +492,42 @@ export function checkpoint(cwd, args) {
     specSha256: sha256(fs.readFileSync(specPath)),
     files
   };
+}
+
+// ---------------------------------------------------------------- sensitive classification
+
+const CLASSIFY_EXCLUDES = [
+  `:(exclude)${PATHS.findings}`,
+  `:(exclude)${PATHS.review}`,
+  ":(exclude)blueprint/history",
+  ":(exclude)blueprint/build-plan.md",
+  ":(exclude)blueprint/context/project-overview.md"
+];
+
+/** Categories hit by the item's spec, changed paths and diff since its fork point. */
+function classifyItem(worktree, item, config) {
+  const spec = readText(path.join(worktree, PATHS.spec)) ?? "";
+  const range = `${item.forkPoint}..HEAD`;
+  const names = gitTry(worktree, ["diff", "--name-only", range, "--", ".", ...CLASSIFY_EXCLUDES]).out;
+  const diff = gitTry(worktree, ["diff", "-U0", range, "--", ".", ...CLASSIFY_EXCLUDES]).out;
+  return classifySensitive(`${spec}\n${names}\n${diff}`, config.sensitivePatterns);
+}
+
+/**
+ * Re-classify an item from its real spec and diff. Returns the categories (each
+ * with the text that matched) and any active item it must now serialize after.
+ */
+export function classify(cwd, args) {
+  const root = mainRoot(cwd);
+  const record = loadRecord(root);
+  const config = readConfig(root);
+  const item = findItem(record, args.id);
+  const hits = classifyItem(item.worktree, item, config);
+  item.sensitive = [...new Set([...(item.sensitive ?? []), ...Object.keys(hits)])];
+  saveRecord(root, record);
+  const earlier = record.items.slice(0, record.items.indexOf(item));
+  const conflict = serializeConflict({ items: earlier }, item.sensitive, config.avengers.serializeWhen, item.id);
+  return { id: item.id, sensitive: hits, categories: item.sensitive, serializeAfter: conflict };
 }
 
 // ---------------------------------------------------------------- findings
@@ -694,6 +780,7 @@ const COMMANDS = {
   state: (a) => stateCommand(process.cwd(), a),
   verify: (a) => verify(process.cwd(), a),
   checkpoint: (a) => checkpoint(process.cwd(), a),
+  classify: (a) => classify(process.cwd(), a),
   findings: (a) => findings(process.cwd(), a),
   record: (a) => record(process.cwd(), a),
   gate: (a) => gate(process.cwd(), a),
@@ -707,7 +794,7 @@ if (isMain) {
   const args = parseArgs(process.argv.slice(2), { flags: ["integration", "lensRequired", "help"], lists: ["from"] });
   const command = COMMANDS[args._[0]];
   if (!command || args.help) {
-    const usage = fs.readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 20).map((l) => l.replace(/^\/\/ ?/, ""));
+    const usage = fs.readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 21).map((l) => l.replace(/^\/\/ ?/, ""));
     process.stdout.write(`${usage.join("\n")}\n`);
     if (!command && !args.help) process.exitCode = 1;
   } else {

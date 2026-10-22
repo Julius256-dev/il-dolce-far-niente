@@ -67,6 +67,13 @@ Use `qualityGates.regular` for this work item:
   personal or user data, migrations, destructive operations, external side
   effects, security boundaries, or unusually broad changes; `always` runs for
   every work item.
+  <!-- ext:begin idfn-sensitive -->
+  Payments and SMS are always sensitive: any payment provider (PesaPal,
+  Flutterwave and others), escrow, payouts, refunds and mobile money; SMS, USSD
+  and messaging gateways such as Africa's Talking; and every webhook those
+  services call. So is anything matching `sensitive.patterns` in
+  `blueprint/config.json`.
+  <!-- ext:end idfn-sensitive -->
 - **Independent review:** `manual` runs only when the user explicitly requests
   `/audit independent current`; `when-sensitive` requires it for the same
   sensitive categories as Audit; `always` requires it for every work item. An
