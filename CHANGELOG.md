@@ -6,8 +6,8 @@ The first published version. It includes everything listed under 0.1.0 below,
 which was never published on its own.
 
 - **Shipping:** one version across npm, the Claude Code, Codex and Copilot
-  plugins and skills.sh (`scripts/release-version.ts`), a tag-triggered release
-  workflow that publishes to npm with provenance, a Codex marketplace
+  plugins and skills.sh (`scripts/release-version.ts`), a release
+  workflow that publishes to npm with provenance when a new version reaches `main`, a Codex marketplace
   (`.agents/plugins/marketplace.json`) and portable `plugin/plugin.json`, and a
   skills.sh listing that offers only the `install` skill (workflow skills are
   `metadata.internal`). Two skill descriptions (`check`, `plan-graph`) were not

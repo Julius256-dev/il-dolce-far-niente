@@ -1,19 +1,21 @@
 name: Release
 
-# Publishes one version to every channel when a maintainer pushes a tag such as
-# v0.3.0. Prepare it first with `npx tsx scripts/release-version.ts 0.3.0`, add
-# the CHANGELOG section, merge, then tag main.
+# Publishes when a new version reaches main. Bump it with
+# `npm run release:version -- <x.y.z>`, add the CHANGELOG section, and merge the
+# pull request: if that version is not on npm yet, this workflow checks that
+# every channel agrees, reruns the checks, publishes to npm with provenance,
+# then creates the v<x.y.z> tag and GitHub release from the changelog section.
 #
-# - npm: `il-dolce-far-niente`, with provenance. Needs the NPM_TOKEN secret
-#   (an npm automation or granular token with publish rights on the package).
-# - Claude Code, Codex and Copilot plugins: read from this repository's
-#   marketplaces, so the version bump on main is the release; nothing to upload.
-# - skills.sh: reads this repository directly; nothing to upload.
-# - GitHub release: notes taken from the CHANGELOG section.
+# - npm: `il-dolce-far-niente`. Needs the NPM_TOKEN repository secret.
+# - Claude Code, Codex and Copilot plugins read this repository's marketplaces,
+#   and skills.sh reads the repository, so the version on main is their release.
+#
+# A push to main whose version is already on npm does nothing.
 
 on:
   push:
-    tags: ["v*.*.*"]
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -30,43 +32,57 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           registry-url: https://registry.npmjs.org
-      - name: Tag must be on main
-        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
-      - run: npm ci
-      - run: npm ci --prefix packages/il-dolce-far-niente
-      - name: Versions and changelog agree with the tag
-        run: npx tsx scripts/release-version.ts --check "$GITHUB_REF_NAME"
+      - name: Is this version new?
+        id: version
+        run: |
+          version="$(node -p "require('./packages/il-dolce-far-niente/package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if npm view "il-dolce-far-niente@$version" version >/dev/null 2>&1; then
+            echo "il-dolce-far-niente@$version is already on npm; nothing to release."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.version.outputs.new == 'true'
+        run: npm ci
+      - if: steps.version.outputs.new == 'true'
+        run: npm ci --prefix packages/il-dolce-far-niente
+      - name: Versions and changelog agree
+        if: steps.version.outputs.new == 'true'
+        run: npx tsx scripts/release-version.ts --check "v${{ steps.version.outputs.version }}"
       - name: Full check
+        if: steps.version.outputs.new == 'true'
         run: |
           npm run check
           npm run typecheck
           npm run test:package
           npx tsx scripts/check-discovery.ts
       - name: Validate plugins
+        if: steps.version.outputs.new == 'true'
         run: |
           npm install --global @anthropic-ai/claude-code
           claude plugin validate ./plugin --strict
           claude plugin validate .
       - name: Publish to npm
+        if: steps.version.outputs.new == 'true'
         working-directory: packages/il-dolce-far-niente
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: GitHub release
+      - name: Tag and GitHub release
+        if: steps.version.outputs.new == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          version="${GITHUB_REF_NAME#v}"
-          awk -v v="$version" '
+          awk -v v="$VERSION" '
             $0 ~ "^## " v "([[:space:]]|$)" { on = 1; next }
             on && /^## / { exit }
             on { print }
           ' CHANGELOG.md > release-notes.md
-          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file release-notes.md --verify-tag
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" --notes-file release-notes.md

@@ -59,8 +59,9 @@ the repository directly).
 2. Add a `## <x.y.z>` section to `CHANGELOG.md`.
 3. `npm run check`, `npm run typecheck`, `npm run test:package` and
    `npm run check:discovery`, then merge to `main` through a pull request.
-4. Tag the merge commit: `git tag v<x.y.z> && git push origin v<x.y.z>`. The
-   Release workflow checks that every channel and the changelog agree, reruns
-   the checks, publishes to npm with provenance (it needs the `NPM_TOKEN`
-   repository secret) and creates the GitHub release from the changelog
-   section. Plugin users get the version from the marketplace.
+4. The Release workflow sees a version that is not on npm yet. It checks that
+   every channel and the changelog agree, reruns the checks, publishes to npm
+   with provenance (it needs the `NPM_TOKEN` repository secret), then creates the
+   `v<x.y.z>` tag and the GitHub release from the changelog section. Plugin
+   users get the version from the marketplace. Pushes that do not change the
+   version publish nothing.
