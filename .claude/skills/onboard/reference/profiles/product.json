@@ -24,7 +24,8 @@
         "shared-files",
         "migration",
         "auth",
-        "payments"
+        "payments",
+        "sms"
       ]
     },
     "models": {

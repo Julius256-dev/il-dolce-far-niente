@@ -91,6 +91,15 @@ Verify: cargo test && cargo build --locked
 If no meaningful check exists, stop and explain what is missing. Do not create a
 workflow that always passes.
 
+<!-- ext:begin idfn-verify-recipes -->
+For Next.js/TypeScript, Expo/React Native, Flutter and repositories that mix
+them, start from `reference/verify-recipes.md`: it gives each stack's Verify
+command, the workflow's toolchain setup, and how one root command covers a mixed
+repository. Prefer pnpm for JavaScript and TypeScript unless the lockfile says
+otherwise, and never introduce Bun. `/avengers` and `/continuous` refuse to run
+without a Verify line, so finish this step even when CI itself is not wanted.
+<!-- ext:end idfn-verify-recipes -->
+
 ## Step 3 - create or align the workflow
 
 Create `.github/workflows/verify.yml` only when that path is free. If it already

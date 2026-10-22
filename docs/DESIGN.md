@@ -82,10 +82,19 @@ explicitly, so new projects get the team defaults below.
     "specApproval": "batch",
     "integrationBranchPrefix": "wave/",
     "worktreeRoot": "../.worktrees",
-    "serializeWhen": ["shared-files", "migration", "auth", "payments", "config"],
+    "serializeWhen": ["shared-files", "migration", "auth", "payments", "sms", "config"],
     "finalIntegrationAudit": true,
     "portBase": 4100
   },
+  "sensitive": {
+    "patterns": {
+      "payments": ["pesapal", "flutterwave", "paystack", "stripe", "escrow", "payouts?", "disburse", "refund", "mobile[ _-]?money", "\\bmomo\\b", "payment"],
+      "sms": ["africa'?s[ _-]?talking", "africastalking", "\\bsms\\b", "\\bussd\\b"],
+      "webhooks": ["webhook"]
+    }
+  },
+  "research": { "web": true },
+  "dataHandling": { "sourceMayLeavePremises": null, "approvalRecord": null },
   "models": {
     "main": "claude-opus-5-5",
     "subagentDefault": "claude-sonnet-5-5",
@@ -116,7 +125,17 @@ Allowed values:
 - `avengers.maxConcurrent`: integer 1–8; `1` disables parallel builds.
 - `avengers.specApproval`: `batch` or `each`.
 - `avengers.serializeWhen`: any of `shared-files`, `migration`, `auth`,
-  `payments`, `config`, `sensitive`.
+  `payments`, `sms`, `config`, `sensitive` (`sensitive` serializes on every
+  pattern category).
+- `sensitive.patterns`: lowercase category names, each a non-empty list of
+  case-insensitive regular expressions. Listed categories extend the built-in
+  ones; payments and SMS can be extended but never removed. They are matched
+  against build-plan lines, specs, changed paths and diffs.
+- `research.web`: `false` blocks web tools through
+  `.claude/hooks/data-handling.mjs`.
+- `dataHandling.sourceMayLeavePremises`: `null`, `"yes"` or `"no"`; with
+  `profile: "restricted"` the prompt hook refuses every prompt while it is
+  `null`, and refuses cloud endpoints while it is `"no"`.
 - Model values: `inherit`, an alias (`fable`, `opus`, `sonnet`, `haiku`, `best`,
   `opusplan`, optionally with `[1m]`), or a full ID matching
   `^claude-[a-z0-9-]+$`.
@@ -200,6 +219,27 @@ each turn re-reads. So:
   and its page lists the files its role reads; reviewers and the implementer
   preload only the discipline they use (`mp-code-review`, `mp-tdd`).
 - **No agent for the happy path of landing.** The merger runs only on conflict.
+
+## Team defaults
+
+- **Sensitive work.** Payments and SMS are built-in sensitive categories. The
+  `when-sensitive` lists in `/complete`, `/continuous` and `/autopilot` name
+  them; `/avengers` also finds them deterministically (`avengers.mjs` matches
+  `sensitive.patterns` against plan lines, specs and diffs), turns on the lens
+  review and serializes items that share a category.
+- **Stacks.** `/ci` carries Verify recipes for Next.js/TypeScript (pnpm),
+  Expo/React Native, Flutter and mixed repositories; `/check` carries a mobile
+  recipe (component or widget tests, then a simulator screenshot, a Flutter
+  golden or an Expo web screenshot) so the check gate finishes on mobile work.
+- **Restricted work.** `skills/onboard/reference/restricted.md` is the process;
+  `.claude/hooks/data-handling.mjs` enforces the recorded answer and
+  `research.web`.
+- **Cadence.** `/mp-retro` after every wave and `/mp-architecture` weekly; both
+  write `blueprint/research/` notes and route accepted items to the findings
+  ledger or the build plan.
+- **Conventions.** The coding-standards template opens with Team conventions
+  (Conventional Commits, no AI attribution, branch prefixes, pnpm over Bun);
+  `skills/onboard/reference/standards/` holds Expo and Flutter starting points.
 
 ## Upstream sync
 

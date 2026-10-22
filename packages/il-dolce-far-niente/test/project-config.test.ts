@@ -246,10 +246,17 @@ test("Il Dolce Far Niente keys default to the documented values", () => {
     specApproval: "batch",
     integrationBranchPrefix: "wave/",
     worktreeRoot: "../.worktrees",
-    serializeWhen: ["shared-files", "migration", "auth", "payments", "config"],
+    serializeWhen: ["shared-files", "migration", "auth", "payments", "sms", "config"],
     finalIntegrationAudit: true,
     portBase: 4100
   });
+  assert.deepEqual(Object.keys(defaults.sensitive.patterns), ["payments", "sms", "webhooks"]);
+  assert.ok(defaults.sensitive.patterns.payments.includes("pesapal"));
+  assert.ok(defaults.sensitive.patterns.payments.includes("flutterwave"));
+  assert.ok(defaults.sensitive.patterns.payments.includes("escrow"));
+  assert.ok(defaults.sensitive.patterns.sms.includes("africastalking"));
+  assert.deepEqual(defaults.research, { web: true });
+  assert.deepEqual(defaults.dataHandling, { sourceMayLeavePremises: null, approvalRecord: null });
   assert.deepEqual(defaults.models, {
     main: "claude-opus-5-5",
     subagentDefault: "claude-sonnet-5-5",
@@ -517,4 +524,31 @@ test("parseLocalProjectConfig rejects keys outside models and avengers.maxConcur
   for (const [value, pattern] of cases) {
     assert.throws(() => parseLocalProjectConfig(value), pattern);
   }
+});
+
+test("sensitive patterns extend the defaults and never drop payments or SMS", () => {
+  const config = parseProjectConfig({
+    schemaVersion: 1,
+    sensitive: { patterns: { payments: ["airtel ?money"], identity: ["national id", "nin\\b"] } }
+  });
+  assert.ok(config.sensitive.patterns.payments.includes("pesapal"));
+  assert.ok(config.sensitive.patterns.payments.includes("airtel ?money"));
+  assert.ok(config.sensitive.patterns.sms.includes("africastalking"));
+  assert.deepEqual(config.sensitive.patterns.identity, ["national id", "nin\\b"]);
+  assert.throws(() => parseProjectConfig({ schemaVersion: 1, sensitive: { patterns: { Bad: ["x"] } } }), /lowercase/);
+  assert.throws(() => parseProjectConfig({ schemaVersion: 1, sensitive: { patterns: { x: ["("] } } }), /invalid pattern/);
+  assert.throws(() => parseProjectConfig({ schemaVersion: 1, sensitive: { patterns: { x: [] } } }), /non-empty/);
+});
+
+test("research and data-handling keys validate", () => {
+  const config = parseProjectConfig({
+    schemaVersion: 1,
+    research: { web: false },
+    dataHandling: { sourceMayLeavePremises: "no", approvalRecord: "Signed letter, 2026-10-22, contract folder" }
+  });
+  assert.equal(config.research.web, false);
+  assert.equal(config.dataHandling.sourceMayLeavePremises, "no");
+  assert.throws(() => parseProjectConfig({ schemaVersion: 1, dataHandling: { sourceMayLeavePremises: "maybe" } }), /null or one of/);
+  assert.throws(() => parseProjectConfig({ schemaVersion: 1, research: { web: "no" } }), /research.web/);
+  assert.deepEqual(parseProjectConfig({ schemaVersion: 1, avengers: { serializeWhen: ["sms"] } }).avengers.serializeWhen, ["sms"]);
 });

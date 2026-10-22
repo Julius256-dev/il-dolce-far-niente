@@ -9,6 +9,33 @@
 > `ai-interaction.md`, `.gitignore`, and README placement. Review the result
 > before `/overview`.
 
+<!-- ext:begin idfn-team-conventions -->
+## Team conventions
+
+These apply to every repository, whatever the stack. `/onboard` keeps this
+section when it tunes the rest of the file.
+
+- **Commits:** Conventional Commits, `type(scope): summary`, imperative mood,
+  summary under 72 characters. Types: `feat`, `fix`, `refactor`, `test`,
+  `docs`, `chore`, `perf`, `build`, `ci`, `revert`. One logical change per
+  commit.
+- **No AI attribution** in commits or pull requests: no `Co-Authored-By`
+  trailers for AI tools and no generated-by lines. Change this line only if the
+  project owner wants attribution.
+- **Branches:** `feature/<kebab-title>`, `fix/<kebab-title>`,
+  `rollback/<kebab-title>`; `/avengers` integration branches are `wave/<n>`.
+  They must match the prefixes in `blueprint/config.json` (`git`, `avengers`).
+- **Package manager:** pnpm for JavaScript and TypeScript, with
+  `pnpm-lock.yaml` committed. Do not introduce Bun, and do not mix lockfiles.
+  Flutter uses `flutter pub`, with `pubspec.lock` committed for apps.
+- **Verify:** every repository has one `Verify` command under Commands in
+  `AGENTS.md` (see `/ci`); nothing lands while it fails.
+- **Sensitive by default:** payments (PesaPal, Flutterwave, escrow, payouts)
+  and SMS (Africa's Talking, including webhooks) always get audit and
+  independent review. Verify webhook signatures, make handlers idempotent, and
+  never log full card, phone or account numbers.
+<!-- ext:end idfn-team-conventions -->
+
 ## TypeScript
 
 - Strict mode enabled

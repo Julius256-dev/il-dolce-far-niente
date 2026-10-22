@@ -205,6 +205,13 @@ Apply `qualityGates.regular.independentReview` before a same-session audit:
 - `when-sensitive` requires it for authentication, authorization, payments,
   secrets, personal or user data, migrations, destructive operations, external
   side effects, security boundaries, or unusually broad changes.
+  <!-- ext:begin idfn-sensitive-1 -->
+  Payments and SMS are always sensitive: any payment provider (PesaPal,
+  Flutterwave and others), escrow, payouts, refunds and mobile money; SMS, USSD
+  and messaging gateways such as Africa's Talking; and every webhook those
+  services call. So is anything matching `sensitive.patterns` in
+  `blueprint/config.json`.
+  <!-- ext:end idfn-sensitive-1 -->
 - `always` requires it for every work item.
 
 The selected review runs after all implementation steps, final Verify, required
@@ -245,6 +252,13 @@ Apply `qualityGates.regular.audit`:
 - `when-sensitive` - run `/audit current` for authentication, authorization,
   payments, secrets, personal or user data, migrations, destructive operations,
   external side effects, security boundaries, or unusually broad changes.
+  <!-- ext:begin idfn-sensitive-2 -->
+  Payments and SMS are always sensitive: any payment provider (PesaPal,
+  Flutterwave and others), escrow, payouts, refunds and mobile money; SMS, USSD
+  and messaging gateways such as Africa's Talking; and every webhook those
+  services call. So is anything matching `sensitive.patterns` in
+  `blueprint/config.json`.
+  <!-- ext:end idfn-sensitive-2 -->
 - `always` - run `/audit current` for every work item.
 
 When the gate runs, audit the active feature, its diff, and the nearby code

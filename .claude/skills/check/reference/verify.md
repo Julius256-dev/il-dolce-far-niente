@@ -58,6 +58,12 @@ type:
   driving, screenshots, console errors, and failed request checks. Never install
   it from `/check`; use another real-browser evidence path and report what you
   used, or point to `/tests browser` for later optional setup.
+<!-- ext:begin idfn-mobile-check -->
+- **Mobile app (Expo/React Native or Flutter)** - follow `mobile.md` in this
+  folder: component or widget tests for behavior, then a simulator screenshot,
+  a Flutter golden image, or an Expo web screenshot for each visual claim. It
+  never waits on a device that is not there.
+<!-- ext:end idfn-mobile-check -->
 - **CLI** - run the actual command(s) with representative inputs.
 - **Server/API** - start it and hit the endpoints.
 - **Library** - exercise the public API through an example or the test command.

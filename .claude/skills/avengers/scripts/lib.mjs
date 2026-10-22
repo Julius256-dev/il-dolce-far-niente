@@ -256,9 +256,15 @@ const DEFAULTS = {
     specApproval: "batch",
     integrationBranchPrefix: "wave/",
     worktreeRoot: "../.worktrees",
-    serializeWhen: ["shared-files", "migration", "auth", "payments", "config"],
+    serializeWhen: ["shared-files", "migration", "auth", "payments", "sms", "config"],
     finalIntegrationAudit: true,
     portBase: 4100
+  },
+  // Keep in step with defaultSensitivePatterns() in the installer's project-config.ts.
+  sensitivePatterns: {
+    payments: ["pesapal", "flutterwave", "paystack", "stripe", "escrow", "payouts?", "disburse", "refund", "mobile[ _-]?money", "\\bmomo\\b", "payment"],
+    sms: ["africa'?s[ _-]?talking", "africastalking", "\\bsms\\b", "\\bussd\\b"],
+    webhooks: ["webhook"]
   }
 };
 
@@ -283,7 +289,21 @@ export function readConfig(root) {
   }
   const avengers = { ...DEFAULTS.avengers, ...(team.avengers ?? {}) };
   if (Number.isInteger(local.avengers?.maxConcurrent)) avengers.maxConcurrent = local.avengers.maxConcurrent;
+  // Patterns extend the defaults per category; payments and SMS never drop out.
+  const sensitivePatterns = Object.fromEntries(
+    Object.entries(DEFAULTS.sensitivePatterns).map(([k, v]) => [k, [...v]])
+  );
+  for (const [category, list] of Object.entries(team.sensitive?.patterns ?? {})) {
+    if (Array.isArray(list)) sensitivePatterns[category] = [...new Set([...(sensitivePatterns[category] ?? []), ...list])];
+  }
   return {
+    profile: team.profile ?? "custom",
+    sensitivePatterns,
+    research: { web: team.research?.web !== false },
+    dataHandling: {
+      sourceMayLeavePremises: team.dataHandling?.sourceMayLeavePremises ?? null,
+      approvalRecord: team.dataHandling?.approvalRecord ?? null
+    },
     git: { ...DEFAULTS.git, ...(team.git ?? {}) },
     qualityGates: { continuous: { ...DEFAULTS.qualityGates.continuous, ...(team.qualityGates?.continuous ?? {}) } },
     review: { ...DEFAULTS.review, ...(team.review ?? {}) },
@@ -519,6 +539,23 @@ export function computeFrontier(text, { exclude = [] } = {}) {
     else blocked.push({ ...entry, waitingOn });
   });
   return { frontier: result, blocked, unknownDependencies: unknown };
+}
+
+// ---------------------------------------------------------------- sensitive categories
+
+/** Categories whose patterns match the text (case-insensitive), with the first hit for each. */
+export function classifySensitive(text, patterns) {
+  const hits = {};
+  for (const [category, list] of Object.entries(patterns)) {
+    for (const source of list) {
+      const m = String(text ?? "").match(new RegExp(source, "i"));
+      if (m) {
+        hits[category] = m[0];
+        break;
+      }
+    }
+  }
+  return hits;
 }
 
 // ---------------------------------------------------------------- overview fingerprint

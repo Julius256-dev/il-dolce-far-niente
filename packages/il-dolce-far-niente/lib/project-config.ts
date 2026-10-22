@@ -40,7 +40,9 @@ type AvengersSerializeReason =
   | "auth"
   | "payments"
   | "config"
+  | "sms"
   | "sensitive";
+type SourceMayLeavePremises = "yes" | "no";
 type ModelRole =
   | "planner"
   | "implementer"
@@ -73,6 +75,7 @@ const AVENGERS_SERIALIZE_REASONS: readonly AvengersSerializeReason[] = [
   "auth",
   "payments",
   "config",
+  "sms",
   "sensitive"
 ];
 const MODEL_ROLES: readonly ModelRole[] = [
@@ -147,6 +150,18 @@ interface ProjectConfig {
     serializeWhen: AvengersSerializeReason[];
     finalIntegrationAudit: boolean;
     portBase: number;
+  };
+  // Categories that always count as sensitive for the `when-sensitive` gates,
+  // each with case-insensitive patterns matched against plan lines, specs and diffs.
+  sensitive: {
+    patterns: Record<string, string[]>;
+  };
+  research: {
+    web: boolean;
+  };
+  dataHandling: {
+    sourceMayLeavePremises: SourceMayLeavePremises | null;
+    approvalRecord: string | null;
   };
   models: {
     main: string;
@@ -250,9 +265,19 @@ function createDefaultProjectConfig(): ProjectConfig {
       specApproval: "batch",
       integrationBranchPrefix: "wave/",
       worktreeRoot: "../.worktrees",
-      serializeWhen: ["shared-files", "migration", "auth", "payments", "config"],
+      serializeWhen: ["shared-files", "migration", "auth", "payments", "sms", "config"],
       finalIntegrationAudit: true,
       portBase: 4100
+    },
+    sensitive: {
+      patterns: defaultSensitivePatterns()
+    },
+    research: {
+      web: true
+    },
+    dataHandling: {
+      sourceMayLeavePremises: null,
+      approvalRecord: null
     },
     models: {
       main: "claude-opus-5-5",
@@ -344,6 +369,9 @@ function parseProjectConfig(value: unknown): ProjectConfig {
       "tracker",
       "domainDocs",
       "avengers",
+      "sensitive",
+      "research",
+      "dataHandling",
       "models"
     ],
     "config"
@@ -372,6 +400,9 @@ function parseProjectConfig(value: unknown): ProjectConfig {
   const trackerLabels = optionalRecord(tracker.labels, "tracker.labels");
   const domainDocs = optionalRecord(root.domainDocs, "domainDocs");
   const avengers = optionalRecord(root.avengers, "avengers");
+  const sensitive = optionalRecord(root.sensitive, "sensitive");
+  const research = optionalRecord(root.research, "research");
+  const dataHandling = optionalRecord(root.dataHandling, "dataHandling");
   const models = optionalRecord(root.models, "models");
   const modelRoles = optionalRecord(models.roles, "models.roles");
   const modelEffort = optionalRecord(models.effort, "models.effort");
@@ -421,6 +452,9 @@ function parseProjectConfig(value: unknown): ProjectConfig {
     ],
     "avengers"
   );
+  assertKnownKeys(sensitive, ["patterns"], "sensitive");
+  assertKnownKeys(research, ["web"], "research");
+  assertKnownKeys(dataHandling, ["sourceMayLeavePremises", "approvalRecord"], "dataHandling");
   assertKnownKeys(
     models,
     ["main", "subagentDefault", "roles", "effort", "reviewerMustDiffer"],
@@ -587,6 +621,20 @@ function parseProjectConfig(value: unknown): ProjectConfig {
         65535
       )
     },
+    sensitive: {
+      patterns: parseSensitivePatterns(sensitive.patterns, defaults.sensitive.patterns)
+    },
+    research: {
+      web: optionalBoolean(research.web, defaults.research.web, "research.web")
+    },
+    dataHandling: {
+      sourceMayLeavePremises: optionalNullableEnum(
+        dataHandling.sourceMayLeavePremises,
+        ["yes", "no"],
+        "dataHandling.sourceMayLeavePremises"
+      ),
+      approvalRecord: optionalNullableString(dataHandling.approvalRecord, "dataHandling.approvalRecord")
+    },
     models: {
       main: optionalModel(models.main, defaults.models.main, "models.main"),
       subagentDefault: optionalModel(
@@ -603,6 +651,98 @@ function parseProjectConfig(value: unknown): ProjectConfig {
       )
     }
   };
+}
+
+function defaultSensitivePatterns(): Record<string, string[]> {
+  return {
+    payments: [
+      "pesapal",
+      "flutterwave",
+      "paystack",
+      "stripe",
+      "escrow",
+      "payouts?",
+      "disburse",
+      "refund",
+      "mobile[ _-]?money",
+      "\\bmomo\\b",
+      "payment"
+    ],
+    sms: ["africa'?s[ _-]?talking", "africastalking", "\\bsms\\b", "\\bussd\\b"],
+    webhooks: ["webhook"]
+  };
+}
+
+// Patterns may add categories or replace a default category's list; a
+// category that is left out keeps its defaults, so payments and SMS can never
+// be switched off by omission.
+function parseSensitivePatterns(
+  value: unknown,
+  fallback: Record<string, string[]>
+): Record<string, string[]> {
+  const result: Record<string, string[]> = Object.fromEntries(
+    Object.entries(fallback).map(([category, patterns]) => [category, [...patterns]])
+  );
+
+  if (value === undefined) {
+    return result;
+  }
+
+  const record = requireRecord(value, "sensitive.patterns");
+
+  for (const [category, patterns] of Object.entries(record)) {
+    if (!/^[a-z][a-z0-9-]{0,31}$/.test(category)) {
+      throw new Error("sensitive.patterns keys must be lowercase category names such as payments.");
+    }
+
+    if (
+      !Array.isArray(patterns) ||
+      patterns.length === 0 ||
+      patterns.some((pattern) => typeof pattern !== "string" || pattern.trim() === "")
+    ) {
+      throw new Error(`sensitive.patterns.${category} must be a non-empty list of patterns.`);
+    }
+
+    for (const pattern of patterns as string[]) {
+      try {
+        new RegExp(pattern, "i");
+      } catch {
+        throw new Error(`sensitive.patterns.${category} has an invalid pattern: ${pattern}`);
+      }
+    }
+
+    result[category] = [...new Set([...(result[category] ?? []), ...(patterns as string[])])];
+  }
+
+  return result;
+}
+
+function optionalNullableEnum<const T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  label: string
+): T | null {
+  if (value === undefined || value === null) {
+    return null;
+  }
+
+  if (typeof value !== "string" || !allowed.includes(value as T)) {
+    throw new Error(`${label} must be null or one of: ${allowed.join(", ")}.`);
+  }
+
+  return value as T;
+}
+
+function optionalNullableString(value: unknown, label: string): string | null {
+  if (value === undefined || value === null) {
+    return null;
+  }
+
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(`${label} must be null or a non-empty string.`);
+  }
+
+  return value;
 }
 
 function parseModelRoles(value: Record<string, unknown>): Partial<Record<ModelRole, string>> {
