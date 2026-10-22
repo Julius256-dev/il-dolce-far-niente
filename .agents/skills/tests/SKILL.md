@@ -1,6 +1,8 @@
 ---
 name: tests
 description: Set up unit testing with /tests or /tests unit, or explicitly set up browser and end-to-end testing with /tests browser. Reuse or install a suitable test runner, add one example or smoke test, document commands, and verify. Use check for one-time live verification.
+metadata:
+  internal: true
 ---
 
 # tests - set up unit or browser testing

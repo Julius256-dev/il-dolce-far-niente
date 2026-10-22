@@ -2,6 +2,8 @@
 name: explore
 description: Explore an idea against the actual codebase without changing files. Investigate whether a change would help, compare alternatives and tradeoffs, and discuss uncertainty before deciding whether to plan anything. Use for /explore, considering an idea, or weighing options without writing a spec.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # explore - investigate an idea before deciding to build

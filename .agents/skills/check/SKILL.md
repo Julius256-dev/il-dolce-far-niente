@@ -1,6 +1,8 @@
 ---
 name: check
-description: Check the running app, CLI, or server against the active spec's done-when criteria and capture observable pass or fail evidence without editing source. Use /check to verify real feature behavior, or /check guide [latest|scope] for a read-only manual walkthrough: how to test manually, where to click, expected and incorrect results, or a human review path.
+description: "Check the running app, CLI, or server against the active spec's done-when criteria and capture observable pass or fail evidence without editing source. Use /check to verify real feature behavior, or /check guide [latest|scope] for a read-only manual walkthrough: how to test manually, where to click, expected and incorrect results, or a human review path."
+metadata:
+  internal: true
 ---
 
 # check - verify behavior or explain how to try it

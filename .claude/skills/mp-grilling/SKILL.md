@@ -1,6 +1,8 @@
 ---
 name: mp-grilling
 description: Grill the user relentlessly about a plan, decision, or idea, in rounds of numbered questions with recommended answers. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
+metadata:
+  internal: true
 ---
 
 # Grilling

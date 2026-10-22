@@ -25,6 +25,8 @@ jobs:
         run: npm run typecheck
       - name: Packed installer smoke test
         run: npm run test:package
+      - name: skills.sh offers only the install skill
+        run: npx tsx scripts/check-discovery.ts
       - name: Validate the Claude Code plugin and marketplace
         run: |
           npm install --global @anthropic-ai/claude-code

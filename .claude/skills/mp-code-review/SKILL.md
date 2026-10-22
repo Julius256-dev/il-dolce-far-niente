@@ -1,6 +1,8 @@
 ---
 name: mp-code-review
 description: "Two-axis diff review since a fixed point: Standards (documented coding standards plus a Fowler smell baseline) and Spec (does the code match its spec?), reported side by side. Use to review a branch, PR or work in progress, or as the standards/spec reviewer for /audit independent or /avengers."
+metadata:
+  internal: true
 ---
 
 # Code Review

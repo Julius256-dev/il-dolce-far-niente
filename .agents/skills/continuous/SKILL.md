@@ -1,6 +1,8 @@
 ---
 name: continuous
 description: Build every remaining planned feature serially in explicit Continuous Mode, with one local branch, verification cycle, commit, archive, and local merge per feature. Stop on decisions or blockers and never push or deploy. Use only for /continuous, $continuous, or a direct Continuous Mode request.
+metadata:
+  internal: true
 ---
 
 # continuous - complete the build plan one local feature at a time

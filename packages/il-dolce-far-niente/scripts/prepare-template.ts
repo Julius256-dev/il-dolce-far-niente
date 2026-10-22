@@ -12,6 +12,7 @@ const entries: readonly string[] = ["AGENTS.md", "CLAUDE.md", ".agents", ".claud
 // Developer-local or generated files that must never ship in the template,
 // even when they exist in this checkout.
 const excludedPaths: readonly string[] = [
+  ".agents/plugins",
   ".claude/settings.local.json",
   "blueprint/.state/run.json",
   "blueprint/config.local.json"

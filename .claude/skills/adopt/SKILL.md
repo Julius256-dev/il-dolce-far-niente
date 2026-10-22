@@ -2,6 +2,8 @@
 name: adopt
 description: Adopt Blueprint into an existing brownfield codebase by surveying shipped behavior and generating plans, standards, commands, adapter choices, and visibility setup. Use for /adopt or requests to bootstrap Blueprint into an established app. Use onboard for a fresh scaffold.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # adopt - bootstrap the blueprint from an existing codebase

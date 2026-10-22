@@ -1,6 +1,8 @@
 ---
 name: avengers
 description: Build several unblocked build-plan features in parallel as a wave, each in its own Git worktree with planner, implementer and fresh reviewer subagents, landing them one at a time onto an integration branch under single-feature gates, or resume an unfinished wave. Never pushes. Use only for /avengers, $avengers, or a direct parallel-build request.
+metadata:
+  internal: true
 ---
 
 # avengers - build the frontier in parallel, land it serially

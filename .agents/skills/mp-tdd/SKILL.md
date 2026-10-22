@@ -1,6 +1,8 @@
 ---
 name: mp-tdd
 description: Test-driven development discipline (red-green loop, good tests at agreed seams, mocking, anti-patterns). Use when building features or fixing bugs test-first, writing a failing test before the code, "red-green-refactor", or adding integration tests when the project has a test command.
+metadata:
+  internal: true
 ---
 
 # Test-Driven Development

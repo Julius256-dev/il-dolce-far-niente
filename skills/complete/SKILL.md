@@ -2,6 +2,8 @@
 name: complete
 description: Complete a finished feature, fix, or rollback by running final gates, archiving its spec, updating plans, creating the work commit, and requesting approval to land it locally or by pull request. Use for /complete or requests to finish, wrap up, merge, or close the current work item.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # complete - log the finished work, make the work commit, and land it

@@ -1,6 +1,8 @@
 ---
 name: mp-research
 description: Investigate a question against high-trust primary sources (official docs, source code, specs, first-party APIs) in a background agent and save cited findings to blueprint/research/. Use when the user wants a topic researched, library or API facts gathered, or reading legwork delegated.
+metadata:
+  internal: true
 ---
 
 # Research

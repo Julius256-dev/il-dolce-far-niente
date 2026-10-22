@@ -2,6 +2,8 @@
 name: feature
 description: Turn the next, named, or numbered build-plan feature into a buildable current-feature.md spec with small steps and done-when criteria. Use for /feature, planning a feature, or starting planned work.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # feature - create the active implementation spec

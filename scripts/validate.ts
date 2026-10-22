@@ -51,6 +51,8 @@ const REQUIRED_PATHS = [
   "blueprint/context/tracker.md",
   ".claude/hooks/block-remote-git.mjs",
   ".claude-plugin/marketplace.json",
+  ".agents/plugins/marketplace.json",
+  "plugin/plugin.json",
   "plugin/.claude-plugin/plugin.json",
   "packages/il-dolce-far-niente/package.json",
   "packages/il-dolce-far-niente/LICENSE",
@@ -91,9 +93,40 @@ function frontmatter(content: string): Record<string, string> | null {
   const fields: Record<string, string> = {};
   for (const line of match[1].split(/\r?\n/)) {
     const field = line.match(/^([A-Za-z][\w-]*):\s*(.*)$/);
-    if (field) fields[field[1]] = field[2].trim();
+    if (field) fields[field[1]] = unquote(field[2].trim());
+    const nested = line.match(/^\s+([A-Za-z][\w-]*):\s*(.*)$/);
+    if (nested) fields[`.${nested[1]}`] = unquote(nested[2].trim());
   }
   return fields;
+}
+
+function unquote(value: string): string {
+  if (value.length >= 2 && value.startsWith('"') && value.endsWith('"')) {
+    try {
+      return JSON.parse(value) as string;
+    } catch {
+      return value;
+    }
+  }
+  if (value.length >= 2 && value.startsWith("'") && value.endsWith("'")) return value.slice(1, -1).replace(/''/g, "'");
+  return value;
+}
+
+// Strict YAML parsers (Codex, Copilot, the skills CLI) reject a plain scalar
+// containing ": " or " #", or starting with an indicator. Claude Code is
+// lenient, so these slip through unless checked.
+function plainScalarProblems(content: string): string[] {
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match) return [];
+  const problems: string[] = [];
+  for (const line of match[1].split(/\r?\n/)) {
+    const field = line.match(/^\s*([A-Za-z][\w-]*):\s+(.+)$/);
+    if (!field) continue;
+    const value = field[2].trim();
+    if (/^["']/.test(value)) continue;
+    if (/: /.test(value) || / #/.test(value) || /^[[\]{}&*!|>%@`,?-]/.test(value)) problems.push(field[1]);
+  }
+  return problems;
 }
 
 async function checkRequiredPaths(): Promise<void> {
@@ -124,6 +157,12 @@ async function checkSkills(): Promise<string[]> {
       continue;
     }
     if (fm.name !== skill) fail(`skills/${skill}: name "${fm.name}" does not match its folder`);
+    for (const key of plainScalarProblems(content)) {
+      fail(`skills/${skill}: frontmatter ${key} is not valid strict YAML; quote it (Codex, Copilot and skills.sh skip the skill)`);
+    }
+    if (fm.metadata !== "" || fm[".internal"] !== "true") {
+      fail(`skills/${skill}: needs "metadata:\\n  internal: true" so skills.sh offers only the install skill`);
+    }
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(skill) || skill.length > 64) fail(`skills/${skill}: name is not portable`);
     if (!fm.description) fail(`skills/${skill}: description is missing`);
     else {
@@ -258,6 +297,25 @@ async function checkAgents(): Promise<void> {
 async function checkPlugin(): Promise<void> {
   const market = JSON.parse(await fs.readFile(path.join(repoRoot, ".claude-plugin/marketplace.json"), "utf8"));
   const plugin = JSON.parse(await fs.readFile(path.join(repoRoot, "plugin/.claude-plugin/plugin.json"), "utf8"));
+  const portable = JSON.parse(await fs.readFile(path.join(repoRoot, "plugin/plugin.json"), "utf8"));
+  const codexMarket = JSON.parse(await fs.readFile(path.join(repoRoot, ".agents/plugins/marketplace.json"), "utf8"));
+  if (!/^https:\/\/agent-plugins\.org\/schemas\/1\.\d+\.\d+\/plugin\.schema\.json$/.test(portable.$schema ?? "")) {
+    fail("plugin/plugin.json must declare the Agent Plugins $schema");
+  }
+  for (const key of ["name", "version", "description", "license"] as const) {
+    if (portable[key] !== plugin[key]) fail(`plugin/plugin.json ${key} differs from plugin/.claude-plugin/plugin.json`);
+  }
+  const codexEntry = codexMarket.plugins?.find((p: { name: string }) => p.name === plugin.name);
+  if (!codexEntry) fail(".agents/plugins/marketplace.json does not list the plugin");
+  else {
+    if (codexEntry.source?.path !== "./plugin") fail(".agents/plugins/marketplace.json must point at ./plugin");
+    if (!codexEntry.policy?.installation || !codexEntry.policy?.authentication || !codexEntry.category) {
+      fail(".agents/plugins/marketplace.json entries need policy.installation, policy.authentication and category");
+    }
+  }
+  const install = await fs.readFile(path.join(repoRoot, "plugin/skills/install/SKILL.md"), "utf8");
+  if (plainScalarProblems(install).length) fail("plugin/skills/install/SKILL.md frontmatter is not valid strict YAML");
+  if (/internal:\s*true/.test(install)) fail("plugin/skills/install must stay visible to skills.sh");
   const pkg = JSON.parse(await fs.readFile(path.join(repoRoot, "packages/il-dolce-far-niente/package.json"), "utf8"));
   if (plugin.name !== "il-dolce-far-niente") fail("plugin name must be il-dolce-far-niente");
   if (plugin.version !== pkg.version) fail(`plugin version ${plugin.version} differs from installer version ${pkg.version}`);

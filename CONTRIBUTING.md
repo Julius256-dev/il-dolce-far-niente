@@ -50,8 +50,17 @@ Never edit `upstream/` or `.upstream-base/` by hand.
 
 ## Releasing
 
-1. Bump `version` in `packages/il-dolce-far-niente/package.json` and
-   `plugin/.claude-plugin/plugin.json` together, and update `CHANGELOG.md`.
-2. `npm run check`, then `npm run test:package`.
-3. Tag `v<version>` and publish from `packages/il-dolce-far-niente`
-   (`npm publish`). Plugin users get the new version from the marketplace.
+One version ships through every channel: npm, the Claude Code, Codex and
+Copilot plugins (read from this repository's marketplaces) and skills.sh (reads
+the repository directly).
+
+1. `npm run release:version -- <x.y.z>` sets the version in the npm package, its
+   lockfile, `plugin/.claude-plugin/plugin.json` and `plugin/plugin.json`.
+2. Add a `## <x.y.z>` section to `CHANGELOG.md`.
+3. `npm run check`, `npm run typecheck`, `npm run test:package` and
+   `npm run check:discovery`, then merge to `main` through a pull request.
+4. Tag the merge commit: `git tag v<x.y.z> && git push origin v<x.y.z>`. The
+   Release workflow checks that every channel and the changelog agree, reruns
+   the checks, publishes to npm with provenance (it needs the `NPM_TOKEN`
+   repository secret) and creates the GitHub release from the changelog
+   section. Plugin users get the version from the marketplace.

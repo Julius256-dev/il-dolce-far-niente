@@ -1,6 +1,8 @@
 ---
 name: ci
 description: Set up or normalize one project Verify command and matching GitHub Actions checks while preserving existing CI, with an optional local pre-push hook. Use for /ci, GitHub Actions setup, pull-request checks, automatic checks, pre-push hooks, or aligning typecheck, test, and build verification.
+metadata:
+  internal: true
 ---
 
 # ci - set up automatic GitHub checks

@@ -1,6 +1,8 @@
 ---
 name: mp-writing-for-agents
 description: Writing documents for agents (context pointers, branches, pruning, predictable process). Use when creating or editing skills or their descriptions, or modifying AGENTS.md, CLAUDE.md, or other docs an agent reads.
+metadata:
+  internal: true
 ---
 
 # Writing for Agents

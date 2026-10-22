@@ -2,6 +2,7 @@
 name: mp-pr
 description: "PR body format (Summary visual, before/after Evidence, Merge Danger door and blast radius). Use when writing or editing a pull request description, including the PR body /complete opens when git.landing is pull-request."
 metadata:
+  internal: true
   credits:
     skill: show-me
     author: Dex Horthy

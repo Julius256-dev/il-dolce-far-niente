@@ -2,6 +2,8 @@
 name: audit
 description: Audit current changes, a path, or the full project for quality, security, performance, or test problems and record durable findings. Independent mode prepares or completes a fresh-reviewer checkpoint handoff. Use for /audit, independent review, security review, code quality review, dead code, duplication, or standards drift.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # audit - review code quality against the project standards

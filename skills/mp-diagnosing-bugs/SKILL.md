@@ -1,6 +1,8 @@
 ---
 name: mp-diagnosing-bugs
 description: Diagnosis discipline for hard bugs and performance regressions (red-capable feedback loop, minimise, ranked falsifiable hypotheses, instrumentation, regression test). Use when a bug is hard to pin down, flaky or slow, or when /debug needs a rigorous reproduction loop.
+metadata:
+  internal: true
 ---
 
 # Diagnosing Bugs

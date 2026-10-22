@@ -2,6 +2,8 @@
 name: mp-wayfinder
 description: Plan a huge, foggy chunk of work (more than one agent session can hold) as a shared map of decision tickets on the tracker, resolve them one per session until the way to the destination is clear, then hand off to build-plan items or a spec. Use only for /mp-wayfinder.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Wayfinder

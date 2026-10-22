@@ -1,0 +1,20 @@
+{
+  "name": "julius256-dev",
+  "interface": {
+    "displayName": "Julius Okuyat"
+  },
+  "plugins": [
+    {
+      "name": "il-dolce-far-niente",
+      "source": {
+        "source": "local",
+        "path": "./plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

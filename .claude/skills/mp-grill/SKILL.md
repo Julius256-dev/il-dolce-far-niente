@@ -2,6 +2,8 @@
 name: mp-grill
 description: A relentless interview to sharpen a plan or design, which also creates domain docs (ADRs and glossary) as we go. Use only for /mp-grill.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Grill

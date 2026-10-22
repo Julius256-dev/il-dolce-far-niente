@@ -1,6 +1,8 @@
 ---
 name: debug
 description: Diagnose a failing test, build, crash, regression, or unexpected behavior without editing source. Reproduce the symptom, test hypotheses, identify the supported root cause, and hand off a repair. Use for /debug, root-cause investigation, or questions about why something is broken.
+metadata:
+  internal: true
 ---
 
 # debug - find the cause before changing the code

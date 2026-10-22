@@ -1,6 +1,8 @@
 ---
 name: models
 description: Show and change the model and effort for the main agent and each subagent role (planner, implementer, merger, explorer, reviewers), for the team or just you, and check subagents ran on the requested models. Use for /models or agent model settings.
+metadata:
+  internal: true
 ---
 
 # models - choose the model for every role

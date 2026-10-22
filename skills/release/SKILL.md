@@ -2,6 +2,8 @@
 name: release
 description: Prepare local Render or Vercel deployment configuration and verify build, start, output, environment, and health-check readiness without deploying. Use for /release, Render setup, Vercel setup, deploy readiness, render.yaml, or vercel.json.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # release - deployment readiness for Render and Vercel

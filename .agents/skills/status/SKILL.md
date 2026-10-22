@@ -1,6 +1,8 @@
 ---
 name: status
 description: Show read-only build-plan progress, active steps, git state, drift warnings, and the next action. Use for /status, what is in progress, what comes next, or resuming after a break or context clear.
+metadata:
+  internal: true
 ---
 
 # status - where the project stands right now

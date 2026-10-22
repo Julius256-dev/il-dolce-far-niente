@@ -1,0 +1,72 @@
+name: Release
+
+# Publishes one version to every channel when a maintainer pushes a tag such as
+# v0.3.0. Prepare it first with `npx tsx scripts/release-version.ts 0.3.0`, add
+# the CHANGELOG section, merge, then tag main.
+#
+# - npm: `il-dolce-far-niente`, with provenance. Needs the NPM_TOKEN secret
+#   (an npm automation or granular token with publish rights on the package).
+# - Claude Code, Codex and Copilot plugins: read from this repository's
+#   marketplaces, so the version bump on main is the release; nothing to upload.
+# - skills.sh: reads this repository directly; nothing to upload.
+# - GitHub release: notes taken from the CHANGELOG section.
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: Tag must be on main
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - run: npm ci
+      - run: npm ci --prefix packages/il-dolce-far-niente
+      - name: Versions and changelog agree with the tag
+        run: npx tsx scripts/release-version.ts --check "$GITHUB_REF_NAME"
+      - name: Full check
+        run: |
+          npm run check
+          npm run typecheck
+          npm run test:package
+          npx tsx scripts/check-discovery.ts
+      - name: Validate plugins
+        run: |
+          npm install --global @anthropic-ai/claude-code
+          claude plugin validate ./plugin --strict
+          claude plugin validate .
+      - name: Publish to npm
+        working-directory: packages/il-dolce-far-niente
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '
+            $0 ~ "^## " v "([[:space:]]|$)" { on = 1; next }
+            on && /^## / { exit }
+            on { print }
+          ' CHANGELOG.md > release-notes.md
+          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file release-notes.md --verify-tag
