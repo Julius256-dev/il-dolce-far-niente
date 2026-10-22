@@ -1,105 +1,100 @@
-# Il Dolce Far Niente
+<p align="center"><img src="plugin/.claude-plugin/icon.png" alt="" width="96" height="96"></p>
 
-**Build several features at once with AI agents, without giving up review.**
+<h1 align="center">Il Dolce Far Niente</h1>
 
-Il Dolce Far Niente is an installable set of agent skills for teams that build
-real software with Claude Code (and Codex, Copilot, Antigravity or OpenCode).
-It combines:
+<p align="center"><strong>Let AI agents build several features at once. You approve the plans and the landing.</strong></p>
 
-- **[AI Blueprint](https://ai-blueprint.dev/)**'s file-backed, gated feature loop:
-  spec → small verified steps → proof → fresh-context review → archive.
-- **`/avengers`**: build every unblocked build-plan item in parallel, each in its
-  own Git worktree with its own planner, implementer and reviewers, then land them
-  one at a time on an integration branch that only you merge.
-- **[Matt Pocock's skills](https://github.com/mattpocock/skills)** for the
-  engineering practice Blueprint doesn't cover: two-axis code review, TDD,
-  triage, wayfinding, architecture surveys and retros.
-- **Per-role models**: Opus 5.5 plans and reviews, Sonnet 5.5 builds, by default.
-  Change any role for the team or just for you with `/models`.
+<p align="center">
+  <a href="https://julius256-dev.github.io/il-dolce-far-niente/">Website</a> ·
+  <a href="#get-started">Get started</a> ·
+  <a href="#all-commands">Commands</a> ·
+  <a href="https://www.npmjs.com/package/il-dolce-far-niente"><img src="https://img.shields.io/npm/v/il-dolce-far-niente" alt="npm version" align="center"></a>
+</p>
 
-Nothing in it pushes, publishes or deploys on its own. Subagents run behind a hook
-that blocks pushes and any change to your default branch.
+Il Dolce Far Niente is a set of skills for AI coding agents (Claude Code, Codex,
+GitHub Copilot, OpenCode, Antigravity). It gives every feature the same careful
+loop: a written spec you approve, small tested steps, proof that it works, a
+review by a fresh agent, and an archive. With `/avengers` it runs that loop for
+several features in parallel, each in its own Git worktree, and lands them one
+at a time on a branch that only you merge.
 
-## Install
+It never pushes, publishes or deploys on its own.
 
-The workflow lives in your repository, so every teammate and every agent shares
-the same files. Scaffold your app first (any stack), make it a Git repository,
-then install it with whichever channel suits you. Every channel runs the same
-installer and ships the same version.
+## Get started
 
-| You use | Install | Updates |
-| --- | --- | --- |
-| Any agent, from a terminal | `npx il-dolce-far-niente@latest` | `npx il-dolce-far-niente@latest update` |
-| Claude Code | `claude plugin marketplace add Julius256-dev/il-dolce-far-niente`<br>`claude plugin install il-dolce-far-niente@julius256-dev` | The plugin updates itself; ask it to "update Il Dolce Far Niente" |
-| Codex | `codex plugin marketplace add Julius256-dev/il-dolce-far-niente`<br>`codex plugin add il-dolce-far-niente@julius256-dev` | The plugin updates at startup |
-| GitHub Copilot CLI | `copilot plugin marketplace add Julius256-dev/il-dolce-far-niente`<br>`copilot plugin install il-dolce-far-niente@julius256-dev` | `copilot plugin update il-dolce-far-niente` |
-| Cursor, OpenCode, Windsurf and others | `npx skills@latest add Julius256-dev/il-dolce-far-niente` | `npx skills@latest update` |
+You need an app in a Git repository (any stack, scaffold it first) and Node.js 22+.
 
-The plugin and skills.sh channels add one `install` skill: ask your agent to
-"install Il Dolce Far Niente" and approve the command it shows. It runs the npm
-installer with a flag for each tool your team uses (`--claude`, `--codex`,
-`--copilot`, `--opencode`, `--antigravity`). Updates never overwrite files you
-edited locally without asking.
+1. **Install**, from the root of your app:
 
-Then, in your agent:
+   ```bash
+   npx il-dolce-far-niente@latest
+   ```
 
-1. `/onboard` - tune commands and standards, pick a profile (`client-delivery`,
-   `product` or `restricted`), your issue tracker, and models.
-2. Write `blueprint/project-plan.md` and `blueprint/build-plan.md` (or run
-   `/discovery`), then `/overview`.
-3. `/plan-graph` - mark which build-plan items depend on which.
-4. `/avengers` - build the unblocked ones in parallel. Or `/feature` for one at a time.
+2. **Onboard.** Restart your agent and run `/onboard`. For an app that already has
+   features, run `/adopt` instead.
+3. **Plan.** Describe the project in `blueprint/project-plan.md` and list features
+   in `blueprint/build-plan.md` (or run `/discovery` to be interviewed), then run
+   `/overview`.
+4. **Add checks.** Run `/ci` once to get one Verify command (typecheck, tests,
+   build) that every change must pass.
+5. **Build.**
+   - One feature: `/feature` → `/implement` → `/check` → `/complete`.
+   - Several at once: `/plan-graph` to mark what depends on what, then `/avengers`.
 
-For classified or regulated code, read [docs/RESTRICTED.md](docs/RESTRICTED.md)
-before installing anything.
+In Codex, type `$feature` instead of `/feature`.
 
-## How `/avengers` works
+## Install for your tool
 
-1. Reads the build plan's dependency suffixes (`_(after: 2, 3)_`) and picks the
-   **frontier**: items whose blockers are done. Items that would touch the same
-   files, or both touch auth, payments, migrations or shared config, are split
-   into later waves.
-2. A **planner** writes each spec in its own worktree. You approve them in one
-   packet.
-3. An **implementer** builds each spec test-first; Verify runs after every step.
-4. Fresh **reviewers** check each item: Blueprint's quality, security,
-   performance and tests lens, plus Matt Pocock's standards and spec axes. P0/P1
-   findings block landing; repairs are re-reviewed in full.
-5. A landing script archives each passing item exactly like `/complete` and
-   squash-merges it onto `wave/<n>`, one at a time. A **merger** agent steps in
-   only when a landing conflicts.
-6. An integration audit checks the combined wave. You choose how it lands: local
-   merge or pull request.
+All routes install the same version into your repo. The plugins add one
+`install` skill: ask your agent to "install Il Dolce Far Niente" and approve the
+command it shows.
 
-### Keeping usage low
+| You use | Install |
+| --- | --- |
+| Any agent | `npx il-dolce-far-niente@latest` |
+| Claude Code | `claude plugin marketplace add Julius256-dev/il-dolce-far-niente`<br>`claude plugin install il-dolce-far-niente@julius256-dev` |
+| Codex | `codex plugin marketplace add Julius256-dev/il-dolce-far-niente`<br>`codex plugin add il-dolce-far-niente@julius256-dev` |
+| GitHub Copilot CLI | `copilot plugin marketplace add Julius256-dev/il-dolce-far-niente`<br>`copilot plugin install il-dolce-far-niente@julius256-dev` |
+| Cursor, OpenCode, Windsurf | `npx skills@latest add Julius256-dev/il-dolce-far-niente` |
 
-The orchestrator is a coordinator: `avengers.mjs` and `land.mjs` do the
-bookkeeping and the `/complete` archive steps in one call each, agents start
-without `AGENTS.md` and read only their role's files, and the merger runs only
-when a landing conflicts. On a measured 4-item wave this cut orchestrator spend
-by 41% and the whole wave by 28%, with every gate still in place. See
-[docs/DESIGN.md](docs/DESIGN.md#keeping-usage-low).
+**Update** with `npx il-dolce-far-niente@latest update`. Files you changed
+locally are never overwritten without asking.
 
-## Team defaults
+## How a parallel build works
+
+1. **Pick what can start.** Build-plan items say what they wait for, like
+   `_(after: 2, 3)_`. Items that touch the same files, or both touch payments or
+   SMS, go in different waves.
+2. **Plan each feature.** A planner writes each spec in its own worktree. You
+   approve them all in one packet.
+3. **Build in parallel.** Builders work test-first, one small verified step at a
+   time.
+4. **Review fresh.** Reviewers who never saw the build check the coding
+   standards and the spec, plus security and quality when the work is sensitive.
+   Serious findings block landing until a re-review closes them.
+5. **Land one at a time.** Each feature is archived and squashed onto
+   `wave/<n>`, and Verify runs again after every landing.
+6. **You merge.** A final review covers the whole wave, then it waits for your yes.
+
+## Built for real client work
 
 - **Payments and SMS are always sensitive.** PesaPal, Flutterwave, escrow,
-  payouts and Africa's Talking (including webhooks) get audit and independent
-  review automatically, and `/avengers` never builds two of them in one wave.
-  Add your own categories under `sensitive.patterns`.
-- **One Verify per repo, any stack.** `/ci` has recipes for Next.js (pnpm),
-  Expo and Flutter, and `/check` proves mobile features with widget tests plus a
-  simulator screenshot or golden image.
-- **Restricted work.** Before any agent touches classified code, get the
-  client's written answer to "may the source leave the premises?" and record it.
-  A hook enforces it; with "no", run on a locally hosted model with web research
-  off. See [docs/RESTRICTED.md](docs/RESTRICTED.md).
-- **Cadence.** `/mp-retro` after every wave, `/mp-architecture` weekly; their
-  results land in `blueprint/research/`, the findings ledger and the build plan.
-- **Conventions.** New repos start with Conventional Commits, no AI attribution,
-  `feature/`/`fix/`/`rollback/` branches and pnpm over Bun in
-  `coding-standards.md`.
+  payouts and Africa's Talking (including webhooks) always get an audit and an
+  independent review, and two of them never share a wave.
+- **Restricted code.** For classified or regulated work, get the client's
+  written answer on whether code may leave the premises before any agent runs.
+  See [docs/RESTRICTED.md](docs/RESTRICTED.md).
+- **Web and mobile.** Verify recipes for Next.js (pnpm), Expo and Flutter, and a
+  mobile check that uses widget tests plus a simulator screenshot.
+- **Team habits.** Conventional commits, no AI attribution, consistent branch
+  names, a retro after every wave and a weekly architecture review.
+- **A model for every role.** By default Opus 5.5 plans and reviews and Sonnet
+  5.5 builds. Change any role for the team or just for you with `/models`.
 
-## Commands
+## All commands
+
+<details>
+<summary>Show all 39 commands</summary>
 
 | Command | What it does |
 | --- | --- |
@@ -143,29 +138,26 @@ by 41% and the whole wave by 28%, with every gate still in place. See
 | **/mp-pr** | Pull request body format used when landing by pull request |
 | **/mp-writing-for-agents** | How to write skills and agent instructions |
 
-In Codex use `$name` instead of `/name`.
+</details>
 
-## Models
+## Configuration
 
-| Role | Default |
+Team settings live in `blueprint/config.json` (profile, review gates, tracker,
+parallel limits, sensitive categories, models). Personal model overrides go in
+the Git-ignored `blueprint/config.local.json`. `/onboard` sets the common ones;
+[docs/DESIGN.md](docs/DESIGN.md) lists every key.
+
+| Role | Default model |
 | --- | --- |
-| Main agent | Opus 5.5 (`claude-opus-5-5`) |
-| Planner, lens / standards / spec reviewers | Opus 5.5, medium effort |
-| Implementer, merger (conflicts only), explorer | Sonnet 5.5 (`claude-sonnet-5-5`) |
+| Main agent | Opus 5.5 |
+| Planner and the three reviewers | Opus 5.5, medium effort |
+| Implementer, merger (conflicts only), explorer | Sonnet 5.5 |
 
-Team defaults live in `blueprint/config.json` under `models`; personal overrides
-in the Git-ignored `blueprint/config.local.json`. Orchestrators pass each role's
-model on every subagent call. A session's own model is set with `/model`, or by
-starting with `claude --agent avengers-lead`.
-
-## Staying current with upstream
+## Contributing and upstream updates
 
 The repo keeps pristine copies of AI Blueprint and Matt Pocock's skills under
-`upstream/` (via `git subtree`). A weekly workflow pulls new upstream commits and
-three-way merges them into our copies (`npm run sync:upstream`), then opens a
-pull request. Our additions sit between `<!-- ext:begin -->` markers so they
-rarely conflict. See [docs/DESIGN.md](docs/DESIGN.md) and
-[CONTRIBUTING.md](CONTRIBUTING.md).
+`upstream/`. A weekly workflow merges their updates in and opens a pull request.
+See [CONTRIBUTING.md](CONTRIBUTING.md) to develop, test and release.
 
 ## Credits and licence
 

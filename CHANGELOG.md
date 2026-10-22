@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- A website at https://julius256-dev.github.io/il-dolce-far-niente/, published
+  from `site/` by the Website workflow.
+- A shorter README built around a five-step quick start.
+
 ## 0.3.0 - unreleased
 
 The first published version. It includes everything listed under 0.1.0 below,
