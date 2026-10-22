@@ -22,11 +22,24 @@ that blocks pushes and any change to your default branch.
 
 ## Install
 
-Scaffold your app first (any stack), make it a Git repository, then from its root:
+The workflow lives in your repository, so every teammate and every agent shares
+the same files. Scaffold your app first (any stack), make it a Git repository,
+then install it with whichever channel suits you. Every channel runs the same
+installer and ships the same version.
 
-```bash
-npx il-dolce-far-niente@latest
-```
+| You use | Install | Updates |
+| --- | --- | --- |
+| Any agent, from a terminal | `npx il-dolce-far-niente@latest` | `npx il-dolce-far-niente@latest update` |
+| Claude Code | `claude plugin marketplace add Julius256-dev/il-dolce-far-niente`<br>`claude plugin install il-dolce-far-niente@julius256-dev` | The plugin updates itself; ask it to "update Il Dolce Far Niente" |
+| Codex | `codex plugin marketplace add Julius256-dev/il-dolce-far-niente`<br>`codex plugin add il-dolce-far-niente@julius256-dev` | The plugin updates at startup |
+| GitHub Copilot CLI | `copilot plugin marketplace add Julius256-dev/il-dolce-far-niente`<br>`copilot plugin install il-dolce-far-niente@julius256-dev` | `copilot plugin update il-dolce-far-niente` |
+| Cursor, OpenCode, Windsurf and others | `npx skills@latest add Julius256-dev/il-dolce-far-niente` | `npx skills@latest update` |
+
+The plugin and skills.sh channels add one `install` skill: ask your agent to
+"install Il Dolce Far Niente" and approve the command it shows. It runs the npm
+installer with a flag for each tool your team uses (`--claude`, `--codex`,
+`--copilot`, `--opencode`, `--antigravity`). Updates never overwrite files you
+edited locally without asking.
 
 Then, in your agent:
 
@@ -37,16 +50,8 @@ Then, in your agent:
 3. `/plan-graph` - mark which build-plan items depend on which.
 4. `/avengers` - build the unblocked ones in parallel. Or `/feature` for one at a time.
 
-Update later with `npx il-dolce-far-niente@latest update`. Files you edited
-locally are never overwritten silently.
-
-Claude Code users can also install the helper plugin, which runs the installer
-and updates from inside a session:
-
-```bash
-claude plugin marketplace add Julius256-dev/il-dolce-far-niente
-claude plugin install il-dolce-far-niente@julius256-dev
-```
+For classified or regulated code, read [docs/RESTRICTED.md](docs/RESTRICTED.md)
+before installing anything.
 
 ## How `/avengers` works
 

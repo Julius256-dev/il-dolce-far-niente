@@ -1,6 +1,8 @@
 ---
 name: prototype
 description: Plan and create throwaway static HTML and CSS mockups with shared design tokens before feature implementation. Use for /prototype, screen mockups, layout exploration, themes, or deciding a project's look and feel.
+metadata:
+  internal: true
 ---
 
 # prototype - lock the look before you build

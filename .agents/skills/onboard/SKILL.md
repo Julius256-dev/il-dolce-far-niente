@@ -1,6 +1,8 @@
 ---
 name: onboard
 description: Onboard a fresh or early scaffold after Blueprint is overlaid by tuning commands, standards, adapters, visibility, and context loading. Use for /onboard, fresh installation setup, or what to do after installing Blueprint. Use adopt for an established app.
+metadata:
+  internal: true
 ---
 
 # onboard - finish the Blueprint overlay setup

@@ -1,6 +1,8 @@
 ---
 name: autopilot
 description: Run one explicit bounded Blueprint spec and implementation pass through configured quality gates, then stop before completion or external actions. Use only when the user directly invokes /autopilot, $autopilot, or asks for Autopilot.
+metadata:
+  internal: true
 ---
 
 # autopilot - optional Blueprint loop

@@ -2,6 +2,8 @@
 name: rollback
 description: Plan a safe history-preserving reversal of a completed feature from its archive and exact commit, including later-dependency risk, then stop before implementation. Use for /rollback or requests to undo, remove, or reverse a completed feature.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # rollback - safely reverse a completed feature

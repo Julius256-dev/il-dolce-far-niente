@@ -2,6 +2,8 @@
 name: doctor
 description: Run a Blueprint health and context check covering setup, adapters, commands, visibility, plans, overview freshness, configuration, dashboard state, and workflow drift. May offer to reset malformed generated dashboard state after approval. Use for /doctor, installation checks, context overhead, setup problems, or when something feels wrong.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # doctor - Blueprint health check

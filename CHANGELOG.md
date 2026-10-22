@@ -2,6 +2,18 @@
 
 ## 0.3.0 - unreleased
 
+The first published version. It includes everything listed under 0.1.0 below,
+which was never published on its own.
+
+- **Shipping:** one version across npm, the Claude Code, Codex and Copilot
+  plugins and skills.sh (`scripts/release-version.ts`), a tag-triggered release
+  workflow that publishes to npm with provenance, a Codex marketplace
+  (`.agents/plugins/marketplace.json`) and portable `plugin/plugin.json`, and a
+  skills.sh listing that offers only the `install` skill (workflow skills are
+  `metadata.internal`). Two skill descriptions (`check`, `plan-graph`) were not
+  valid strict YAML, so Codex, Copilot and skills.sh skipped them; they are
+  quoted now and the validator rejects the pattern.
+
 - **Payments and SMS are always sensitive.** PesaPal, Flutterwave, escrow,
   payouts, mobile money, Africa's Talking and their webhooks trigger audit and
   independent review under `when-sensitive`. New `sensitive.patterns` config
@@ -25,7 +37,7 @@
   Commits, no AI attribution, branch prefixes, pnpm over Bun. Expo and Flutter
   standards are starting points for `/onboard`.
 
-## 0.1.0 - unreleased
+## 0.1.0 - not published separately (ships in 0.3.0)
 
 First release.
 

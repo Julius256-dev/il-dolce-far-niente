@@ -1,7 +1,9 @@
 ---
 name: plan-graph
-description: Slice the remaining build plan into vertical slices and record dependency edges as _(after: n)_ suffixes on build-plan items, rejecting cycles and showing the parallel frontier for /avengers. Use only for /plan-graph or a direct dependency-graph request.
+description: "Slice the remaining build plan into vertical slices and record dependency edges as _(after: n)_ suffixes on build-plan items, rejecting cycles and showing the parallel frontier for /avengers. Use only for /plan-graph or a direct dependency-graph request."
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Plan Graph

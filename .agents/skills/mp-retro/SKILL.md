@@ -1,6 +1,8 @@
 ---
 name: mp-retro
 description: "Conduct a retrospective on a coding session and suggest improvements to the agent's environment (coding standards, Verify/CI checks, AGENTS.md, skills). Use only for /mp-retro, for example after /complete or an /avengers wave."
+metadata:
+  internal: true
 ---
 
 # Retro

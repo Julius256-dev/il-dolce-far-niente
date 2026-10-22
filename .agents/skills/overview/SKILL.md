@@ -1,6 +1,8 @@
 ---
 name: overview
 description: Validate and normalize project-plan.md and build-plan.md, then generate the durable project-overview.md used by agents. Use for /overview, plan cleanup, generating the first overview, or refreshing context after either plan changes.
+metadata:
+  internal: true
 ---
 
 # overview - turn the two plans into the AI-facing source of truth

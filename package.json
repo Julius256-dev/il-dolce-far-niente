@@ -22,6 +22,8 @@
     "test:activity": "tsx --test scripts/blueprint/run-state-helper.test.ts",
     "test:link-local": "tsx --test scripts/blueprint/link-local.test.ts",
     "test:package": "tsx scripts/blueprint/smoke-package.ts",
+    "check:discovery": "tsx scripts/check-discovery.ts",
+    "release:version": "tsx scripts/release-version.ts",
     "test:e2e": "tsx scripts/blueprint/e2e/run.ts",
     "sandbox": "tsx scripts/blueprint/scaffold-sandbox.ts",
     "sandbox:clear": "tsx scripts/blueprint/clear-sandbox.ts",

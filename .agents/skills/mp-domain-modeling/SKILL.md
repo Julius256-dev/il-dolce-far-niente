@@ -1,6 +1,8 @@
 ---
 name: mp-domain-modeling
 description: Build and sharpen a project's domain model, challenging fuzzy terms and writing glossary entries and ADRs as decisions land. Use when discussing codebase terminology, writing or editing a GLOSSARY.md, or recording or editing an ADR.
+metadata:
+  internal: true
 ---
 
 # Domain Modeling

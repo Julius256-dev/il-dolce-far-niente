@@ -1,6 +1,8 @@
 ---
 name: implement
 description: Start coding or resume the approved current feature, fix, or rollback on its branch, testing each step and presenting review. Use for /implement or building current-feature.md.
+metadata:
+  internal: true
 ---
 
 # implement - build the approved spec

@@ -1,7 +1,7 @@
 {
   "name": "il-dolce-far-niente",
   "displayName": "Il Dolce Far Niente",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Installs and updates Il Dolce Far Niente in the current project: AI Blueprint's gated feature loop, parallel /avengers builds, Matt Pocock's engineering skills and per-role models.",
   "author": {
     "name": "Julius Okuyat",
@@ -10,5 +10,12 @@
   "homepage": "https://github.com/Julius256-dev/il-dolce-far-niente",
   "repository": "https://github.com/Julius256-dev/il-dolce-far-niente",
   "license": "MIT",
-  "keywords": ["workflow", "spec-driven", "parallel", "subagents", "code-review", "tdd"]
+  "keywords": [
+    "workflow",
+    "spec-driven",
+    "parallel",
+    "subagents",
+    "code-review",
+    "tdd"
+  ]
 }

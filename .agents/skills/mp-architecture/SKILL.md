@@ -1,6 +1,8 @@
 ---
 name: mp-architecture
 description: Scan the codebase for architectural friction and deepening opportunities (shallow modules into deep ones), present them as a visual HTML report, then grill through the one you pick. Use only for /mp-architecture or a direct architecture-review request.
+metadata:
+  internal: true
 ---
 
 # Improve Codebase Architecture

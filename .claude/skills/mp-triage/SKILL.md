@@ -2,6 +2,8 @@
 name: mp-triage
 description: Triage tracker issues and external PRs through a label state machine, verify claims, grill if needed, write agent briefs, and hand accepted bugs to /fix and enhancements to the build plan. Use only for /mp-triage.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Triage

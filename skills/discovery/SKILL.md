@@ -2,6 +2,8 @@
 name: discovery
 description: Run an optional guided product-discovery interview and draft project-plan.md and build-plan.md only after the user is ready. Use for /discovery, guided planning, thinking through a new product, or deepening plans. Never require it before /overview.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # discovery - develop the plans through a deep conversation
