@@ -20,6 +20,12 @@ at a time on a branch that only you merge.
 
 It never pushes, publishes or deploys on its own.
 
+> **The name.** *Il dolce far niente* (Italian, said "eel DOHL-chay far
+> NYEN-tay") means "the sweetness of doing nothing": unhurried, guilt-free
+> idleness, enjoyed because the work is in good hands. Word for word: *il*
+> (the), *dolce* (sweet), *far* (doing), *niente* (nothing). Here the agents
+> plan, build and review; you keep every decision.
+
 ## Get started
 
 You need an app in a Git repository (any stack, scaffold it first) and Node.js 22+.
