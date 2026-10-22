@@ -4,7 +4,12 @@
 
 - A website at https://julius256-dev.github.io/il-dolce-far-niente/, published
   from `site/` by the Website workflow.
-- A shorter README built around a five-step quick start.
+- A shorter README built around a five-step quick start, with what the name
+  means.
+- A new identity: an original stitched-script "Dolce far niente" wordmark and
+  a patch mark (also the plugin icon), and a landing page built around a lido
+  awning, a live wave board and a word-by-word gloss of the name. Fonts are
+  self-hosted (Bricolage Grotesque, JetBrains Mono, both SIL OFL).
 
 ## 0.3.0 - unreleased
 

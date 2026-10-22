@@ -4,254 +4,263 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Il Dolce Far Niente: parallel AI builds you still review</title>
-  <meta name="description" content="Let AI agents build several features at once, each in its own Git worktree with its own planner, builder and fresh reviewers. You approve the plans and the landing. Built on AI Blueprint and Matt Pocock's skills.">
+  <meta name="description" content="Let AI agents build several features of your app at once, each in its own Git worktree with its own planner, builder and fresh reviewers. You approve the plans and the landing.">
   <meta property="og:title" content="Il Dolce Far Niente">
-  <meta property="og:description" content="Let the agents build several features at once. You approve the plans and the landing.">
-  <meta property="og:image" content="https://julius256-dev.github.io/il-dolce-far-niente/icon.png">
-  <link rel="icon" href="icon.png" type="image/png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;1,6..96,500&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <meta property="og:description" content="The agents build several features at once. You approve the plans and the landing.">
+  <meta property="og:image" content="https://julius256-dev.github.io/il-dolce-far-niente/og.png">
+  <meta name="theme-color" content="#16264A">
+  <link rel="icon" href="mark.svg" type="image/svg+xml">
+  <link rel="icon" href="mark.png" type="image/png">
+  <link rel="preload" href="fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <a class="skip" href="#start">Skip to content</a>
 
+  <div class="awning" aria-hidden="true"></div>
+
   <header class="top">
-    <a class="brand" href="#">
-      <img src="icon.png" alt="" width="36" height="36">
-      <span>Il Dolce Far Niente</span>
+    <a class="brand" href="./" aria-label="Il Dolce Far Niente, home">
+      <img src="wordmark.svg" alt="" width="200" height="50">
     </a>
     <nav aria-label="Main">
       <a href="#start">Get started</a>
       <a href="#wave">How it works</a>
-      <a href="#commands">Commands</a>
+      <a href="#install">Install</a>
       <a href="#faq">FAQ</a>
-      <a class="gh" href="https://github.com/Julius256-dev/il-dolce-far-niente">GitHub</a>
+      <a class="nav-gh" href="https://github.com/Julius256-dev/il-dolce-far-niente">GitHub</a>
     </nav>
   </header>
 
   <main>
     <section class="hero">
       <div class="hero-copy">
-        <h1>Let the agents build. You review and land.</h1>
-        <p class="lede">Il Dolce Far Niente builds several features of your app at once. Each one gets its own Git worktree, its own planner and builder, and fresh reviewers who never saw the build. Nothing reaches your main branch until you say yes.</p>
-        <div class="install" data-copy>
+        <h1>The agents build. You approve.</h1>
+        <p class="lede">Il Dolce Far Niente builds several features of your app at the same time. Each one gets its own Git worktree, a planner, a builder, and reviewers who never saw the build. Nothing reaches your main branch until you say yes.</p>
+        <div class="cmd" data-copy>
           <code>npx il-dolce-far-niente@latest</code>
-          <button type="button" class="copy" aria-label="Copy the install command">Copy</button>
+          <button type="button" class="copy">Copy</button>
         </div>
-        <p class="hero-meta">Open source, MIT. Works with Claude Code, Codex, GitHub Copilot, OpenCode and Antigravity. Any stack.</p>
+        <p class="fineprint">Free and open source. Works with Claude Code, Codex, GitHub Copilot, OpenCode and Antigravity, on any stack.</p>
       </div>
 
-      <figure class="lanes" aria-labelledby="lanes-caption">
-        <svg viewBox="0 0 640 380" role="img" aria-labelledby="lanes-title">
-          <title id="lanes-title">Four features built in parallel lanes, then landed one at a time onto the wave branch, which you merge into main.</title>
-          <g class="lane-labels">
-            <text x="8" y="58">Checkout</text>
-            <text x="8" y="128">Payouts</text>
-            <text x="8" y="198">Search</text>
-            <text x="8" y="268">Order texts</text>
-          </g>
-          <g class="lane-paths">
-            <path class="lane l1" d="M110 54 H330 C380 54 400 330 450 330"/>
-            <path class="lane l2" d="M110 124 H300 C360 124 400 330 460 330"/>
-            <path class="lane l3" d="M110 194 H310 C370 194 410 330 470 330"/>
-            <path class="lane l4" d="M110 264 H320 C380 264 420 330 480 330"/>
-          </g>
-          <g class="stops">
-            <circle cx="150" cy="54" r="7"/><circle cx="215" cy="54" r="7"/><circle cx="280" cy="54" r="7"/>
-            <circle cx="150" cy="124" r="7"/><circle cx="215" cy="124" r="7"/><circle cx="280" cy="124" r="7"/>
-            <circle cx="150" cy="194" r="7"/><circle cx="215" cy="194" r="7"/><circle cx="280" cy="194" r="7"/>
-            <circle cx="150" cy="264" r="7"/><circle cx="215" cy="264" r="7"/><circle cx="280" cy="264" r="7"/>
-          </g>
-          <g class="stop-labels">
-            <text x="150" y="26">spec</text>
-            <text x="215" y="26">build</text>
-            <text x="280" y="26">review</text>
-          </g>
-          <path class="wave" d="M440 330 H560"/>
-          <text class="wave-label" x="452" y="358">wave/1</text>
-          <path class="merge" d="M560 330 H628"/>
-          <text class="main-label" x="574" y="312">main</text>
-          <text class="yes-label" x="566" y="358">your yes</text>
-        </svg>
-        <figcaption id="lanes-caption">Each feature runs the full loop in its own lane. Lanes land one at a time; only you merge the wave.</figcaption>
+      <figure class="board" aria-labelledby="board-cap">
+        <div class="board-head">
+          <span class="board-title">wave/1</span>
+          <span class="board-status" data-status>Building 4 features</span>
+        </div>
+        <table class="board-grid">
+          <caption id="board-cap">A wave of four features moving through spec, build, review and landing, each in its own lane.</caption>
+          <thead>
+            <tr><th scope="col">Feature</th><th scope="col">Spec</th><th scope="col">Build</th><th scope="col">Review</th><th scope="col">Landed</th></tr>
+          </thead>
+          <tbody>
+            <tr style="--row:0"><th scope="row">Checkout</th><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
+            <tr style="--row:1"><th scope="row">Seller payouts</th><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
+            <tr style="--row:2"><th scope="row">Search</th><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
+            <tr style="--row:3"><th scope="row">Order texts</th><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
+          </tbody>
+        </table>
+        <figcaption class="board-foot"><span>Waiting for your yes to merge into <code>main</code></span></figcaption>
       </figure>
     </section>
 
-    <section id="start" class="start">
-      <h2>Get started in five minutes</h2>
-      <p class="section-lede">Have an app first, in any stack, in a Git repository. Then:</p>
-      <ol class="steps">
-        <li>
-          <h3>Install</h3>
-          <p>From the root of your app, run <code>npx il-dolce-far-niente@latest</code>. It adds the skills and a <code>blueprint/</code> folder for plans and history. Prefer a plugin? See <a href="#tools">install for your tool</a>.</p>
-        </li>
-        <li>
-          <h3>Onboard</h3>
-          <p>Restart your agent and run <code>/onboard</code>. It tunes commands and coding standards to your stack and asks for a profile, your issue tracker and models. On an app that already has features, run <code>/adopt</code> instead.</p>
-        </li>
-        <li>
-          <h3>Plan</h3>
-          <p>Describe the project in <code>blueprint/project-plan.md</code> and list features in <code>blueprint/build-plan.md</code>, or let <code>/discovery</code> interview you. Then <code>/overview</code>.</p>
-        </li>
-        <li>
-          <h3>Set up checks</h3>
-          <p>Run <code>/ci</code> once. It gives the project one Verify command (typecheck, tests, build) that every landing must pass.</p>
-        </li>
-        <li>
-          <h3>Build</h3>
-          <p>One feature at a time: <code>/feature</code>, <code>/implement</code>, <code>/check</code>, <code>/complete</code>. Several at once: <code>/plan-graph</code> to mark dependencies, then <code>/avengers</code>.</p>
-        </li>
-      </ol>
+    <section class="meaning" aria-labelledby="meaning-title">
+      <h2 id="meaning-title" class="visually-hidden">What the name means</h2>
+      <p class="lang">Italian, pronounced <span class="say">eel DOHL-chay far NYEN-tay</span></p>
+      <div class="gloss" lang="it">
+        <span><b>il</b><i lang="en">the</i></span>
+        <span><b>dolce</b><i lang="en">sweet</i></span>
+        <span><b>far</b><i lang="en">doing</i></span>
+        <span><b>niente</b><i lang="en">nothing</i></span>
+      </div>
+      <p class="translation">“The sweetness of doing nothing”: the Italian art of unhurried, guilt-free idleness, enjoyed because the work is in good hands.</p>
+      <p class="why">That's the idea here. The agents plan, build and review; you keep every decision, from approving the specs to merging the wave.</p>
     </section>
 
-    <section id="wave" class="wave-section">
-      <h2>How a parallel build works</h2>
-      <p class="section-lede">Every feature still gets the full single-feature loop. Only the scheduling changes.</p>
-      <ol class="flow">
-        <li><span><strong>Pick what can start.</strong> Build-plan items say what they wait for, like <code>_(after: 2, 3)_</code>. Items that touch the same files, or both touch payments or SMS, go in different waves.</span></li>
-        <li><span><strong>Plan each feature.</strong> A planner writes each spec in its own worktree. You approve them all in one packet.</span></li>
-        <li><span><strong>Build in parallel.</strong> Builders work test-first, one small verified step at a time, each on its own port.</span></li>
-        <li><span><strong>Review fresh.</strong> Reviewers who never saw the build check the standards and the spec, and the security and quality lens when the work is sensitive. Serious findings block landing until a re-review closes them.</span></li>
-        <li><span><strong>Land one at a time.</strong> A script archives each feature exactly as a single-feature build would and squashes it onto <code>wave/&lt;n&gt;</code>, rerunning Verify after every landing.</span></li>
-        <li><span><strong>You merge.</strong> A final review covers the whole wave. Then it waits for your yes. Nothing is ever pushed for you.</span></li>
+    <section id="start" class="start">
+      <div class="inner">
+        <h2>Five steps to your first feature</h2>
+        <p class="sub">You need an app in a Git repository, in any stack, and Node.js 22 or newer.</p>
+        <ol class="steps">
+          <li>
+            <h3>Install</h3>
+            <p>From the root of your app run <code>npx il-dolce-far-niente@latest</code>. It adds the skills and a <code>blueprint/</code> folder for plans and history.</p>
+          </li>
+          <li>
+            <h3>Onboard</h3>
+            <p>Restart your agent and run <code>/onboard</code>. On an app that already has features, run <code>/adopt</code>.</p>
+          </li>
+          <li>
+            <h3>Plan</h3>
+            <p>Write <code>blueprint/project-plan.md</code> and <code>blueprint/build-plan.md</code>, or let <code>/discovery</code> interview you. Then <code>/overview</code>.</p>
+          </li>
+          <li>
+            <h3>Add checks</h3>
+            <p>Run <code>/ci</code> once for a single Verify command that every change has to pass.</p>
+          </li>
+          <li>
+            <h3>Build</h3>
+            <p>One feature with <code>/feature</code>, <code>/implement</code>, <code>/check</code>, <code>/complete</code>. Several with <code>/plan-graph</code> then <code>/avengers</code>.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="wave" class="wave">
+      <h2>What happens in a wave</h2>
+      <p class="sub">Every feature still goes through the full single-feature loop. Only the scheduling changes.</p>
+      <ol class="shore">
+        <li><h3>Pick what can start</h3><p>Build-plan items say what they wait for, like <code>_(after: 2, 3)_</code>. Items that touch the same files, or both handle payments or SMS, wait for a later wave.</p></li>
+        <li><h3>Plan every feature</h3><p>A planner writes each spec in its own worktree, and you approve them together in one packet.</p></li>
+        <li><h3>Build side by side</h3><p>Builders work test-first, one small verified step at a time, each on its own port.</p></li>
+        <li><h3>Review with fresh eyes</h3><p>Reviewers who never saw the build check the coding standards and the spec, plus security and quality when the work is sensitive. A serious finding blocks landing until a re-review closes it.</p></li>
+        <li><h3>Land one at a time</h3><p>Each feature is archived and squashed onto <code>wave/&lt;n&gt;</code>, and Verify runs again after every landing.</p></li>
+        <li><h3>You merge</h3><p>A last review covers the whole wave, then it waits for you. Nothing is ever pushed for you.</p></li>
       </ol>
     </section>
 
     <section class="inside">
-      <h2>What's inside</h2>
-      <div class="inside-grid">
+      <h2>Built from two proven toolkits</h2>
+      <div class="pair">
         <div>
           <h3>AI Blueprint's feature loop</h3>
-          <p>Spec, small verified steps, proof against the running app, fresh review, archive. Plans, specs, findings and history live as readable files in your repo, not in chat.</p>
+          <p>A spec you approve, small verified steps, proof against the running app, a fresh review, and an archive. Plans, findings and history are plain files in your repo, so nothing important lives only in a chat.</p>
         </div>
         <div>
           <h3>Matt Pocock's engineering skills</h3>
-          <p>Two-axis code review, test-driven development, triage, wayfinding for foggy projects, architecture surveys and retros, wired into the same files.</p>
-        </div>
-        <div>
-          <h3>A model for every role</h3>
-          <p>By default Opus 5.5 plans and reviews, Sonnet 5.5 builds. Change any role for the team or just for yourself with <code>/models</code>.</p>
-        </div>
-        <div>
-          <h3>Guardrails, not good intentions</h3>
-          <p>Every subagent runs behind a hook that blocks pushes, publishes, deploys and any change to your default branch.</p>
+          <p>Two-axis code review, test-driven development, issue triage, wayfinding through foggy projects, architecture surveys and retros, wired into the same files.</p>
         </div>
       </div>
-    </section>
-
-    <section class="defaults">
-      <h2>Defaults for real client work</h2>
-      <dl>
-        <dt>Payments and SMS are always sensitive</dt>
-        <dd>PesaPal, Flutterwave, escrow, payouts and Africa's Talking, including their webhooks, always get an audit and independent review, and two of them never share a wave. Add your own categories in the config.</dd>
-        <dt>Restricted code stays where it belongs</dt>
-        <dd>For classified or regulated work, get the client's written answer on whether code may leave the premises first. A hook enforces it, web research stays off, and a locally hosted model works when the answer is no.</dd>
+      <dl class="facts">
+        <dt>Models per role</dt>
+        <dd>Opus 5.5 plans and reviews, Sonnet 5.5 builds, by default. Change any role for the team or only for yourself with <code>/models</code>.</dd>
+        <dt>Payments and SMS</dt>
+        <dd>PesaPal, Flutterwave, escrow, payouts and Africa's Talking, webhooks included, always get an audit and an independent review.</dd>
+        <dt>Restricted code</dt>
+        <dd>For classified or regulated work, the client's written answer on whether code may leave the premises comes first. A hook enforces it, and a locally hosted model works when the answer is no.</dd>
         <dt>Web and mobile</dt>
         <dd>Verify recipes for Next.js with pnpm, Expo and Flutter, and a mobile check that proves features with widget tests and a simulator screenshot.</dd>
-        <dt>Team habits built in</dt>
-        <dd>Conventional commits, no AI attribution, consistent branch names, a retro after every wave and a weekly architecture review that files its results.</dd>
+        <dt>Guardrails</dt>
+        <dd>Every helper agent runs behind a hook that blocks pushes, publishing, deploys and any change to your main branch.</dd>
       </dl>
     </section>
 
-    <section id="tools" class="tools">
-      <h2>Install for your tool</h2>
-      <p class="section-lede">Every route installs the same version into your repo. The plugins add one <code>install</code> skill: ask your agent to install Il Dolce Far Niente and approve the command it shows.</p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th scope="col">You use</th><th scope="col">Install</th></tr>
-          </thead>
-          <tbody>
-            <tr><th scope="row">Any agent</th><td><code>npx il-dolce-far-niente@latest</code></td></tr>
-            <tr><th scope="row">Claude Code</th><td><code>claude plugin marketplace add Julius256-dev/il-dolce-far-niente</code><br><code>claude plugin install il-dolce-far-niente@julius256-dev</code></td></tr>
-            <tr><th scope="row">Codex</th><td><code>codex plugin marketplace add Julius256-dev/il-dolce-far-niente</code><br><code>codex plugin add il-dolce-far-niente@julius256-dev</code></td></tr>
-            <tr><th scope="row">GitHub Copilot CLI</th><td><code>copilot plugin marketplace add Julius256-dev/il-dolce-far-niente</code><br><code>copilot plugin install il-dolce-far-niente@julius256-dev</code></td></tr>
-            <tr><th scope="row">Cursor, OpenCode, Windsurf</th><td><code>npx skills@latest add Julius256-dev/il-dolce-far-niente</code></td></tr>
-          </tbody>
-        </table>
+    <section id="install" class="install">
+      <div class="inner">
+        <h2>Install for your tool</h2>
+        <p class="sub">Every route installs the same version into your repo. The plugins add one install skill: ask your agent to install Il Dolce Far Niente and approve the command it shows.</p>
+        <div class="tabs" role="tablist" aria-label="Choose your tool">
+          <button role="tab" id="tab-any" aria-controls="panel-any" aria-selected="true">Any agent</button>
+          <button role="tab" id="tab-claude" aria-controls="panel-claude" aria-selected="false" tabindex="-1">Claude Code</button>
+          <button role="tab" id="tab-codex" aria-controls="panel-codex" aria-selected="false" tabindex="-1">Codex</button>
+          <button role="tab" id="tab-copilot" aria-controls="panel-copilot" aria-selected="false" tabindex="-1">Copilot CLI</button>
+          <button role="tab" id="tab-other" aria-controls="panel-other" aria-selected="false" tabindex="-1">Cursor and others</button>
+        </div>
+        <div role="tabpanel" id="panel-any" aria-labelledby="tab-any" class="panel">
+          <div class="cmd" data-copy><code>npx il-dolce-far-niente@latest</code><button type="button" class="copy">Copy</button></div>
+          <p>Run it in the root of your app. Update later with <code>npx il-dolce-far-niente@latest update</code>; files you changed are never overwritten without asking.</p>
+        </div>
+        <div role="tabpanel" id="panel-claude" aria-labelledby="tab-claude" class="panel" hidden>
+          <div class="cmd" data-copy><code>claude plugin marketplace add Julius256-dev/il-dolce-far-niente</code><button type="button" class="copy">Copy</button></div>
+          <div class="cmd" data-copy><code>claude plugin install il-dolce-far-niente@julius256-dev</code><button type="button" class="copy">Copy</button></div>
+          <p>The plugin updates itself.</p>
+        </div>
+        <div role="tabpanel" id="panel-codex" aria-labelledby="tab-codex" class="panel" hidden>
+          <div class="cmd" data-copy><code>codex plugin marketplace add Julius256-dev/il-dolce-far-niente</code><button type="button" class="copy">Copy</button></div>
+          <div class="cmd" data-copy><code>codex plugin add il-dolce-far-niente@julius256-dev</code><button type="button" class="copy">Copy</button></div>
+          <p>In Codex, type <code>$feature</code> where this page says <code>/feature</code>.</p>
+        </div>
+        <div role="tabpanel" id="panel-copilot" aria-labelledby="tab-copilot" class="panel" hidden>
+          <div class="cmd" data-copy><code>copilot plugin marketplace add Julius256-dev/il-dolce-far-niente</code><button type="button" class="copy">Copy</button></div>
+          <div class="cmd" data-copy><code>copilot plugin install il-dolce-far-niente@julius256-dev</code><button type="button" class="copy">Copy</button></div>
+          <p>Update with <code>copilot plugin update il-dolce-far-niente</code>.</p>
+        </div>
+        <div role="tabpanel" id="panel-other" aria-labelledby="tab-other" class="panel" hidden>
+          <div class="cmd" data-copy><code>npx skills@latest add Julius256-dev/il-dolce-far-niente</code><button type="button" class="copy">Copy</button></div>
+          <p>Works for Cursor, OpenCode, Windsurf and other agents that read skills.</p>
+        </div>
       </div>
-      <p>Update later with <code>npx il-dolce-far-niente@latest update</code>. Files you changed locally are never overwritten without asking.</p>
     </section>
 
-    <section id="commands" class="commands">
-      <h2>The commands you'll use most</h2>
-      <div class="cmd-groups">
+    <section class="commands">
+      <h2>The commands you'll reach for</h2>
+      <div class="cols">
         <div>
           <h3>Set up</h3>
           <ul>
-            <li><code>/onboard</code> Tune a new project</li>
-            <li><code>/adopt</code> Bring it into an existing app</li>
-            <li><code>/overview</code> Turn your plans into a project overview</li>
-            <li><code>/ci</code> One Verify command, locally and on GitHub</li>
-            <li><code>/models</code> Choose the model for each role</li>
+            <li><code>/onboard</code><span>Tune a new project</span></li>
+            <li><code>/adopt</code><span>Bring it into an existing app</span></li>
+            <li><code>/overview</code><span>Turn your plans into an overview</span></li>
+            <li><code>/ci</code><span>One Verify command, local and on GitHub</span></li>
+            <li><code>/models</code><span>Choose the model for each role</span></li>
           </ul>
         </div>
         <div>
-          <h3>Build one feature</h3>
+          <h3>One feature</h3>
           <ul>
-            <li><code>/feature</code> Write the spec</li>
-            <li><code>/implement</code> Build it in small verified steps</li>
-            <li><code>/check</code> Prove it against the running app</li>
-            <li><code>/audit</code> Review the code</li>
-            <li><code>/complete</code> Archive and land it</li>
+            <li><code>/feature</code><span>Write the spec</span></li>
+            <li><code>/implement</code><span>Build it in small verified steps</span></li>
+            <li><code>/check</code><span>Prove it against the running app</span></li>
+            <li><code>/audit</code><span>Review the code</span></li>
+            <li><code>/complete</code><span>Archive and land it</span></li>
           </ul>
         </div>
         <div>
-          <h3>Build several</h3>
+          <h3>Several at once</h3>
           <ul>
-            <li><code>/plan-graph</code> Mark what depends on what</li>
-            <li><code>/avengers</code> Build the unblocked features in parallel</li>
-            <li><code>/avengers resume</code> Pick up an unfinished wave</li>
-            <li><code>/status</code> See progress and what comes next</li>
-            <li><code>/mp-retro</code> Improve the setup after a wave</li>
+            <li><code>/plan-graph</code><span>Mark what depends on what</span></li>
+            <li><code>/avengers</code><span>Build the unblocked features in parallel</span></li>
+            <li><code>/status</code><span>See progress and what comes next</span></li>
+            <li><code>/mp-retro</code><span>Improve the setup after a wave</span></li>
           </ul>
         </div>
       </div>
-      <p>In Codex, type <code>$feature</code> instead of <code>/feature</code>. The <a href="https://github.com/Julius256-dev/il-dolce-far-niente#all-commands">full list of 39 commands</a> is in the README.</p>
+      <p class="more">All 39 commands are listed in the <a href="https://github.com/Julius256-dev/il-dolce-far-niente#all-commands">README</a>.</p>
     </section>
 
     <section id="faq" class="faq">
       <h2>Questions</h2>
-      <details>
-        <summary>Will it push code or touch my main branch on its own?</summary>
-        <p>No. Agents never push, publish or deploy, and a hook blocks them from changing your default branch. A finished wave waits on its own branch until you merge it.</p>
-      </details>
-      <details>
-        <summary>Does it work on an app I've already built?</summary>
-        <p>Yes. Install it, then run <code>/adopt</code> instead of <code>/onboard</code>. It surveys what's already shipped and writes the plans from the code.</p>
-      </details>
-      <details>
-        <summary>Which tools does it need?</summary>
-        <p>Node.js 22 or newer to install, and one of Claude Code, Codex, GitHub Copilot, OpenCode or Antigravity. Parallel builds with <code>/avengers</code> need a tool that runs background subagents with their own model, such as Claude Code. Elsewhere, <code>/continuous</code> builds the plan one feature at a time with the same gates.</p>
-      </details>
-      <details>
-        <summary>Isn't running many agents expensive?</summary>
-        <p>Scripts do the bookkeeping, agents load only the files their role needs, and the merger only runs when a landing conflicts. On a measured four-feature wave this cut the cost by 28% compared with the first version. Set <code>avengers.maxConcurrent</code> to limit how many run at once.</p>
-      </details>
-      <details>
-        <summary>Can I use it on classified or client-restricted code?</summary>
-        <p>Only after the client says in writing whether the code may leave their premises. Choose the restricted profile: it keeps every review gate on, turns web research off, and works with a locally hosted model. See the <a href="https://github.com/Julius256-dev/il-dolce-far-niente/blob/main/docs/RESTRICTED.md">restricted repositories guide</a>.</p>
-      </details>
-      <details>
-        <summary>Where does the name come from?</summary>
-        <p>"Il dolce far niente" is Italian for the sweetness of doing nothing. The agents do the building; you keep the decisions.</p>
-      </details>
+      <div class="qa">
+        <details>
+          <summary>Will it push code or change my main branch on its own?</summary>
+          <p>No. Agents never push, publish or deploy, and a hook blocks them from touching your main branch. A finished wave waits on its own branch until you merge it.</p>
+        </details>
+        <details>
+          <summary>Does it work on an app I've already built?</summary>
+          <p>Yes. Install it, then run <code>/adopt</code> instead of <code>/onboard</code>. It surveys what's already shipped and writes the plans from the code.</p>
+        </details>
+        <details>
+          <summary>Do I need Claude Code?</summary>
+          <p>No. The single-feature loop works in Claude Code, Codex, GitHub Copilot, OpenCode and Antigravity. Parallel waves with <code>/avengers</code> need a tool that runs background helper agents with their own model, such as Claude Code. Elsewhere, <code>/continuous</code> builds the plan one feature at a time with the same checks.</p>
+        </details>
+        <details>
+          <summary>Isn't running many agents expensive?</summary>
+          <p>Scripts do the bookkeeping, each agent reads only the files its job needs, and the merger only runs when a landing conflicts. On a measured four-feature wave that cut the cost by 28% against the first version. You can also cap how many features run at once.</p>
+        </details>
+        <details>
+          <summary>Can I use it on classified or client-restricted code?</summary>
+          <p>Only after the client says in writing whether the code may leave their premises. The restricted profile keeps every review on, turns web research off and works with a locally hosted model. Read the <a href="https://github.com/Julius256-dev/il-dolce-far-niente/blob/main/docs/RESTRICTED.md">restricted repositories guide</a> first.</p>
+        </details>
+        <details>
+          <summary>How do I say the name?</summary>
+          <p>Eel DOHL-chay far NYEN-tay. It's Italian for the sweetness of doing nothing.</p>
+        </details>
+      </div>
     </section>
 
     <section class="closing">
-      <h2>Start with one feature, then a wave.</h2>
-      <div class="install" data-copy>
-        <code>npx il-dolce-far-niente@latest</code>
-        <button type="button" class="copy" aria-label="Copy the install command">Copy</button>
+      <div class="inner">
+        <img src="wordmark-light.svg" alt="" width="280" height="70">
+        <h2>Start with one feature. Then try a wave.</h2>
+        <div class="cmd" data-copy><code>npx il-dolce-far-niente@latest</code><button type="button" class="copy">Copy</button></div>
       </div>
     </section>
   </main>
 
   <footer class="foot">
-    <p>Il Dolce Far Niente is MIT licensed, by <a href="https://github.com/Julius256-dev">Julius Okuyat</a>. Built on <a href="https://github.com/aiblueprinthq/ai-blueprint">AI Blueprint</a> by Brad Traversy and <a href="https://github.com/mattpocock/skills">skills</a> by Matt Pocock, both MIT. Not affiliated with either project.</p>
-    <p><a href="https://github.com/Julius256-dev/il-dolce-far-niente">GitHub</a> <a href="https://www.npmjs.com/package/il-dolce-far-niente">npm</a> <a href="https://github.com/Julius256-dev/il-dolce-far-niente/blob/main/CHANGELOG.md">Changelog</a></p>
+    <p>MIT licensed, made by <a href="https://github.com/Julius256-dev">Julius Okuyat</a>. Built on <a href="https://github.com/aiblueprinthq/ai-blueprint">AI Blueprint</a> by Brad Traversy and <a href="https://github.com/mattpocock/skills">skills</a> by Matt Pocock, both MIT. Not affiliated with either project. Fonts: Bricolage Grotesque and JetBrains Mono (SIL Open Font License).</p>
+    <p class="links"><a href="https://github.com/Julius256-dev/il-dolce-far-niente">GitHub</a><a href="https://www.npmjs.com/package/il-dolce-far-niente">npm</a><a href="https://github.com/Julius256-dev/il-dolce-far-niente/blob/main/CHANGELOG.md">Changelog</a></p>
   </footer>
 
   <script src="main.js"></script>
