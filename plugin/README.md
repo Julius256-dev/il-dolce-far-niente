@@ -12,4 +12,5 @@ approve the command it shows, restart the session, then run `/onboard`.
 
 Requirements: Node.js 22 or newer, a Git repository with a scaffolded app.
 
+Website: https://julius256-dev.github.io/il-dolce-far-niente/
 Source, documentation and licences: https://github.com/Julius256-dev/il-dolce-far-niente
