@@ -30,7 +30,7 @@ if (skipped.length) problems.push(`skills CLI could not parse:\n${skipped.join("
 const found = output.match(/Found (\d+) skills?/);
 if (!found) problems.push("skills CLI did not report what it found");
 else if (found[1] !== "1") problems.push(`skills CLI offers ${found[1]} skills; expected only install`);
-if (!/^\|?\s+install\s*$/m.test(output)) problems.push("skills CLI does not offer the install skill");
+if (!/^[|│]?\s+install\s*$/m.test(output)) problems.push("skills CLI does not offer the install skill");
 
 if (problems.length) {
   console.error(`skills.sh discovery check failed (${SKILLS_CLI}):\n- ${problems.join("\n- ")}\n\n${output}`);
