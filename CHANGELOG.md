@@ -6,7 +6,7 @@
   from `site/` by the Website workflow.
 - A shorter README built around a five-step quick start, with what the name
   means.
-- A new identity and website: a simple mark (three lanes merging into one),
+- A new website around the round "D" patch logo (navy, stitched border, lemon swash),
   a clean landing page modelled on AI Blueprint's structure with a live wave
   diagram, an animated install terminal and a word-by-word gloss of the name.
   Fonts are self-hosted (Geist and Geist Mono, SIL OFL).
