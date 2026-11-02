@@ -10,12 +10,19 @@ metadata:
 **Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
 
 **First action:** Before project inspection, preflight, or any other tool call,
-publish `running` to `blueprint/.state/run.json` using the dashboard activity
-contract in `AGENTS.md`.
+publish `running` to `blueprint/.state/run.json` when `blueprint/.state/`
+exists. From the project root, run the first helper that exists,
+`node .agents/skills/blueprint-doctor/scripts/run-state.mjs` or
+`node .claude/skills/blueprint-doctor/scripts/run-state.mjs`, with `start --command
+<skill> --summary "<truthful summary>" --boundary
+<read-only|reviewed|local-only>`. Use `update` at milestones, with `--status
+blocked --resume <command>` for a blocker, and `finish --status ready|completed`
+at the end; `--help` lists every option and `blueprint/workflow.md` has the full
+activity contract. A missing or failing helper is a warning, not a blocker.
 
 Where this sits in the workflow:
 
-    /status  ->  [continuous]  ->  final review packet
+    /blueprint-status  ->  [continuous]  ->  final review packet
     (ready)      (feature loop,    (local main only,
                   local history)    never pushed)
 
@@ -41,12 +48,12 @@ check waivers, or product decisions. It always stops before those actions.
 ## Input and target selection
 
 Before selecting an item or requiring a live active spec, inspect pending
-completion using the installed Complete skill and
-`../complete/reference/completion-recovery.md`. Use its read-only candidate screen
-first: settled clean default-branch history needs no historical transient objects
-for a new run. An actual completion candidate or an explicit request to resume
-interrupted completion requires full recovery proof, using this run's scoped Git
-authority and
+completion with the installed Complete skill's read-only candidate screen,
+`../complete/reference/completion-screen.md`, first: settled clean default-branch
+history needs no historical transient objects for a new run. An actual completion
+candidate or an explicit request to resume interrupted completion requires full
+recovery proof from `../complete/reference/completion-recovery.md`, using this
+run's scoped Git authority and
 `qualityGates.continuous`. Do not repeat archival or a work commit/merge. Missing,
 conflicting, or unprovable recovery evidence stops before next-feature work. An
 active feature with no completion candidate resumes implementation normally; its
@@ -95,7 +102,7 @@ Read:
   recent log
 
 A missing config means built-in defaults. If it exists but is invalid, stop and
-point to `/doctor`.
+point to `/blueprint-doctor`.
 
 Start only when the state is safe:
 
@@ -119,7 +126,7 @@ default branch is a stop, not permission to pull.
 Record the starting default-branch commit. This bounds the optional final
 integration audit and the final report.
 
-The initial `blueprint/.state/run.json` record required by `AGENTS.md` must
+The initial `blueprint/.state/run.json` record required by the first action must
 already show command `continuous` and status `running` before preflight begins.
 After preflight passes, enrich it with boundary `local-only`, the current
 feature, and completed-feature progress against the smaller of the remaining

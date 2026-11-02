@@ -1,7 +1,13 @@
 {
+<<<<<<< ours
   "name": "il-dolce-far-niente",
   "version": "0.3.0",
   "description": "Install Il Dolce Far Niente — AI Blueprint's gated feature loop plus parallel /avengers builds and Matt Pocock's engineering skills — into a scaffolded app.",
+=======
+  "name": "create-ai-blueprint",
+  "version": "1.15.0",
+  "description": "Install a file-backed, spec-driven AI development workflow into a scaffolded app.",
+>>>>>>> upstream
   "license": "MIT",
   "author": "Julius Okuyat",
   "type": "module",

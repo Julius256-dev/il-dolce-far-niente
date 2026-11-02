@@ -5,6 +5,7 @@ metadata:
   internal: true
 ---
 
+<<<<<<< ours
 # Research
 
 **Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
@@ -18,6 +19,9 @@ are then the repository, its installed dependencies (`node_modules`, the pub
 cache, vendored SDKs) and documentation already checked in. Say in the note
 which questions could not be answered offline instead of guessing.
 <!-- ext:end idfn-research-offline -->
+=======
+Spin up a **background agent** to do the research, so you keep working while it reads. Start it with a fresh context window.
+>>>>>>> upstream
 
 Its job:
 

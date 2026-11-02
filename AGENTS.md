@@ -54,6 +54,7 @@ and installed dependencies before adding machinery.
 ## Read these when relevant
 
 - `blueprint/config.json` - deterministic project workflow settings
+- `blueprint/workflow.md` - workflow reference for configuration, skills, dashboard activity, and checks
 - `blueprint/context/project-overview.md` - the project's source of truth
 - `blueprint/context/coding-standards.md` - read before changing code
 - `blueprint/context/ai-interaction.md` - read when running the Blueprint workflow
@@ -62,6 +63,7 @@ and installed dependencies before adding machinery.
 Reuse relevant context already loaded in the session. Claude Code imports only
 this file; its Blueprint skills load the other files on demand.
 
+<<<<<<< ours
 ## Project configuration
 
 `blueprint/config.json` is the user-owned, machine-readable workflow policy for
@@ -409,6 +411,30 @@ runs the same `Verify` command is offered as an opt-in at the end of `/ci`, and
 GitHub branch protection or a ruleset can require the check after the repository
 is pushed, but that is a separate remote setting. Missing automatic GitHub
 checks do not make the Blueprint unusable.
+=======
+## Workflow
+
+Build one feature, fix, or rollback at a time, behind review gates. The feature
+loop is `/feature` -> `/implement` -> `/check` -> `/audit current` ->
+`/complete`; approve the Feature spec before Implement. Each command is a local
+skill at `.agents/skills/<skill>/SKILL.md` or `.claude/skills/<skill>/SKILL.md`
+that carries its own instructions. Claude Code and Google Antigravity use slash
+commands such as `/feature`, Codex uses `$feature`, and other tools can follow
+the matching `SKILL.md` when asked.
+
+Skills: `adopt`, `audit`, `blueprint-doctor`, `blueprint-status`, `brief`,
+`check`, `ci`, `complete`, `debug`, `discovery`, `explore`, `feature`, `fix`,
+`implement`, `onboard`, `overview`, `prototype`, `release`, `rollback`, and
+`tests`, plus the explicit-only `autopilot` and `continuous`.
+
+- Keep one active work item per checkout. Parallel work needs its own clone or
+  Git worktree and branch; never replace another worker's active spec.
+- `blueprint/config.json` can make review or verification stricter and tune
+  local workflow settings. It never grants permission to commit, merge, push,
+  deploy, publish, send, delete data, waive a failing check, or accept a finding.
+- Never create or edit `blueprint/.state/run.json` directly. Tracked skills
+  record dashboard activity through the managed helper.
+>>>>>>> upstream
 
 ## Commands
 

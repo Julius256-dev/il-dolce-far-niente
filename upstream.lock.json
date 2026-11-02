@@ -5,7 +5,7 @@
       "repo": "https://github.com/aiblueprinthq/ai-blueprint",
       "ref": "main",
       "prefix": "upstream/ai-blueprint",
-      "commit": "a31461341770fe2fc88b0372fc9f49f15acda652",
+      "commit": "d7213af40a1d364cfb407f02b8edca63d08635bb",
       "version": "1.13.0",
       "license": "MIT",
       "copyright": "Copyright (c) 2026 Brad Traversy"
@@ -14,7 +14,7 @@
       "repo": "https://github.com/mattpocock/skills",
       "ref": "main",
       "prefix": "upstream/mattpocock-skills",
-      "commit": "5beb35b040e3de97e54fa9e386d7e42d15c295c2",
+      "commit": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
       "version": "1.3.1",
       "license": "MIT",
       "copyright": "Copyright (c) 2026 Matt Pocock"
