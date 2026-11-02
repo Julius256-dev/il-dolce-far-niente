@@ -1,17 +1,16 @@
 ---
-name: doctor
-description: Run a Blueprint health and context check covering setup, adapters, commands, visibility, plans, overview freshness, configuration, dashboard state, and workflow drift. May offer to reset malformed generated dashboard state after approval. Use for /doctor, installation checks, context overhead, setup problems, or when something feels wrong.
-disable-model-invocation: true
+name: blueprint-doctor
+description: Run a Blueprint health and context check covering setup, adapters, commands, visibility, plans, overview freshness, configuration, dashboard state, and workflow drift. May offer to reset malformed generated dashboard state after approval. Use for /blueprint-doctor, installation checks, context overhead, setup problems, or when something feels wrong.
 ---
 
-# doctor - Blueprint health check
+# blueprint-doctor - Blueprint health check
 
 **Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
 
 Where this sits in the workflow:
 
-    any time  ->  [doctor]  ->  reads setup + plans + workflow state + git
-                  (diagnostic)  prints health, warnings, and repair order
+    any time  ->  [blueprint-doctor]  ->  reads setup + plans + workflow state + git
+                  (diagnostic)            prints health, warnings, and repair order
 
 This skill answers one question: *is this Blueprint project ready to use?* It is
 the diagnostic pass for setup drift, incomplete onboarding, missing files,
@@ -20,12 +19,12 @@ workflow state. It never changes anything: no edits, no commits, no installs, no
 builds, no branch changes. Its only repair is an approved reset of a malformed
 generated `blueprint/.state/run.json` file.
 
-Use `/status` when the user mainly wants progress and the next build action. Use
-`/doctor` when the user wants to know whether the workflow itself is healthy.
+Use `/blueprint-status` when the user mainly wants progress and the next build action. Use
+`/blueprint-doctor` when the user wants to know whether the workflow itself is healthy.
 
 ## Input
 
-None. `/doctor` takes no argument.
+None. `/blueprint-doctor` takes no argument.
 
 ## What it checks
 
@@ -38,6 +37,8 @@ Gather these, then summarize. Do not dump file contents.
      `blueprint/context/ai-interaction.md`,
      `blueprint/context/current-feature.md`, and
      `blueprint/context/project-overview.md` exist.
+   - Check `blueprint/workflow.md`, the managed workflow reference. Missing on a
+     legacy installation is a warning, not a blocker; a Blueprint update adds it.
    - Confirm `blueprint/history/features/` and `blueprint/history/fixes/` exist.
      When the rollback skill is installed, also check
      `blueprint/history/rollbacks/`. A missing rollback folder on a legacy
@@ -116,6 +117,12 @@ Gather these, then summarize. Do not dump file contents.
      If guidance is missing or incomplete, identify the missing substance as a
      warning, not a setup blocker. The updater preserves existing `AGENTS.md`,
      so updating Blueprint alone does not repair this warning.
+   - Check whether `AGENTS.md` still carries the workflow reference that now
+     lives in `blueprint/workflow.md`: `## Project configuration`,
+     `## Dashboard activity`, `## Automatic verification`, or the `Core skills:`
+     catalogue. If it does, recommend trimming those sections so every session
+     loads less startup context. This is a recommendation, not a warning. The
+     updater preserves `AGENTS.md`, so the trim is a manual edit.
    - Check whether root `README.md` is still the copied Blueprint workflow doc
      by looking for `# AI Coding Blueprint` or opening text that describes the
      Blueprint workflow instead of the app. If so, warn that `/onboard` should
@@ -176,7 +183,7 @@ Gather these, then summarize. Do not dump file contents.
 7. **Current workflow state**
    - Inspect `blueprint/.state/run.json` when it exists. Missing means no recorded
      activity and is healthy. Require a regular non-symbolic-link JSON file that
-     matches dashboard schema version 1 from `AGENTS.md`.
+     matches dashboard schema version 1 from `blueprint/workflow.md`.
    - If the path is a symbolic link or not a regular file, do not read, replace,
      or remove it. Report the exact path for manual review.
    - If the regular file is invalid JSON or does not match the schema, report it
@@ -237,15 +244,17 @@ Choose the repair order in this priority:
 - Required Blueprint files missing -> overlay the Blueprint again, or use
   `/adopt` for a brownfield app.
 - Invalid `blueprint/config.json` -> fix the named key or value, then rerun
-  `/doctor`. Do not mutate project work while configuration is ambiguous.
+  `/blueprint-doctor`. Do not mutate project work while configuration is ambiguous.
 - No git repo -> initialize git before using the build loop.
 - No tool adapter -> restore `.agents/skills/` or `.claude/skills/` for the
   selected tool. OpenCode can use either compatible tree.
 - Installed adapter is missing `doctor/scripts/run-state.mjs` -> update
   Blueprint before relying on dashboard activity.
+- `blueprint/workflow.md` is missing -> update Blueprint to restore the managed
+  workflow reference.
 - Claude uses legacy direct context imports -> remove the exact direct imports
   for `project-overview.md`, `current-feature.md`, `coding-standards.md`, and
-  `ai-interaction.md` that are present in `CLAUDE.md`, then rerun `/doctor`. The
+  `ai-interaction.md` that are present in `CLAUDE.md`, then rerun `/blueprint-doctor`. The
   files stay in the project and workflow skills still read them on demand.
 - Onboarding incomplete -> run `/onboard`.
 - Proportional-engineering guidance missing or incomplete -> review the current
@@ -254,6 +263,10 @@ Choose the repair order in this priority:
   existing project rules and equivalent customized wording. In local-only mode,
   keep `AGENTS.md` public-safe without adding hidden workflow paths or skill lists.
   Doctor must not edit or replace `AGENTS.md`.
+- `AGENTS.md` still carries the moved workflow reference -> compare it with the
+  current Blueprint template's `AGENTS.md` and remove only the sections now in
+  `blueprint/workflow.md`, keeping the project description, commands, and
+  project rules. Doctor must not edit `AGENTS.md`.
 - Root README is still the Blueprint workflow doc -> run `/onboard` to replace
   it with a project README before publishing.
 - Local-only visibility selected but ignored Blueprint files are missing ->
@@ -271,14 +284,14 @@ Choose the repair order in this priority:
   `blueprint/build-plan.md`.
 - Overview missing or stale -> run `/overview`.
 - Malformed regular `blueprint/.state/run.json` -> offer to reset that exact
-  generated file, then rerun `/doctor` or refresh the dashboard.
-- Active spec has unchecked steps -> run `/status` or `/implement`, depending on
+  generated file, then rerun `/blueprint-doctor` or refresh the dashboard.
+- Active spec has unchecked steps -> run `/blueprint-status` or `/implement`, depending on
   whether the user wants orientation or action.
 - A P0 or P1 finding is `open` -> repair it through `/implement` while a spec
   is active, or `/fix <finding id>` between work items. One that is `fixed` ->
   `/audit` to re-review and close it. Both come before suggesting `/complete`.
 - Active spec is done but not closed -> run `/check`, then `/complete`.
-- Everything is healthy -> say so, then suggest `/status` for progress or
+- Everything is healthy -> say so, then suggest `/blueprint-status` for progress or
   `/feature` for the next planned feature.
 
 ## Rules

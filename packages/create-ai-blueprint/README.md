@@ -54,6 +54,7 @@ The installer copies the Blueprint workflow files into the current directory:
 - `AGENTS.md`
 - `CLAUDE.md`
 - `blueprint/config.json`
+- `blueprint/workflow.md`
 - `blueprint/.state/manifest.json`
 - `.agents/`
 - `.claude/`
@@ -202,8 +203,8 @@ non-interactive runs.
 | "Show that this feature works." | `/check` |
 | "Tell me how to test it myself." | `/check guide` |
 | "Review the implementation for defects." | `/audit current` |
-| "Where did we leave off?" | `/status` |
-| "Is Blueprint set up correctly?" | `/doctor` |
+| "Where did we leave off?" | `/blueprint-status` |
+| "Is Blueprint set up correctly?" | `/blueprint-doctor` |
 
 Explore investigates a possibility without requiring plans. Brief explains an
 item already in the build plan. Neither writes files; Explore never executes
@@ -235,10 +236,10 @@ matching `$` form in Codex.
 | --- | --- |
 | **/explore** | Investigate an idea against the code without writing files or requiring plans. |
 | **/brief** | Explain an existing planned feature, its dependencies, and likely size without writing files. |
-| **/status** | Show progress, drift, blockers, and the suggested next action. |
+| **/blueprint-status** | Show progress, drift, blockers, and the suggested next action. |
 | **/debug** | Reproduce and isolate a failure without editing code. |
 | **/audit** | Review code and record findings; `/audit independent current` requests an independent review of a checkpoint. |
-| **/doctor** | Check Blueprint setup and workflow health; offer to reset malformed generated dashboard state after approval. |
+| **/blueprint-doctor** | Check Blueprint setup and workflow health; offer to reset malformed generated dashboard state after approval. |
 
 ### Plan and set up
 
@@ -298,6 +299,7 @@ The updater detects the installed adapters and manages only these paths:
 
 - `.agents/skills/`
 - `.claude/skills/`
+- `blueprint/workflow.md`
 
 It preserves `AGENTS.md`, `CLAUDE.md`, project configuration, project and build
 plans, context, history, references, and prototypes. An unchanged `blueprint/README.md` installed by an
@@ -330,7 +332,7 @@ are not. Setting a workflow's independent review policy to `manual` disables
 automatic selection; an explicit `/audit independent current` still uses the
 configured execution method. A
 missing file uses built-in defaults; an invalid file is reported by status and
-blocks mutating workflow skills until `/doctor` identifies the repair.
+blocks mutating workflow skills until `/blueprint-doctor` identifies the repair.
 Configuration never grants permission to
 commit, merge, push, deploy, publish, or take destructive action. Only an
 explicit `/continuous` or `$continuous` request starts the multi-feature loop.
@@ -350,7 +352,10 @@ compatible only as fresh-session manual reviews.
 
 ## Context efficiency
 
-New installations make Claude Code import only `AGENTS.md` at startup. Explicit
+New installations make Claude Code import only `AGENTS.md` at startup, and
+`AGENTS.md` holds only the project contract. The workflow reference for
+configuration, skills, dashboard activity, and automatic checks lives in
+`blueprint/workflow.md` and is read only when a command needs it. Explicit
 workflow skills load the compact overview, active spec, coding standards, and
 interaction guide on demand. Feature uses targeted repository reads and writes
 one reviewed spec. Implement reuses that spec and normally runs the full Verify
@@ -358,7 +363,7 @@ command once after all steps. New project configuration also defaults to one
 feature-level review packet with step checkpoint commits disabled.
 
 The updater preserves `CLAUDE.md` and `blueprint/config.json`, so existing
-projects do not receive those user-owned changes automatically. Run `/doctor` to
+projects do not receive those user-owned changes automatically. Run `/blueprint-doctor` to
 identify an oversized overview. The updater directly reports the obsolete
 `project-overview.md` and `current-feature.md` import lines when they are present
 in `CLAUDE.md`. Older layouts may also contain direct `coding-standards.md` and
@@ -414,14 +419,14 @@ conflicts so local changes are not lost.
 Check the version printed in the update plan before proceeding. A cached
 package resolution can run an older release even when the command uses
 `@latest`. Pin the intended published version explicitly. For example, for
-1.13.0:
+1.15.0:
 
 ```bash
 # npm
-npx create-ai-blueprint@1.13.0 update
+npx create-ai-blueprint@1.15.0 update
 
 # pnpm
-pnpm dlx create-ai-blueprint@1.13.0 update
+pnpm dlx create-ai-blueprint@1.15.0 update
 ```
 
 Use the version from the [release list](https://github.com/aiblueprinthq/ai-blueprint/releases)
@@ -450,7 +455,7 @@ status makes the completion gate ready, while no active work reports the gate as
 idle. Running command activity overrides
 contradictory next-action advice, and an activity record that stops updating is
 shown as interrupted instead of running forever. Malformed generated activity
-points to `/doctor`, which can offer to reset only `blueprint/.state/run.json`
+points to `/blueprint-doctor`, which can offer to reset only `blueprint/.state/run.json`
 after approval. For scripts and integrations, request the versioned JSON object:
 
 ```bash
@@ -479,14 +484,20 @@ inspect an explicit project directory. Status never edits project or Git state.
 
 ### Command migration
 
-Two standalone skills have been removed:
+Some standalone skills have been removed or renamed:
 
 | Old command | Replacement |
 | --- | --- |
 | `/browser-tests` | `/tests browser` (Codex: `$tests browser`) |
 | `/try` | `/check guide` (Codex: `$check guide`) |
+| `/status` | `/blueprint-status` (Codex: `$blueprint-status`) |
+| `/doctor` | `/blueprint-doctor` (Codex: `$blueprint-doctor`) |
 
-Run the CLI update to install the consolidated skills. Updates remove unchanged
+`/status` and `/doctor` were renamed so they no longer hide the Claude Code
+built-in commands with the same names. The `blueprint status` terminal command
+is unchanged.
+
+Run the CLI update to install the current skills. Updates remove unchanged
 managed copies of the retired skills and report customized copies as conflicts,
 preserving them until you resolve or explicitly replace them. Review old references in your preserved `AGENTS.md`; updates do not replace your
 project instructions. The `qualityGates.regular.tryGuide` and

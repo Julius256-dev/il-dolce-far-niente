@@ -15,6 +15,14 @@ packet. Implement it and stop before the work-level commit or merge.
 
 **First action:** Before project inspection, preflight, or any other tool call,
 publish the `implement` activity as `running` when `blueprint/.state/` exists.
+From the project root, run the first helper that exists,
+`node .agents/skills/blueprint-doctor/scripts/run-state.mjs` or
+`node .claude/skills/blueprint-doctor/scripts/run-state.mjs`, with `start --command
+<skill> --summary "<truthful summary>" --boundary
+<read-only|reviewed|local-only>`. Use `update` at milestones, with `--status
+blocked --resume <command>` for a blocker, and `finish --status ready|completed`
+at the end; `--help` lists every option and `blueprint/workflow.md` has the full
+activity contract. A missing or failing helper is a warning, not a blocker.
 Combine it with the first preflight tool batch when supported.
 
 In one preflight batch, read:
@@ -24,7 +32,7 @@ In one preflight batch, read:
 - the current branch, status, and recent relevant log
 - the Commands section already loaded from `AGENTS.md`
 
-Stop for `/doctor` on invalid config. Stop for `/feature`, `/fix`, or `/rollback`
+Stop for `/blueprint-doctor` on invalid config. Stop for `/feature`, `/fix`, or `/rollback`
 when the active spec is empty. Preserve unrelated worktree changes.
 
 Do not reread the full project overview, coding standards, interaction guide,
@@ -122,7 +130,10 @@ passed without its output.
 
 Apply configured regular gates:
 
-- Audit and independent review follow `qualityGates.regular`.
+- Audit and independent review follow `qualityGates.regular`; `when-sensitive`
+  selects them for authentication, authorization, payments, secrets, personal
+  or user data, migrations, destructive operations, external side effects,
+  security boundaries, or unusually broad changes.
 - Check runs for `always`, for behavioral work under `when-behavioral`, or when
   explicitly requested.
 - `/check guide` follows `qualityGates.regular.tryGuide`: it runs for `always`,
