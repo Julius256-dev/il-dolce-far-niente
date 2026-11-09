@@ -328,7 +328,7 @@ async function main(): Promise<void> {
         targetDir,
         helperRoot,
         "skills",
-        "doctor",
+        "blueprint-doctor",
         "scripts",
         "run-state.mjs"
       );
@@ -541,6 +541,7 @@ async function validateInstall(
     "AGENTS.md",
     "blueprint/project-plan.md",
     "blueprint/build-plan.md",
+    "blueprint/workflow.md",
     "blueprint/context/findings.md",
     "blueprint/context/review.md",
     "blueprint/.state/manifest.json",
@@ -557,7 +558,7 @@ async function validateInstall(
       ".agents/skills/tests/reference/browser.md",
       ".agents/skills/discovery/SKILL.md",
       ".agents/skills/explore/SKILL.md",
-      ".agents/skills/doctor/scripts/run-state.mjs",
+      ".agents/skills/blueprint-doctor/scripts/run-state.mjs",
       ".agents/skills/onboard/SKILL.md",
       ".agents/skills/rollback/SKILL.md"
     );
@@ -574,7 +575,7 @@ async function validateInstall(
       ".claude/skills/tests/reference/browser.md",
       ".claude/skills/discovery/SKILL.md",
       ".claude/skills/explore/SKILL.md",
-      ".claude/skills/doctor/scripts/run-state.mjs",
+      ".claude/skills/blueprint-doctor/scripts/run-state.mjs",
       ".claude/skills/onboard/SKILL.md",
       ".claude/skills/rollback/SKILL.md"
     );
@@ -625,7 +626,7 @@ async function validateInstall(
     );
   }
 
-  const expectedManagedFiles: string[] = [];
+  const expectedManagedFiles: string[] = ["blueprint/workflow.md"];
 
   if (expectsSharedSkills) {
     expectedManagedFiles.push(
