@@ -32,14 +32,13 @@ import {
   writeInstallManifest
 } from "../lib/update.js";
 
+const WORKFLOW_PATH = "blueprint/workflow.md";
+const WORKFLOW_CONTENT = "Workflow reference\n";
+
 test("CLI recovery recognizes every shipped AI skill without reading a project", async () => {
   const skillsRoot = fileURLToPath(new URL("../../../.agents/skills/", import.meta.url));
   const skills = await fs.readdir(skillsRoot, { withFileTypes: true });
   for (const skill of skills.filter((entry) => entry.isDirectory())) {
-    if (skill.name === "status") {
-      assert.equal(parseArgs([skill.name]).command, "status");
-      continue;
-    }
     assert.throws(() => parseArgs([skill.name]), (error: unknown) => {
       assert.ok(error instanceof Error);
       assert.ok(error.message.includes(`\`$${skill.name}\` in Codex`));
@@ -69,6 +68,18 @@ test("retired try CLI input points to consolidated AI chat commands", () => {
       assert.match(error.message, /skill was removed/);
       assert.ok(error.message.includes("`$check guide` in Codex"));
       assert.ok(error.message.includes("`/check guide` in Claude Code"));
+      return true;
+    });
+  }
+});
+
+test("renamed doctor CLI input points to the blueprint-doctor AI chat command", () => {
+  for (const surface of ["global", "package"] as const) {
+    assert.throws(() => parseArgs(["doctor"], surface), (error: unknown) => {
+      assert.ok(error instanceof Error);
+      assert.match(error.message, /skill is now blueprint-doctor/);
+      assert.ok(error.message.includes("`$blueprint-doctor` in Codex"));
+      assert.ok(error.message.includes("`/blueprint-doctor` in Claude Code"));
       return true;
     });
   }
@@ -355,7 +366,7 @@ test("new installs record only Blueprint-owned managed files", async (t) => {
     ".agents/skills/check/SKILL.md": "Check skill\n"
   };
 
-  await writeFiles(templateRoot, files);
+  await writeTemplateFiles(templateRoot, files);
   await writeFiles(targetDir, files);
   await writeFiles(targetDir, {
     "AGENTS.md": "Project instructions\n",
@@ -371,7 +382,8 @@ test("new installs record only Blueprint-owned managed files", async (t) => {
 
   assert.deepEqual(manifest.adapters, ["codex"]);
   assert.deepEqual(Object.keys(manifest.managedFiles), [
-    ".agents/skills/check/SKILL.md"
+    ".agents/skills/check/SKILL.md",
+    WORKFLOW_PATH
   ]);
   assert.equal(
     await fs.readFile(path.join(targetDir, CONTROL_DIR, ".gitignore"), "utf8"),
@@ -395,7 +407,7 @@ test("Copilot manifests remain distinct from Codex when they share skills", asyn
     ".agents/skills/check/SKILL.md": "Check skill\n"
   };
 
-  await writeFiles(templateRoot, files);
+  await writeTemplateFiles(templateRoot, files);
   await writeFiles(targetDir, files);
   const manifest = await writeInstallManifest({
     targetDir,
@@ -406,7 +418,8 @@ test("Copilot manifests remain distinct from Codex when they share skills", asyn
 
   assert.deepEqual(manifest.adapters, ["copilot"]);
   assert.deepEqual(Object.keys(manifest.managedFiles), [
-    ".agents/skills/check/SKILL.md"
+    ".agents/skills/check/SKILL.md",
+    WORKFLOW_PATH
   ]);
 
   const prepared = await prepareUpdate({
@@ -423,7 +436,7 @@ test("OpenCode manifests reuse one compatible skill tree", async (t) => {
   const templateRoot = path.join(workspace, "template");
   const targetDir = path.join(workspace, "target");
 
-  await writeFiles(templateRoot, {
+  await writeTemplateFiles(templateRoot, {
     ".agents/skills/check/SKILL.md": "Check skill\n",
     ".claude/skills/check/SKILL.md": "Check skill\n"
   });
@@ -440,7 +453,8 @@ test("OpenCode manifests reuse one compatible skill tree", async (t) => {
 
   assert.deepEqual(manifest.adapters, ["claude", "opencode"]);
   assert.deepEqual(Object.keys(manifest.managedFiles), [
-    ".claude/skills/check/SKILL.md"
+    ".claude/skills/check/SKILL.md",
+    WORKFLOW_PATH
   ]);
 });
 
@@ -453,7 +467,7 @@ test("updates preserve pre-Copilot Codex and Claude manifests", async (t) => {
     ".claude/skills/check/SKILL.md": "Check skill\n"
   };
 
-  await writeFiles(templateRoot, files);
+  await writeTemplateFiles(templateRoot, files);
   await writeFiles(targetDir, files);
   const allManifest = await writeInstallManifest({
     targetDir,
@@ -496,8 +510,8 @@ test("updates report obsolete Claude imports without changing CLAUDE.md", async 
     ""
   ].join("\n");
 
-  await writeFiles(templateRoot, { [skillPath]: "Old feature skill\n" });
-  await writeFiles(targetDir, {
+  await writeTemplateFiles(templateRoot, { [skillPath]: "Old feature skill\n" });
+  await writeInstalledFiles(targetDir, {
     [skillPath]: "Old feature skill\n",
     "CLAUDE.md": oldClaudeFile
   });
@@ -507,7 +521,7 @@ test("updates report obsolete Claude imports without changing CLAUDE.md", async 
     version: "1.3.0",
     adapters: ["claude"]
   });
-  await writeFiles(templateRoot, { [skillPath]: "New feature skill\n" });
+  await writeTemplateFiles(templateRoot, { [skillPath]: "New feature skill\n" });
 
   const prepared = await prepareUpdate({
     targetDir,
@@ -539,9 +553,9 @@ test("update replaces unchanged managed files and preserves project files", asyn
     ".agents/skills/check/SKILL.md": "Old check skill\n"
   };
 
-  await writeFiles(templateRoot, oldFiles);
+  await writeTemplateFiles(templateRoot, oldFiles);
   await writeFiles(targetDir, oldFiles);
-  await writeFiles(targetDir, {
+  await writeInstalledFiles(targetDir, {
     "AGENTS.md": "Custom project instructions\n",
     "blueprint/build-plan.md": "Custom roadmap\n",
     "blueprint/config.json": "{\"schemaVersion\":1}\n",
@@ -554,7 +568,7 @@ test("update replaces unchanged managed files and preserves project files", asyn
     adapters: ["codex"]
   });
 
-  await writeFiles(templateRoot, {
+  await writeTemplateFiles(templateRoot, {
     ".agents/skills/check/SKILL.md": "New check skill\n",
     ".agents/skills/feature/SKILL.md": "New feature skill\n"
   });
@@ -619,6 +633,44 @@ test("update replaces unchanged managed files and preserves project files", asyn
   assert.equal((await readManifest(targetDir))?.version, "1.1.0");
 });
 
+test("update adds the managed workflow reference to installs that predate it", async (t) => {
+  const workspace = await createWorkspace(t);
+  const templateRoot = path.join(workspace, "template");
+  const targetDir = path.join(workspace, "target");
+  const skills = { ".agents/skills/check/SKILL.md": "Check skill\n" };
+
+  await writeTemplateFiles(templateRoot, skills);
+  await writeFiles(targetDir, { ...skills, "AGENTS.md": "Monolithic project instructions\n" });
+  await writeInstallManifest({
+    targetDir,
+    templateRoot,
+    version: "1.0.0",
+    adapters: ["codex"]
+  });
+  const manifest = await readManifest(targetDir);
+  assert.ok(manifest);
+  delete manifest.managedFiles[WORKFLOW_PATH];
+  await fs.writeFile(path.join(targetDir, MANIFEST_PATH), `${JSON.stringify(manifest, null, 2)}\n`);
+
+  const prepared = await prepareUpdate({
+    targetDir,
+    templateRoot,
+    version: "1.1.0"
+  });
+
+  assert.deepEqual(prepared.plan.add.map((operation) => operation.path), [WORKFLOW_PATH]);
+  assert.equal(prepared.plan.conflicts.length, 0);
+
+  await applyPreparedUpdate(prepared);
+
+  assert.equal(await fs.readFile(path.join(targetDir, WORKFLOW_PATH), "utf8"), WORKFLOW_CONTENT);
+  assert.equal(
+    await fs.readFile(path.join(targetDir, "AGENTS.md"), "utf8"),
+    "Monolithic project instructions\n"
+  );
+  assert.ok((await readManifest(targetDir))?.managedFiles[WORKFLOW_PATH]);
+});
+
 test("local changes to managed files require explicit replacement and are backed up", async (t) => {
   const workspace = await createWorkspace(t);
   const templateRoot = path.join(workspace, "template");
@@ -627,8 +679,8 @@ test("local changes to managed files require explicit replacement and are backed
     ".agents/skills/check/SKILL.md": "Old check skill\n"
   };
 
-  await writeFiles(templateRoot, oldFiles);
-  await writeFiles(targetDir, oldFiles);
+  await writeTemplateFiles(templateRoot, oldFiles);
+  await writeInstalledFiles(targetDir, oldFiles);
   await writeInstallManifest({
     targetDir,
     templateRoot,
@@ -638,7 +690,7 @@ test("local changes to managed files require explicit replacement and are backed
   await writeFiles(targetDir, {
     ".agents/skills/check/SKILL.md": "Locally customized skill\n"
   });
-  await writeFiles(templateRoot, {
+  await writeTemplateFiles(templateRoot, {
     ".agents/skills/check/SKILL.md": "Upstream skill\n"
   });
 
@@ -689,15 +741,15 @@ test("update removes only obsolete managed files that remain unchanged", async (
     ".agents/skills/retired/SKILL.md": "Retired skill\n"
   };
 
-  await writeFiles(oldTemplateRoot, oldFiles);
-  await writeFiles(targetDir, oldFiles);
+  await writeTemplateFiles(oldTemplateRoot, oldFiles);
+  await writeInstalledFiles(targetDir, oldFiles);
   await writeInstallManifest({
     targetDir,
     templateRoot: oldTemplateRoot,
     version: "1.0.0",
     adapters: ["codex"]
   });
-  await writeFiles(newTemplateRoot, {
+  await writeTemplateFiles(newTemplateRoot, {
     ".agents/skills/check/SKILL.md": "Check skill\n"
   });
 
@@ -747,8 +799,8 @@ for (const customized of [false, true]) {
         );
       }
     }
-    await writeFiles(oldTemplateRoot, oldFiles);
-    await writeFiles(targetDir, oldFiles);
+    await writeTemplateFiles(oldTemplateRoot, oldFiles);
+    await writeInstalledFiles(targetDir, oldFiles);
     await writeInstallManifest({
       targetDir, templateRoot: oldTemplateRoot, version: "1.0.0", adapters: ["codex", "claude"]
     });
@@ -757,7 +809,7 @@ for (const customized of [false, true]) {
         retiredPaths.map((relative) => [relative, "Customized browser setup\n"])
       ));
     }
-    await writeFiles(newTemplateRoot, newFiles);
+    await writeTemplateFiles(newTemplateRoot, newFiles);
     const prepared = await prepareUpdate({
       targetDir, templateRoot: newTemplateRoot, version: "1.1.0"
     });
@@ -809,8 +861,8 @@ for (const customized of [false, true]) {
         );
       }
     }
-    await writeFiles(oldTemplateRoot, oldFiles);
-    await writeFiles(targetDir, oldFiles);
+    await writeTemplateFiles(oldTemplateRoot, oldFiles);
+    await writeInstalledFiles(targetDir, oldFiles);
     await writeInstallManifest({
       targetDir, templateRoot: oldTemplateRoot, version: "1.0.0", adapters: ["codex", "claude"]
     });
@@ -819,7 +871,7 @@ for (const customized of [false, true]) {
         retiredPaths.map((relative) => [relative, "Customized manual guide\n"])
       ));
     }
-    await writeFiles(newTemplateRoot, newFiles);
+    await writeTemplateFiles(newTemplateRoot, newFiles);
     const prepared = await prepareUpdate({
       targetDir, templateRoot: newTemplateRoot, version: "1.1.0"
     });
@@ -859,8 +911,8 @@ test("update removes an unchanged Blueprint README installed by an older version
     ".agents/skills/check/SKILL.md": "Check skill\n"
   };
 
-  await writeFiles(templateRoot, files);
-  await writeFiles(targetDir, {
+  await writeTemplateFiles(templateRoot, files);
+  await writeInstalledFiles(targetDir, {
     ...files,
     "blueprint/README.md": readmeContent
   });
@@ -903,8 +955,8 @@ test("update preserves a locally modified legacy Blueprint README", async (t) =>
     ".agents/skills/check/SKILL.md": "Check skill\n"
   };
 
-  await writeFiles(templateRoot, files);
-  await writeFiles(targetDir, {
+  await writeTemplateFiles(templateRoot, files);
+  await writeInstalledFiles(targetDir, {
     ...files,
     "blueprint/README.md": readmeContent
   });
@@ -948,7 +1000,7 @@ test("legacy installs treat differing managed files as conflicts", async (t) => 
   const templateRoot = path.join(workspace, "template");
   const targetDir = path.join(workspace, "target");
 
-  await writeFiles(templateRoot, {
+  await writeTemplateFiles(templateRoot, {
     ".agents/skills/check/SKILL.md": "Current check skill\n"
   });
   await writeFiles(targetDir, {
@@ -982,15 +1034,15 @@ test("update aborts when a managed file changes after the plan is created", asyn
     ".agents/skills/check/SKILL.md": "Old check skill\n"
   };
 
-  await writeFiles(templateRoot, oldFiles);
-  await writeFiles(targetDir, oldFiles);
+  await writeTemplateFiles(templateRoot, oldFiles);
+  await writeInstalledFiles(targetDir, oldFiles);
   await writeInstallManifest({
     targetDir,
     templateRoot,
     version: "1.0.0",
     adapters: ["codex"]
   });
-  await writeFiles(templateRoot, {
+  await writeTemplateFiles(templateRoot, {
     ".agents/skills/check/SKILL.md": "New check skill\n"
   });
 
@@ -1022,15 +1074,15 @@ test("failed apply removes additions and restores the previous manifest", async 
     ".agents/skills/check/SKILL.md": "Check skill\n"
   };
 
-  await writeFiles(templateRoot, oldFiles);
-  await writeFiles(targetDir, oldFiles);
+  await writeTemplateFiles(templateRoot, oldFiles);
+  await writeInstalledFiles(targetDir, oldFiles);
   await writeInstallManifest({
     targetDir,
     templateRoot,
     version: "1.0.0",
     adapters: ["codex"]
   });
-  await writeFiles(templateRoot, {
+  await writeTemplateFiles(templateRoot, {
     ".agents/skills/feature/SKILL.md": "Feature skill\n"
   });
 
@@ -1074,7 +1126,7 @@ test("update refuses to write through a symbolic-link directory", async (t) => {
   const targetDir = path.join(workspace, "target");
   const outsideDir = path.join(workspace, "outside");
 
-  await writeFiles(templateRoot, {
+  await writeTemplateFiles(templateRoot, {
     ".agents/skills/check/SKILL.md": "Current check skill\n"
   });
   await fs.mkdir(targetDir, { recursive: true });
@@ -1138,8 +1190,8 @@ test("update adds an adapter by installing its missing skill tree", async (t) =>
   const templateRoot = path.join(workspace, "template");
   const targetDir = path.join(workspace, "target");
 
-  await writeFiles(templateRoot, adapterChangeTemplate);
-  await writeFiles(targetDir, {
+  await writeTemplateFiles(templateRoot, adapterChangeTemplate);
+  await writeInstalledFiles(targetDir, {
     "CLAUDE.md": "# Custom\n\n@AGENTS.md\n",
     ".claude/skills/check/SKILL.md": "Check skill\n",
     ".claude/skills/feature/SKILL.md": "Feature skill\n"
@@ -1197,8 +1249,8 @@ test("update removes an adapter's skill tree and keeps CLAUDE.md", async (t) => 
   const targetDir = path.join(workspace, "target");
   const { "CLAUDE.md": claudeFile, ...skills } = adapterChangeTemplate;
 
-  await writeFiles(templateRoot, adapterChangeTemplate);
-  await writeFiles(targetDir, { ...skills, "CLAUDE.md": claudeFile });
+  await writeTemplateFiles(templateRoot, adapterChangeTemplate);
+  await writeInstalledFiles(targetDir, { ...skills, "CLAUDE.md": claudeFile });
   await writeInstallManifest({
     targetDir,
     templateRoot,
@@ -1346,8 +1398,8 @@ test("adding Claude Code creates CLAUDE.md only when it is missing", async (t) =
     ".agents/skills/feature/SKILL.md": "Feature skill\n"
   };
 
-  await writeFiles(templateRoot, adapterChangeTemplate);
-  await writeFiles(targetDir, codexFiles);
+  await writeTemplateFiles(templateRoot, adapterChangeTemplate);
+  await writeInstalledFiles(targetDir, codexFiles);
   await writeInstallManifest({
     targetDir,
     templateRoot,
@@ -1412,8 +1464,8 @@ test("OpenCode follows the Claude Code skill tree when adapters change", async (
   const templateRoot = path.join(workspace, "template");
   const targetDir = path.join(workspace, "target");
 
-  await writeFiles(templateRoot, adapterChangeTemplate);
-  await writeFiles(targetDir, {
+  await writeTemplateFiles(templateRoot, adapterChangeTemplate);
+  await writeInstalledFiles(targetDir, {
     "CLAUDE.md": adapterChangeTemplate["CLAUDE.md"],
     ".claude/skills/check/SKILL.md": "Check skill\n",
     ".claude/skills/feature/SKILL.md": "Feature skill\n"
@@ -1478,7 +1530,7 @@ test("legacy installs can add adapters but must update before removing one", asy
   const targetDir = path.join(workspace, "target");
   const { "CLAUDE.md": claudeFile, ...skills } = adapterChangeTemplate;
 
-  await writeFiles(templateRoot, adapterChangeTemplate);
+  await writeTemplateFiles(templateRoot, adapterChangeTemplate);
   await writeFiles(targetDir, { ...skills, "CLAUDE.md": claudeFile });
 
   assert.deepEqual(await readInstalledAdapters(targetDir), ["codex", "claude"]);
@@ -1519,7 +1571,7 @@ test("failed adapter addition prunes the directories it created", async (t) => {
     ".agents/skills/feature/SKILL.md": "Feature skill\n"
   };
 
-  await writeFiles(templateRoot, adapterChangeTemplate);
+  await writeTemplateFiles(templateRoot, adapterChangeTemplate);
   await fs.rm(path.join(templateRoot, "CLAUDE.md"));
   await writeFiles(targetDir, codexFiles);
 
@@ -1555,8 +1607,8 @@ test("adding Claude Code moves the OpenCode skill tree to .claude", async (t) =>
   const templateRoot = path.join(workspace, "template");
   const targetDir = path.join(workspace, "target");
 
-  await writeFiles(templateRoot, adapterChangeTemplate);
-  await writeFiles(targetDir, {
+  await writeTemplateFiles(templateRoot, adapterChangeTemplate);
+  await writeInstalledFiles(targetDir, {
     "CLAUDE.md": adapterChangeTemplate["CLAUDE.md"],
     ".agents/skills/check/SKILL.md": "Check skill\n",
     ".agents/skills/feature/SKILL.md": "Feature skill\n"
@@ -1601,8 +1653,8 @@ test("removing Claude Code keeps user-owned files under .claude", async (t) => {
   const templateRoot = path.join(workspace, "template");
   const targetDir = path.join(workspace, "target");
 
-  await writeFiles(templateRoot, adapterChangeTemplate);
-  await writeFiles(targetDir, adapterChangeTemplate);
+  await writeTemplateFiles(templateRoot, adapterChangeTemplate);
+  await writeInstalledFiles(targetDir, adapterChangeTemplate);
   await writeInstallManifest({
     targetDir,
     templateRoot,
@@ -1646,8 +1698,8 @@ test("adding Claude Code preserves a CLAUDE.md directory", async (t) => {
   const templateRoot = path.join(workspace, "template");
   const targetDir = path.join(workspace, "target");
 
-  await writeFiles(templateRoot, adapterChangeTemplate);
-  await writeFiles(targetDir, {
+  await writeTemplateFiles(templateRoot, adapterChangeTemplate);
+  await writeInstalledFiles(targetDir, {
     ".agents/skills/check/SKILL.md": "Check skill\n",
     ".agents/skills/feature/SKILL.md": "Feature skill\n",
     "CLAUDE.md/notes.md": "Not an entrypoint\n"
@@ -1683,6 +1735,14 @@ async function createWorkspace(t: TestContext): Promise<string> {
   const workspace = await fs.mkdtemp(path.join(os.tmpdir(), "ai-blueprint-update-"));
   t.after(() => fs.rm(workspace, { recursive: true, force: true }));
   return workspace;
+}
+
+async function writeTemplateFiles(root: string, files: Record<string, string>): Promise<void> {
+  await writeFiles(root, { [WORKFLOW_PATH]: WORKFLOW_CONTENT, ...files });
+}
+
+async function writeInstalledFiles(root: string, files: Record<string, string>): Promise<void> {
+  await writeFiles(root, { [WORKFLOW_PATH]: WORKFLOW_CONTENT, ...files });
 }
 
 async function writeFiles(root: string, files: Record<string, string>): Promise<void> {

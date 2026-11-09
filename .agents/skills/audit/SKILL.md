@@ -10,8 +10,15 @@ metadata:
 **Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
 
 **First action:** Before project inspection, preflight, or any other tool call,
-publish `running` to `blueprint/.state/run.json` using the dashboard activity
-contract in `AGENTS.md`.
+publish `running` to `blueprint/.state/run.json` when `blueprint/.state/`
+exists. From the project root, run the first helper that exists,
+`node .agents/skills/blueprint-doctor/scripts/run-state.mjs` or
+`node .claude/skills/blueprint-doctor/scripts/run-state.mjs`, with `start --command
+<skill> --summary "<truthful summary>" --boundary
+<read-only|reviewed|local-only>`. Use `update` at milestones, with `--status
+blocked --resume <command>` for a blocker, and `finish --status ready|completed`
+at the end; `--help` lists every option and `blueprint/workflow.md` has the full
+activity contract. A missing or failing helper is a warning, not a blocker.
 
 Where this sits in the workflow:
 
@@ -19,7 +26,7 @@ Where this sits in the workflow:
     (code exists)                 (review +    (repair quality issues
                                    ledger)      or close the feature)
 
-`/check` proves behavior against the spec. `/doctor` checks Blueprint setup and
+`/check` proves behavior against the spec. `/blueprint-doctor` checks Blueprint setup and
 workflow health. This skill checks the code itself through either a broad review
 or one focused lens: quality, security, performance, or tests.
 
@@ -37,7 +44,7 @@ A selected `independentReview` gate invokes independent mode instead of letting
 the builder satisfy its own review. When both audit and independent review are
 selected, one passing independent review satisfies the audit gate.
 A missing config means built-in defaults. If it exists but is invalid, stop and
-point to `/doctor` before writing the findings ledger.
+point to `/blueprint-doctor` before writing the findings ledger.
 
 ## Input
 
@@ -96,6 +103,7 @@ An explicit invocation uses this execution setting even when the active
 workflow's `independentReview` gate is `manual`; that gate value disables only
 automatic selection by the workflow.
 
+<<<<<<< ours
 Read `reference/independent-review.md` before either phase.
 
 ### Phase A - prepare the handoff
@@ -244,6 +252,16 @@ pass reviews the complete new delta, not only the old findings.
 A local-spec-only revision may reuse the same approved product HEAD after normal
 spec and verification gates, with a new snapshot/request and full fresh review;
 it never requires an empty commit.
+=======
+Read `reference/independent-review.md` before either phase. It holds the
+record contract and both procedures: Phase A prepares the handoff when
+`blueprint/context/review.md` has no current `pending` request for `HEAD` and
+the current spec hash; Phase B performs the review when a current pending
+request exists.
+
+The builder never performs Phase B itself. Never let the builder review its
+own work or skip a selected independent-review gate.
+>>>>>>> upstream
 
 ## Step 1 - gather context
 
@@ -251,12 +269,15 @@ Resolve this required context:
 
 - `AGENTS.md`
 - `blueprint/config.json`
-- `blueprint/context/project-overview.md`
+- `blueprint/context/project-overview.md`, targeted: search it for the scope's
+  feature, paths, and distinctive nouns. Read the matching passages plus the
+  security and data passages they touch, meaning the trust, access, and tenancy
+  facts in Users and Usage model and the affected Data model entries. Do not
+  read the whole overview by default.
 - `blueprint/context/coding-standards.md`
 - `blueprint/context/current-feature.md`
 - `blueprint/context/findings.md`, for existing IDs and statuses
 - `blueprint/context/review.md`, for independent request and receipt state
-- `blueprint/context/ai-interaction.md`
 - `blueprint/build-plan.md`, when feature order matters
 - git branch and working tree status
 - relevant source files, tests, and configs for the chosen scope
