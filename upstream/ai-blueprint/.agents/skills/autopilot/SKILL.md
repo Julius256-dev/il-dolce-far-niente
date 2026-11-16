@@ -8,12 +8,19 @@ description: Run one explicit bounded Blueprint spec and implementation pass thr
 **Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
 
 **First action:** Before project inspection, preflight, or any other tool call,
-publish `running` to `blueprint/.state/run.json` using the dashboard activity
-contract in `AGENTS.md`.
+publish `running` to `blueprint/.state/run.json` when `blueprint/.state/`
+exists. From the project root, run the first helper that exists,
+`node .agents/skills/blueprint-doctor/scripts/run-state.mjs` or
+`node .claude/skills/blueprint-doctor/scripts/run-state.mjs`, with `start --command
+<skill> --summary "<truthful summary>" --boundary
+<read-only|reviewed|local-only>`. Use `update` at milestones, with `--status
+blocked --resume <command>` for a blocker, and `finish --status ready|completed`
+at the end; `--help` lists every option and `blueprint/workflow.md` has the full
+activity contract. A missing or failing helper is a warning, not a blocker.
 
 Where this sits in the workflow:
 
-    /status  ->  [autopilot]  ->  review packet  ->  /complete
+    /blueprint-status  ->  [autopilot]  ->  review packet  ->  /complete
     (where       (spec, build,      (human review,    (log, commit,
      are we?)     configured gates)  fixes if needed)  merge with approval)
 
@@ -53,14 +60,12 @@ If the requested target conflicts with a feature already in progress, stop and
 ask which one should win. Do not overwrite `blueprint/context/current-feature.md`
 silently.
 
-Rollback is intentionally excluded from Autopilot. If the request is a rollback
-or `current-feature.md` is marked `Type: Rollback`, stop and direct the user to
-the reviewed `/implement` path. Reversing completed work requires the explicit
-dependency and conflict gates in `/rollback` and `/implement`.
+Autopilot handles features and fixes only. If `current-feature.md` holds any
+other spec type, such as an older `Type: Rollback` spec, stop and report it.
 
-## Step 1 - preflight like /status
+## Step 1 - preflight like /blueprint-status
 
-Read the same state `/status` reads:
+Read the same state `/blueprint-status` reads:
 
 - `AGENTS.md`
 - `blueprint/config.json`
@@ -77,7 +82,7 @@ Then decide whether it is safe to run.
 
 Stop before changing files when:
 
-- `blueprint/config.json` exists but is invalid. Point the user to `/doctor`.
+- `blueprint/config.json` exists but is invalid. Point the user to `/blueprint-doctor`.
 - The repo is not a git repo.
 - The working tree is dirty and there is no current feature tying those changes
   to this run.
@@ -92,7 +97,7 @@ If the only issue is that `project-overview.md` is stale and the plans are clear
 regenerate it using the `/overview` behavior and continue. Include that in the
 final packet.
 
-The initial `blueprint/.state/run.json` record required by `AGENTS.md` must
+The initial `blueprint/.state/run.json` record required by the first action must
 already show command `autopilot` and status `running` before preflight begins.
 After preflight passes, enrich it with boundary `reviewed`, the target feature
 or fix, and build-step progress when known. Update it after the spec, each
@@ -120,9 +125,12 @@ If there is no active spec:
    - vague done-whens
    - missing testing plan when `AGENTS.md` declares a test command
 4. Apply the spec fixes.
+5. Apply `qualityGates.regular.specCheck` through
+   `../feature/reference/spec-check.md` when it is `always` or the user asked
+   for the spec check. A Needs-you item stops Autopilot with the exact decision.
 
 Autopilot may continue past this spec gate because the user explicitly invoked
-Autopilot. Still report what the critique changed in the final packet.
+Autopilot. Still report what the critique and any spec check changed in the final packet.
 Follow the proportional-engineering contract in `AGENTS.md` throughout this run.
 
 ## Step 3 - create or reuse the branch
@@ -295,9 +303,11 @@ Apply `qualityGates.regular.tryGuide`:
 - `when-user-facing` - run `/check guide` when the change affects UI,
   navigation, copy, a public API or CLI, output, or another workflow a person
   directly uses.
-- `when-testable` - run `/check guide` after Verify and required Check. Guide
-  mode emits `## Try it now` only when it finds a safe, meaningful direct
-  observation and otherwise records a skip without inventing instructions.
+- `when-testable` - after Verify and required Check, follow only
+  `../check/reference/try-it-now.md` for its conservative classification; the
+  full guide is not needed. Guide mode emits `## Try it now` only when it finds
+  a safe, meaningful direct observation and otherwise records a skip without
+  inventing instructions.
 - `always` - generate a guide for every work item.
 
 The guide is a review artifact, not proof. Never claim the user performed it.

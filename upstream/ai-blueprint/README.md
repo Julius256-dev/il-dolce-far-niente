@@ -53,7 +53,7 @@ Blueprint adds a controlled loop:
   while real trust and data-integrity boundaries still apply.
 - **Explain the result.** Every completed implementation offers a read-only code
   walkthrough, regardless of the configured review cadence.
-- **One work item at a time.** The current feature, fix, or rollback has one
+- **One work item at a time.** The current feature or fix has one
   explicit scope and one set of acceptance criteria.
 - **Proof before completion.** Check runs the real app against the spec instead
   of treating a green build as behavioral proof.
@@ -175,7 +175,7 @@ Other work enters the same control loop:
 
 - Use `fix` for a small unplanned change or confirmed bug.
 - Use `debug` first when the cause is unclear.
-- Use `rollback` to reverse a completed feature without erasing its history.
+- Use `fix` to remove a completed feature. Its original archive stays in history.
 - Use `check guide` when you want a human manual-review guide.
 
 Read [Core Workflow](https://ai-blueprint.dev/docs/core-workflow/) for the full
@@ -252,8 +252,8 @@ full tour and command options.
 | "Show that this feature works." | `/check` |
 | "Tell me how to test it myself." | `/check guide` |
 | "Review the implementation for defects." | `/audit current` |
-| "Where did we leave off?" | `/status` |
-| "Is Blueprint set up correctly?" | `/doctor` |
+| "Where did we leave off?" | `/blueprint-status` |
+| "Is Blueprint set up correctly?" | `/blueprint-doctor` |
 
 Explore investigates a possibility without requiring plans. Brief explains an
 item already in the build plan. Neither writes files; Explore never executes
@@ -266,7 +266,7 @@ does not prove the application works.
 
 ## Command map
 
-All 22 skills are installed for each selected adapter. These groups help you
+All 20 skills are installed for each selected adapter. These groups help you
 find a command; they do not add installation modes or configuration. Examples
 use Claude Code slash commands in AI chat. Codex uses the matching `$skill` form,
 and other adapters can run the named skill through plain language.
@@ -286,10 +286,10 @@ and other adapters can run the named skill through plain language.
 | --- | --- |
 | **/explore** | Investigate an idea against the code without writing files or requiring plans. |
 | **/brief** | Explain an existing planned feature, its dependencies, and likely size without writing files. |
-| **/status** | Show progress, drift, blockers, and the suggested next action. |
+| **/blueprint-status** | Show progress, drift, blockers, and the suggested next action. |
 | **/debug** | Reproduce and isolate a failure without editing code. |
 | **/audit** | Review code and record findings; `/audit independent current` requests an independent review of a checkpoint. |
-| **/doctor** | Check Blueprint setup and workflow health; offer to reset malformed generated dashboard state after approval. |
+| **/blueprint-doctor** | Check Blueprint setup and workflow health; offer to reset malformed generated dashboard state after approval. |
 
 ### Plan and set up
 
@@ -301,15 +301,13 @@ and other adapters can run the named skill through plain language.
 | **/overview** | Generate durable project context from both planning documents. |
 | **/prototype** | Create throwaway static mockups before implementation. |
 | **/tests** | Set up unit testing with `/tests` or `/tests unit`; explicitly set up a browser harness with `/tests browser`. |
-| **/ci** | Align one project Verify command with GitHub checks, plus an optional pre-push hook. |
+| **/ci** | Align one project Verify command with GitHub checks. |
 
-### Recover and release
+### Recover
 
 | Skill | Purpose |
 | --- | --- |
 | **/fix** | Write a spec for a small unplanned change or confirmed bug. |
-| **/rollback** | Plan a history-preserving reversal of completed work. |
-| **/release** | Prepare local Render or Vercel configuration and readiness checks; deployment needs separate approval. |
 
 ### Automation
 
@@ -339,10 +337,10 @@ read:
 | File | Purpose |
 | --- | --- |
 | `blueprint/context/project-overview.md` | Durable project context generated from both plans |
-| `blueprint/context/current-feature.md` | The active feature, fix, or rollback spec |
+| `blueprint/context/current-feature.md` | The active feature or fix spec |
 | `blueprint/context/findings.md` | Audit findings with durable IDs, severities, and statuses |
 | `blueprint/context/review.md` | Independent-review handoff and latest reviewer receipt |
-| `blueprint/history/` | Archived feature, fix, and rollback records |
+| `blueprint/history/` | Archived feature and fix records |
 | `blueprint/config.json` | User-owned workflow policy shared by every adapter |
 
 This state stays tool-independent. A project can move between supported agents
@@ -385,6 +383,15 @@ explicit `/audit independent current` is still available and uses the configured
 execution method. Configuration never grants permission to merge, push, deploy,
 publish, or waive findings.
 
+The spec check is an optional gate before you approve a spec. A fresh reviewer
+reads the new spec against the repository and reports where it no longer matches
+the code, what is already done or unneeded, what is missing, and where a builder
+would have to guess. `/feature` fixes the clear gaps and lists real decisions as
+open questions, so you read one short note instead of a raw findings list. It
+defaults to `manual`: run it for one feature with `/feature <target> --check`,
+or set `qualityGates.regular.specCheck` (and `qualityGates.continuous.specCheck`
+for Continuous Mode) to `always`.
+
 The gate decides when independent review is required. The separate
 `review.independentExecution` setting decides how it runs and defaults to
 `automatic`, which starts an isolated reviewer when the active adapter can prove
@@ -393,7 +400,7 @@ with the manual handoff instead of skipping review. Set execution to `manual` to
 always prepare the fresh-session handoff.
 The automatic reviewer is a generic child of the current runtime, instructed
 only by the installed project's Audit skill and review contract. No global agent
-role, skill, prompt, or TraversyFlow installation is required or discovered.
+role, skill, or prompt installation is required or discovered.
 New requests bind the selected execution mode and receipts bind what actually
 ran. This prevents an unbound subagent claim from satisfying the gate while
 preserving older fresh-session receipts.
@@ -414,10 +421,6 @@ matching GitHub workflow.
 requests and default-branch pushes. Blueprint does not invent a test runner,
 coverage target, browser suite, security scan, or version matrix just to fill
 the workflow.
-
-At the end, `ci` offers an optional local pre-push hook that runs the same
-Verify command before each push. The offer defaults to no, and
-`git push --no-verify` bypasses the hook, so a GitHub ruleset remains the lock.
 
 Read [CI Setup](https://ai-blueprint.dev/docs/commands/ci/) for the full contract.
 
@@ -482,6 +485,11 @@ npx create-ai-blueprint@latest update
 pnpm dlx create-ai-blueprint@latest update
 ```
 
+Updates manage the skill trees and `blueprint/workflow.md`, the workflow
+reference agents read on demand. They preserve `AGENTS.md`, so an older project
+keeps its longer startup file until you trim it; `/blueprint-doctor` names the
+sections that moved.
+
 Update can also add an adapter to an existing installation:
 
 ```bash
@@ -500,34 +508,43 @@ Read [Updating Blueprint](https://ai-blueprint.dev/docs/updating-blueprint/) and
 
 ### Command migration
 
-Two standalone skills have been removed:
+Some standalone skills have been removed or renamed:
 
 | Old command | Replacement |
 | --- | --- |
 | `/browser-tests` | `/tests browser` (Codex: `$tests browser`) |
 | `/try` | `/check guide` (Codex: `$check guide`) |
+| `/status` | `/blueprint-status` (Codex: `$blueprint-status`) |
+| `/doctor` | `/blueprint-doctor` (Codex: `$blueprint-doctor`) |
+| `/rollback` | `/fix`, written to remove the feature (Codex: `$fix`) |
+| `/release` | A build-plan feature, or `/fix`, that adds the deployment setup (Codex: `$fix`) |
 
-Run the CLI update to install the consolidated skills. Updates remove unchanged
+`/status` and `/doctor` were renamed so they no longer hide the Claude Code
+built-in commands with the same names. The `blueprint status` terminal command
+is unchanged.
+
+Run the CLI update to install the current skills. Updates remove unchanged
 managed copies of the retired skills and report customized copies as conflicts,
 preserving them until you resolve or explicitly replace them. Review old references in your preserved `AGENTS.md`; updates do not replace your
 project instructions. The `qualityGates.regular.tryGuide` and
 `qualityGates.continuous.tryGuide` keys still select `/check guide`. Existing
 policy values remain compatible, and new projects default to `when-testable`.
-No configuration migration is needed.
+Old `git.rollbackBranchPrefix` and `continuous.finalIntegrationAudit` keys are
+accepted and ignored. No configuration migration is needed.
 
 ### If latest runs an older version
 
 Check the version printed in the update plan before proceeding. A cached
 package resolution can run an older release even when the command uses
 `@latest`. Pin the intended published version explicitly. For example, for
-1.13.0:
+1.16.1:
 
 ```bash
 # npm
-npx create-ai-blueprint@1.13.0 update
+npx create-ai-blueprint@1.16.1 update
 
 # pnpm
-pnpm dlx create-ai-blueprint@1.13.0 update
+pnpm dlx create-ai-blueprint@1.16.1 update
 ```
 
 Use the version from the [release list](https://github.com/aiblueprinthq/ai-blueprint/releases)

@@ -385,7 +385,7 @@ async function readState(projectRoot) {
   try {
     parsed = JSON.parse(await fs.readFile(filePath, "utf8"));
   } catch {
-    throw new Error("Existing dashboard state is malformed. Start a new run or use /doctor.");
+    throw new Error("Existing dashboard state is malformed. Start a new run or use /blueprint-doctor.");
   }
   return validateState(parsed);
 }
@@ -499,7 +499,7 @@ Options:
   --status          update: running, blocked, or ready; finish: ready or completed
   --resume          Safe recovery command
   --feature-id      Build-plan feature ID
-  --feature-title   Feature, fix, or rollback title
+  --feature-title   Feature or fix title
   --current         Completed progress count
   --total           Total progress count
   --label           Progress unit label
