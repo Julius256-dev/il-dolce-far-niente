@@ -3,6 +3,143 @@
 Notable changes to AI Blueprint are documented here. Release dates reflect the
 published `create-ai-blueprint` package.
 
+## [Unreleased]
+
+### Fixed
+
+- Implement's closing commit rule now names both commits it may make: an
+  approved step checkpoint from the Build loop and the one independent-review
+  checkpoint. It no longer contradicts the per-step checkpoint choice.
+- Feature now writes checkpoint commits into the spec's Build loop as a
+  per-step choice the user picks in `/implement`, never as an automatic step.
+
+## [1.16.1] - 2026-11-13
+
+### Changed
+
+- Trimmed what a normal feature loop loads. Complete now reads a small
+  completion-archive reference for the source-tree capture, archive annotation,
+  and local squash-merge check, and reads the full completion-recovery
+  reference only for an actual recovery. Implement reads a short Try It Now
+  reference for the default `when-testable` policy instead of the full
+  `/check guide` reference. Together this saves about 7,000 tokens per loop
+  with no change in behavior.
+- Autopilot and Continuous now read the same short Try It Now reference for
+  the default `when-testable` try guide policy instead of the full
+  `/check guide` reference. This saves about 3,200 tokens per run that
+  reaches the try guide. Other try guide policies are unchanged.
+
+## [1.16.0] - 2026-11-12
+
+### Added
+
+- Optional spec check for `/feature`. A fresh reviewer reads the new spec
+  against the repository and reports mismatches, finished or unneeded parts,
+  missing needs, and risky guesses. Feature fixes the clear gaps, lists real
+  decisions as open questions, and leads the review with a one-line summary.
+  Off by default: run it for one feature with `/feature <target> --check`, or
+  set `qualityGates.regular.specCheck` and `qualityGates.continuous.specCheck`
+  to `always`. Autopilot and Continuous apply the same gate.
+- Per-step choices in `/implement`. With `workflow.stepReview: every`, each
+  step now ends with four choices: continue, commit a checkpoint, walk me
+  through this step, or stop here. The checkpoint choice appears only when
+  `workflow.checkpointCommits` is `enabled`, runs Verify first, and approves
+  that one commit. The default `feature` cadence still works straight through
+  with no per-step menu.
+
+### Changed
+
+- Removing a shipped feature is now ordinary fix work. `/fix` handles it and
+  keeps the original feature archive. To build the feature again, uncheck its
+  build-plan item; `/feature` now refuses an item that is already checked. A
+  rebuild's attempt number is one greater than the highest archived attempt
+  for that feature ID.
+- `blueprint/context/ai-interaction.md` no longer repeats the feature loop that
+  `blueprint/workflow.md` and the skills already define, so new projects get a
+  6 KB file instead of 14 KB and the skills that read it for output formatting
+  load less. The few paragraphs that lived only there moved to
+  `blueprint/workflow.md`. Updates never rewrite `ai-interaction.md`, so
+  existing projects keep their copy.
+- Removed the last mentions of TraversyFlow from the READMEs and shipped
+  workflow files.
+
+### Removed
+
+- `/rollback`. Remove a shipped feature with `/fix` (`$fix` in Codex) instead.
+  Finish or abandon any in-progress rollback before updating; a leftover
+  rollback spec makes `/implement` and `/complete` stop and point to `/fix`.
+  Existing rollback archives still appear in status and dashboard history, and
+  `create-ai-blueprint rollback` explains the removal.
+- `/release`. Add deployment setup as a build-plan feature, or as a small
+  change with `/fix`. `create-ai-blueprint release` explains the removal.
+- The offer to install the `blueprint` command globally after install and
+  update. The command still works if you install the package globally
+  yourself, and `npx create-ai-blueprint@latest status` and `dashboard` cover
+  everyone else.
+- `continuous.finalIntegrationAudit` and the optional final integration audit
+  step in `/continuous`.
+- The `/ci` offer to add a local pre-push hook. Hooks that projects already
+  installed are left alone.
+
+Updates remove unchanged copies of the removed skills and report customized
+copies as conflicts. Old `git.rollbackBranchPrefix` and
+`continuous.finalIntegrationAudit` keys are accepted and ignored, so no
+configuration migration is needed.
+
+### Fixed
+
+- `/blueprint-doctor` checked the pre-1.15 path for the dashboard activity
+  helper and reported it missing on every install. It now checks
+  `blueprint-doctor/scripts/run-state.mjs`.
+- Updates now remove skill folders that a removal leaves empty, and keep any
+  folder that still holds your files.
+- Local `npm pack`, `npm run link:local`, smoke, and sandbox runs now package
+  only Git-tracked Blueprint files, so ignored worktrees no longer end up in a
+  local template. Published packages were not affected.
+
+## [1.15.0] - 2026-10-30
+
+### Changed
+
+- Renamed `/status` and `/doctor` to `/blueprint-status` and
+  `/blueprint-doctor` (`$blueprint-status` and `$blueprint-doctor` in Codex) so
+  they no longer hide the Claude Code built-in commands with the same names. The
+  dashboard activity helper moved with the skill to
+  `skills/blueprint-doctor/scripts/run-state.mjs`. Updates remove unchanged
+  copies of the old skill folders and report customized copies as conflicts.
+  The `blueprint status` terminal command is unchanged. Reported by
+  [@ibjorn](https://github.com/ibjorn) in
+  [#43](https://github.com/aiblueprinthq/ai-blueprint/issues/43).
+- Audit now loads its independent-review phases only when an independent review
+  runs, so `audit/SKILL.md` is about 31% smaller on every other audit.
+  Contributed by [@ibjorn](https://github.com/ibjorn) in
+  [#41](https://github.com/aiblueprinthq/ai-blueprint/pull/41).
+
+## [1.14.0] - 2026-10-30
+
+### Changed
+
+- Moved the Blueprint workflow reference out of `AGENTS.md` into a managed
+  `blueprint/workflow.md` that agents read only when a command needs it. New
+  projects start with a 5 KB `AGENTS.md` instead of 19 KB, which saved about
+  4,700 tokens per session in testing. Updates add `blueprint/workflow.md` and
+  preserve existing `AGENTS.md`; `/doctor` names the sections an older file can
+  drop. Proposed by [@ibjorn](https://github.com/ibjorn) in
+  [#38](https://github.com/aiblueprinthq/ai-blueprint/issues/38).
+- Reduced what several commands read on every run. Status and Continuous read a
+  small completion screen instead of the full completion-recovery reference,
+  Audit reads only the overview passages relevant to its scope, and Try It Now
+  no longer reads coding standards.
+- Implement now names the sensitive categories that select audit and
+  independent review under `when-sensitive`, matching Complete, Autopilot, and
+  Continuous.
+- Maintainer validation now checks every cross-skill reference link in the
+  shipped skill files.
+
+### Fixed
+
+- Corrected the tree-comparison command in the completion-recovery reference.
+
 ## [1.13.0] - 2026-10-11
 
 ### Added

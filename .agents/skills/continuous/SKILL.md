@@ -8,12 +8,19 @@ description: Build every remaining planned feature serially in explicit Continuo
 **Context reuse:** Reuse any required file already loaded in project instructions or the current session. Read it again only if absent, changed, or exact current bytes or line references are needed.
 
 **First action:** Before project inspection, preflight, or any other tool call,
-publish `running` to `blueprint/.state/run.json` using the dashboard activity
-contract in `AGENTS.md`.
+publish `running` to `blueprint/.state/run.json` when `blueprint/.state/`
+exists. From the project root, run the first helper that exists,
+`node .agents/skills/blueprint-doctor/scripts/run-state.mjs` or
+`node .claude/skills/blueprint-doctor/scripts/run-state.mjs`, with `start --command
+<skill> --summary "<truthful summary>" --boundary
+<read-only|reviewed|local-only>`. Use `update` at milestones, with `--status
+blocked --resume <command>` for a blocker, and `finish --status ready|completed`
+at the end; `--help` lists every option and `blueprint/workflow.md` has the full
+activity contract. A missing or failing helper is a warning, not a blocker.
 
 Where this sits in the workflow:
 
-    /status  ->  [continuous]  ->  final review packet
+    /blueprint-status  ->  [continuous]  ->  final review packet
     (ready)      (feature loop,    (local main only,
                   local history)    never pushed)
 
@@ -39,12 +46,12 @@ check waivers, or product decisions. It always stops before those actions.
 ## Input and target selection
 
 Before selecting an item or requiring a live active spec, inspect pending
-completion using the installed Complete skill and
-`../complete/reference/completion-recovery.md`. Use its read-only candidate screen
-first: settled clean default-branch history needs no historical transient objects
-for a new run. An actual completion candidate or an explicit request to resume
-interrupted completion requires full recovery proof, using this run's scoped Git
-authority and
+completion with the installed Complete skill's read-only candidate screen,
+`../complete/reference/completion-screen.md`, first: settled clean default-branch
+history needs no historical transient objects for a new run. An actual completion
+candidate or an explicit request to resume interrupted completion requires full
+recovery proof from `../complete/reference/completion-recovery.md`, using this
+run's scoped Git authority and
 `qualityGates.continuous`. Do not repeat archival or a work commit/merge. Missing,
 conflicting, or unprovable recovery evidence stops before next-feature work. An
 active feature with no completion candidate resumes implementation normally; its
@@ -64,7 +71,7 @@ the starting item only when no different work item is active. After that item,
 continue with the next unchecked leaf items in normal build-plan order.
 
 Continuous Mode handles planned features only. If the active work is a fix or
-rollback, stop and point to its normal reviewed workflow. Never overwrite active
+another spec type, stop and point to its normal reviewed workflow. Never overwrite active
 work to make the requested target fit.
 
 ## Step 1 - preflight once
@@ -84,7 +91,7 @@ Read:
   recent log
 
 A missing config means built-in defaults. If it exists but is invalid, stop and
-point to `/doctor`.
+point to `/blueprint-doctor`.
 
 Start only when the state is safe:
 
@@ -105,10 +112,9 @@ Do not fetch, pull, install dependencies, start an unauthorized server, alter
 remote settings, or clean unrelated work during preflight. A known-behind
 default branch is a stop, not permission to pull.
 
-Record the starting default-branch commit. This bounds the optional final
-integration audit and the final report.
+Record the starting default-branch commit. This bounds the final report.
 
-The initial `blueprint/.state/run.json` record required by `AGENTS.md` must
+The initial `blueprint/.state/run.json` record required by the first action must
 already show command `continuous` and status `running` before preflight begins.
 After preflight passes, enrich it with boundary `local-only`, the current
 feature, and completed-feature progress against the smaller of the remaining
@@ -133,7 +139,8 @@ For a new item, apply the `/feature` behavior to the selected build-plan leaf,
 write `blueprint/context/current-feature.md`, and self-review the spec before
 coding. Correct missing unhappy paths, oversized steps, undefined contracts,
 scope drift, vague done-whens, missing design references, and missing testing
-plans.
+plans. When `qualityGates.continuous.specCheck` is `always`, run the spec
+check from `../feature/reference/spec-check.md`.
 
 Do not invent an unanswered product, data, architecture, auth, billing, or visual
 decision. Stop with the exact decision needed.
@@ -194,7 +201,9 @@ Use `qualityGates.continuous`, not the regular or Autopilot gates:
   when a done-when needs observed runtime behavior such as a click, request, CLI
   command, download, background job, or multi-screen flow; `always` checks
   every feature.
-- **Try guide (`qualityGates.continuous.tryGuide`):** use `/check guide`.
+- **Try guide (`qualityGates.continuous.tryGuide`):** use `/check guide`. For
+  `when-testable`, follow only `../check/reference/try-it-now.md` for its
+  conservative classification; the full guide is not needed.
   `manual` skips automatic generation; `when-user-facing`
   generates a guide for UI, navigation, copy, public API or CLI, output, or
   another workflow a person directly uses; `when-testable` runs after Verify
@@ -295,26 +304,7 @@ from a clean default branch records that current tip as its new run boundary;
 already-completed work at or before it does not count toward the new run or
 require reconstruction of an older run's count.
 
-## Step 3 - optional final integration audit
-
-After the loop reaches its feature limit or the end of the build plan, run this
-step only when `continuous.finalIntegrationAudit` is `true`.
-
-Audit the combined default-branch diff from the recorded starting commit through
-the current `HEAD`, focusing on cross-feature contracts, integration seams,
-security boundaries, regression risk, and missing tests. Record findings in the
-ledger.
-
-For a confirmed P0 or P1 introduced by this run, automatic repair may use one
-dedicated configured fix branch and the same repair-attempt limit only when no
-product decision or scope expansion is required. Spec, verify, archive, locally
-squash-merge, and delete that fix branch like normal Blueprint fix work. Re-audit
-the repair before closing the finding.
-
-Otherwise stop with the finding open. Do not hide it, widen into general
-hardening, or present the run as fully ready.
-
-## Step 4 - stop and report
+## Step 3 - stop and report
 
 A successful stop occurs when:
 

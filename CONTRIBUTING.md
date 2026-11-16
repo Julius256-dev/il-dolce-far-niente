@@ -71,11 +71,12 @@ blueprint status
 
 Re-run `npm run link:local` after editing the source. The linked commands run the
 compiled `dist/` output and a copied `template/`, not the source files directly, so
-edits are not picked up until both are rebuilt. Re-running the command removes the
-existing global package registration before recreating the link, so a separate
-`npm run unlink:local` is not required. Installer runs from the linked checkout
-also skip the optional prompt that would replace the local commands with the
-registry package.
+edits are not picked up until both are rebuilt. The template holds only Git-tracked
+files, so stage new Blueprint files with `git add` before rebuilding. Re-running the
+command removes the existing global package registration before recreating the
+link, so a separate `npm run unlink:local` is not required. Installer runs from the
+linked checkout also skip the optional prompt that would replace the local commands
+with the registry package.
 
 `npm run unlink:local` runs `npm rm --global create-ai-blueprint`, which removes any
 global copy of the package, whether it was linked from a checkout or installed from
@@ -88,7 +89,7 @@ creates a dependency-free Node app under `.sandbox/`, creates the initial Git
 commit, packs the current local Blueprint, installs that artifact through `npx`,
 then runs the app's test and build scripts. The Blueprint installer stays
 interactive by default so maintainers see
-the same adapter and optional global CLI prompts as a normal user. Internal pack,
+the same adapter prompts as a normal user. Internal pack,
 Git, config, and file-list details stay hidden.
 
 After Blueprint installation and verification pass, the command starts the
@@ -127,8 +128,10 @@ Use `npm run sandbox:clear -- --yes` only when confirmation must be skipped.
 ## Workflow changes
 
 Shared skills under `.agents/skills/` and `.claude/skills/` must remain identical.
-Add or remove a command in both adapter trees, the `AGENTS.md` command inventory,
-and the README command table in the same change. The validation gate rejects any
+Add or remove a command in both adapter trees, the `blueprint/workflow.md`
+command inventory, the `AGENTS.md` skills list, and the README command table in
+the same change. Keep `AGENTS.md` to the project contract that every session
+needs; workflow reference belongs in `blueprint/workflow.md`. The validation gate rejects any
 drift between those surfaces.
 
 The root `package.json`, `scripts/`, `.github/`, and this guide are maintainer

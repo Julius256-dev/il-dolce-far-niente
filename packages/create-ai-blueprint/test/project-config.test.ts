@@ -17,7 +17,8 @@ test("default config reviews sensitive work and guides testable work automatical
     audit: "manual",
     independentReview: "when-sensitive",
     check: "manual",
-    tryGuide: "when-testable"
+    tryGuide: "when-testable",
+    specCheck: "manual"
   };
 
   assert.deepEqual(defaults.qualityGates.regular, defaultGates);
@@ -26,7 +27,7 @@ test("default config reviews sensitive work and guides testable work automatical
   assert.equal(defaults.workflow.checkpointCommits, "disabled");
   assert.equal(defaults.git.landing, "local-merge");
   assert.equal(defaults.review.independentExecution, "automatic");
-  assert.equal(defaults.continuous.finalIntegrationAudit, false);
+  assert.equal("finalIntegrationAudit" in defaults.continuous, false);
 });
 
 test("manual independent review policy and execution remain valid overrides", () => {
@@ -105,6 +106,42 @@ test("readProjectConfig merges partial project values over defaults", async (t) 
   assert.deepEqual(result.warnings, []);
 });
 
+test("readProjectConfig accepts and ignores the retired rollback branch prefix", async (t) => {
+  const projectRoot = await createProject(t);
+  await writeConfig(projectRoot, {
+    schemaVersion: 1,
+    git: {
+      fixBranchPrefix: "bugfix/",
+      rollbackBranchPrefix: "revert/"
+    }
+  });
+
+  const result = await readProjectConfig(projectRoot);
+
+  assert.equal(result.state, "project");
+  assert.equal(result.values.git.fixBranchPrefix, "bugfix/");
+  assert.equal("rollbackBranchPrefix" in result.values.git, false);
+  assert.deepEqual(result.warnings, []);
+});
+
+test("readProjectConfig accepts and ignores the retired final integration audit", async (t) => {
+  const projectRoot = await createProject(t);
+  await writeConfig(projectRoot, {
+    schemaVersion: 1,
+    continuous: {
+      maxRepairAttempts: 3,
+      finalIntegrationAudit: true
+    }
+  });
+
+  const result = await readProjectConfig(projectRoot);
+
+  assert.equal(result.state, "project");
+  assert.equal(result.values.continuous.maxRepairAttempts, 3);
+  assert.equal("finalIntegrationAudit" in result.values.continuous, false);
+  assert.deepEqual(result.warnings, []);
+});
+
 test("readProjectConfig reports malformed JSON and falls back safely", async (t) => {
   const projectRoot = await createProject(t);
   const configPath = path.join(projectRoot, PROJECT_CONFIG_PATH);
@@ -137,6 +174,26 @@ test("try guide policies preserve existing values and accept when-testable", () 
 
     assert.equal(config.qualityGates.regular.tryGuide, tryGuide);
   }
+});
+
+test("spec check policies accept manual and always and reject other values", () => {
+  for (const specCheck of ["manual", "always"] as const) {
+    const config = parseProjectConfig({
+      schemaVersion: 1,
+      qualityGates: { regular: { specCheck }, continuous: { specCheck } }
+    });
+
+    assert.equal(config.qualityGates.regular.specCheck, specCheck);
+    assert.equal(config.qualityGates.continuous.specCheck, specCheck);
+  }
+
+  assert.throws(
+    () => parseProjectConfig({
+      schemaVersion: 1,
+      qualityGates: { regular: { specCheck: "when-sensitive" } }
+    }),
+    /qualityGates\.regular\.specCheck must be one of/
+  );
 });
 
 test("readProjectConfig rejects unknown and invalid values", async (t) => {
