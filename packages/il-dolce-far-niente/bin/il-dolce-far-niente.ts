@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import checkbox from "@inquirer/checkbox";
-import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import path from "node:path";
@@ -31,6 +30,7 @@ const templateRoot = path.join(packageRoot, "template");
 const ADAPTER_PROMPT = "Select AI tool adapters";
 const ALL_ADAPTERS = adapterListFromMode("all");
 const AI_SKILLS = new Set([
+<<<<<<< ours
   "adopt", "audit", "autopilot", "brief", "check", "ci",
   "complete", "continuous", "debug", "discovery", "doctor", "explore", "feature", "fix",
   "implement", "onboard", "overview", "prototype", "release", "rollback",
@@ -40,6 +40,11 @@ const AI_SKILLS = new Set([
   "mp-architecture", "mp-code-review", "mp-codebase-design", "mp-diagnosing-bugs",
   "mp-domain-modeling", "mp-grill", "mp-grilling", "mp-pr", "mp-research", "mp-retro",
   "mp-tdd", "mp-triage", "mp-wayfinder", "mp-writing-for-agents"
+=======
+  "adopt", "audit", "autopilot", "blueprint-doctor", "blueprint-status", "brief",
+  "check", "ci", "complete", "continuous", "debug", "discovery", "explore", "feature",
+  "fix", "implement", "onboard", "overview", "prototype", "tests"
+>>>>>>> upstream
 ]);
 
 interface AdapterCheckboxChoice {
@@ -76,7 +81,6 @@ interface TemplateEntry {
   target: string;
 }
 
-type GlobalCliAction = "install" | "update" | null;
 type CliSurface = "package" | "global";
 
 const adapterChoices = new Set<Adapter>(ALL_ADAPTERS);
@@ -177,7 +181,6 @@ async function runCli(
       options.force || (await confirmUpdateConflicts(prepared, options));
     const result = await applyPreparedUpdate(prepared, { replaceConflicts });
     printUpdateSuccess(prepared, result);
-    await offerGlobalCliInstall(options, version);
     return;
   }
 
@@ -215,7 +218,6 @@ async function runCli(
   });
 
   printSuccess(targetDir, adapters, entries, existingEntries, presentation);
-  await offerGlobalCliInstall(options, version);
   printOnboardingNextSteps(adapters, presentation);
 }
 
@@ -346,6 +348,24 @@ function parseArgs(args: readonly string[], surface: CliSurface = "package"): Cl
     if (!commandSeen && arg === "try") {
       throw new Error(
         "The try skill was removed. Open your project in your AI chat and run `$check guide` in Codex or `/check guide` in Claude Code."
+      );
+    }
+
+    if (!commandSeen && arg === "rollback") {
+      throw new Error(
+        "The rollback skill was removed. Open your project in your AI chat and remove the feature with `$fix` in Codex or `/fix` in Claude Code."
+      );
+    }
+
+    if (!commandSeen && arg === "release") {
+      throw new Error(
+        "The release skill was removed. Open your project in your AI chat and add deployment setup as a build-plan feature, or as a small change with `$fix` in Codex or `/fix` in Claude Code."
+      );
+    }
+
+    if (!commandSeen && arg === "doctor") {
+      throw new Error(
+        "The doctor skill is now blueprint-doctor. Open your project in your AI chat and run `$blueprint-doctor` in Codex or `/blueprint-doctor` in Claude Code."
       );
     }
 
@@ -908,6 +928,7 @@ function printClaudeRestartNote(adapters: readonly Adapter[]): void {
   );
 }
 
+<<<<<<< ours
 async function offerGlobalCliInstall(
   options: CliOptions,
   version: string
@@ -1102,6 +1123,8 @@ async function installGlobalCli(version: string): Promise<void> {
   });
 }
 
+=======
+>>>>>>> upstream
 async function waitForShutdown(): Promise<void> {
   await new Promise<void>((resolve) => {
     const stop = (): void => {
@@ -1301,10 +1324,6 @@ function findPackageRoot(startDir: string): string {
   }
 }
 
-function isSourceCheckout(root: string = packageRoot): boolean {
-  return fsSync.existsSync(path.join(root, "scripts", "prepare-template.ts"));
-}
-
 function formatMissingTemplateMessage(templateRoot: string): string {
   return `Installer template is missing.
 Looked in: ${templateRoot}
@@ -1344,14 +1363,9 @@ export {
   ADAPTER_PROMPT,
   findPackageRoot,
   formatMissingTemplateMessage,
-  getGlobalCliInstallCommand,
-  getGlobalCliPrompt,
   getTemplateEntries,
-  isGlobalCliInstallConfirmed,
   parseArgs,
   resolveAdapters,
   resolveUpdateAdapters,
-  runCli,
-  selectGlobalCliAction,
-  shouldOfferGlobalCliInstall
+  runCli
 };

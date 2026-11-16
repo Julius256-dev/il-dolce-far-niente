@@ -328,7 +328,7 @@ async function main(): Promise<void> {
         targetDir,
         helperRoot,
         "skills",
-        "doctor",
+        "blueprint-doctor",
         "scripts",
         "run-state.mjs"
       );
@@ -541,6 +541,7 @@ async function validateInstall(
     "AGENTS.md",
     "blueprint/project-plan.md",
     "blueprint/build-plan.md",
+    "blueprint/workflow.md",
     "blueprint/context/findings.md",
     "blueprint/context/review.md",
     "blueprint/.state/manifest.json",
@@ -552,14 +553,14 @@ async function validateInstall(
       ".agents/skills/check/SKILL.md",
       ".agents/skills/check/reference/verify.md",
       ".agents/skills/check/reference/guide.md",
+      ".agents/skills/check/reference/try-it-now.md",
       ".agents/skills/tests/SKILL.md",
       ".agents/skills/tests/reference/unit.md",
       ".agents/skills/tests/reference/browser.md",
       ".agents/skills/discovery/SKILL.md",
       ".agents/skills/explore/SKILL.md",
-      ".agents/skills/doctor/scripts/run-state.mjs",
-      ".agents/skills/onboard/SKILL.md",
-      ".agents/skills/rollback/SKILL.md"
+      ".agents/skills/blueprint-doctor/scripts/run-state.mjs",
+      ".agents/skills/onboard/SKILL.md"
     );
   }
 
@@ -569,14 +570,14 @@ async function validateInstall(
       ".claude/skills/check/SKILL.md",
       ".claude/skills/check/reference/verify.md",
       ".claude/skills/check/reference/guide.md",
+      ".claude/skills/check/reference/try-it-now.md",
       ".claude/skills/tests/SKILL.md",
       ".claude/skills/tests/reference/unit.md",
       ".claude/skills/tests/reference/browser.md",
       ".claude/skills/discovery/SKILL.md",
       ".claude/skills/explore/SKILL.md",
-      ".claude/skills/doctor/scripts/run-state.mjs",
-      ".claude/skills/onboard/SKILL.md",
-      ".claude/skills/rollback/SKILL.md"
+      ".claude/skills/blueprint-doctor/scripts/run-state.mjs",
+      ".claude/skills/onboard/SKILL.md"
     );
   }
 
@@ -586,8 +587,12 @@ async function validateInstall(
 
   await requireMissing(path.join(targetDir, ".agents/skills/browser-tests"));
   await requireMissing(path.join(targetDir, ".agents/skills/try"));
+  await requireMissing(path.join(targetDir, ".agents/skills/rollback"));
+  await requireMissing(path.join(targetDir, ".agents/skills/release"));
   await requireMissing(path.join(targetDir, ".claude/skills/browser-tests"));
   await requireMissing(path.join(targetDir, ".claude/skills/try"));
+  await requireMissing(path.join(targetDir, ".claude/skills/rollback"));
+  await requireMissing(path.join(targetDir, ".claude/skills/release"));
   await requireMissing(path.join(targetDir, "README.md"));
   await requireMissing(path.join(targetDir, "blueprint", "README.md"));
   await requireMissing(path.join(targetDir, ".ai-blueprint"));
@@ -625,7 +630,7 @@ async function validateInstall(
     );
   }
 
-  const expectedManagedFiles: string[] = [];
+  const expectedManagedFiles: string[] = ["blueprint/workflow.md"];
 
   if (expectsSharedSkills) {
     expectedManagedFiles.push(

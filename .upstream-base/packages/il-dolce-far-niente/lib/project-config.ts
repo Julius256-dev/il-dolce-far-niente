@@ -21,6 +21,7 @@ type TryGuideGatePolicy =
   | "manual"
   | "when-testable"
   | "when-user-facing";
+type SpecCheckGatePolicy = "always" | "manual";
 type ProjectConfigState = "defaults" | "invalid" | "project";
 
 interface QualityGatePolicy {
@@ -28,6 +29,7 @@ interface QualityGatePolicy {
   independentReview: IndependentReviewGatePolicy;
   check: CheckGatePolicy;
   tryGuide: TryGuideGatePolicy;
+  specCheck: SpecCheckGatePolicy;
 }
 
 interface ProjectConfig {
@@ -40,7 +42,6 @@ interface ProjectConfig {
     landing: LandingPolicy;
     featureBranchPrefix: string;
     fixBranchPrefix: string;
-    rollbackBranchPrefix: string;
   };
   verification: {
     logicTests: LogicTestPolicy;
@@ -56,7 +57,6 @@ interface ProjectConfig {
   continuous: {
     maxFeatures: number | null;
     maxRepairAttempts: number;
-    finalIntegrationAudit: boolean;
   };
 }
 
@@ -82,8 +82,7 @@ function createDefaultProjectConfig(): ProjectConfig {
     git: {
       landing: "local-merge",
       featureBranchPrefix: "feature/",
-      fixBranchPrefix: "fix/",
-      rollbackBranchPrefix: "rollback/"
+      fixBranchPrefix: "fix/"
     },
     verification: {
       logicTests: "when-configured",
@@ -97,19 +96,20 @@ function createDefaultProjectConfig(): ProjectConfig {
         audit: "manual",
         independentReview: "when-sensitive",
         check: "manual",
-        tryGuide: "when-testable"
+        tryGuide: "when-testable",
+        specCheck: "manual"
       },
       continuous: {
         audit: "manual",
         independentReview: "when-sensitive",
         check: "manual",
-        tryGuide: "when-testable"
+        tryGuide: "when-testable",
+        specCheck: "manual"
       }
     },
     continuous: {
       maxFeatures: null,
-      maxRepairAttempts: 2,
-      finalIntegrationAudit: false
+      maxRepairAttempts: 2
     }
   };
 }
@@ -221,6 +221,7 @@ function parseProjectConfig(value: unknown): ProjectConfig {
       "landing",
       "featureBranchPrefix",
       "fixBranchPrefix",
+      // Configs written before /rollback was removed may still carry this key.
       "rollbackBranchPrefix"
     ],
     "git"
@@ -230,17 +231,22 @@ function parseProjectConfig(value: unknown): ProjectConfig {
   assertKnownKeys(qualityGates, ["regular", "continuous"], "qualityGates");
   assertKnownKeys(
     regularGates,
-    ["audit", "independentReview", "check", "tryGuide"],
+    ["audit", "independentReview", "check", "tryGuide", "specCheck"],
     "qualityGates.regular"
   );
   assertKnownKeys(
     continuousGates,
-    ["audit", "independentReview", "check", "tryGuide"],
+    ["audit", "independentReview", "check", "tryGuide", "specCheck"],
     "qualityGates.continuous"
   );
   assertKnownKeys(
     continuous,
-    ["maxFeatures", "maxRepairAttempts", "finalIntegrationAudit"],
+    [
+      "maxFeatures",
+      "maxRepairAttempts",
+      // Configs written before the final integration audit was removed may still carry this key.
+      "finalIntegrationAudit"
+    ],
     "continuous"
   );
 
@@ -276,11 +282,6 @@ function parseProjectConfig(value: unknown): ProjectConfig {
         git.fixBranchPrefix,
         defaults.git.fixBranchPrefix,
         "git.fixBranchPrefix"
-      ),
-      rollbackBranchPrefix: optionalBranchPrefix(
-        git.rollbackBranchPrefix,
-        defaults.git.rollbackBranchPrefix,
-        "git.rollbackBranchPrefix"
       )
     },
     verification: {
@@ -329,11 +330,6 @@ function parseProjectConfig(value: unknown): ProjectConfig {
         "continuous.maxRepairAttempts",
         0,
         10
-      ),
-      finalIntegrationAudit: optionalBoolean(
-        continuous.finalIntegrationAudit,
-        defaults.continuous.finalIntegrationAudit,
-        "continuous.finalIntegrationAudit"
       )
     }
   };
@@ -368,6 +364,12 @@ function parseQualityGatePolicy(
       ["always", "manual", "when-testable", "when-user-facing"],
       defaults.tryGuide,
       `${label}.tryGuide`
+    ),
+    specCheck: optionalEnum(
+      value.specCheck,
+      ["always", "manual"],
+      defaults.specCheck,
+      `${label}.specCheck`
     )
   };
 }
@@ -473,18 +475,6 @@ function optionalBoundedInteger(
   }
 
   return value as number;
-}
-
-function optionalBoolean(value: unknown, fallback: boolean, label: string): boolean {
-  if (value === undefined) {
-    return fallback;
-  }
-
-  if (typeof value !== "boolean") {
-    throw new Error(`${label} must be true or false.`);
-  }
-
-  return value;
 }
 
 function getErrorCode(error: unknown): string | undefined {

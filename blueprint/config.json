@@ -7,8 +7,7 @@
   "git": {
     "landing": "local-merge",
     "featureBranchPrefix": "feature/",
-    "fixBranchPrefix": "fix/",
-    "rollbackBranchPrefix": "rollback/"
+    "fixBranchPrefix": "fix/"
   },
   "verification": {
     "logicTests": "when-configured",
@@ -22,17 +21,20 @@
       "audit": "manual",
       "independentReview": "when-sensitive",
       "check": "manual",
-      "tryGuide": "when-testable"
+      "tryGuide": "when-testable",
+      "specCheck": "manual"
     },
     "continuous": {
       "audit": "manual",
       "independentReview": "when-sensitive",
       "check": "manual",
-      "tryGuide": "when-testable"
+      "tryGuide": "when-testable",
+      "specCheck": "manual"
     }
   },
   "continuous": {
     "maxFeatures": null,
+<<<<<<< ours
     "maxRepairAttempts": 2,
     "finalIntegrationAudit": false
   },
@@ -122,5 +124,8 @@
       "reviewer-spec": "medium"
     },
     "reviewerMustDiffer": true
+=======
+    "maxRepairAttempts": 2
+>>>>>>> upstream
   }
 }

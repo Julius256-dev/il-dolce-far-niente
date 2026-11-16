@@ -16,11 +16,19 @@ This skill plans one feature and stops before implementation. Its output is
 
 **First action:** Before project inspection, preflight, or any other tool call,
 publish the `feature` activity as `running` when `blueprint/.state/` exists.
+From the project root, run the first helper that exists,
+`node .agents/skills/blueprint-doctor/scripts/run-state.mjs` or
+`node .claude/skills/blueprint-doctor/scripts/run-state.mjs`, with `start --command
+<skill> --summary "<truthful summary>" --boundary
+<read-only|reviewed|local-only>`. Use `update` at milestones, with `--status
+blocked --resume <command>` for a blocker, and `finish --status ready|completed`
+at the end; `--help` lists every option and `blueprint/workflow.md` has the full
+activity contract. A missing or failing helper is a warning, not a blocker.
 Combine that write with the first context-gathering tool batch when the adapter
 supports it.
 
 Read `blueprint/config.json` only for settings that affect the spec. Invalid
-configuration stops mutating work and points to `/doctor`.
+configuration stops mutating work and points to `/blueprint-doctor`.
 
 Confirm that `blueprint/context/current-feature.md` is the empty stub. If it
 contains active work, stop and direct the user to resume or complete it. Never
@@ -42,8 +50,11 @@ Resolve the target from `blueprint/build-plan.md`:
   understand the hierarchy.
 - If a plain list has no checkboxes, treat its first item as unchecked and offer
   to convert the plan after the spec review.
+- If the requested item is already checked, stop. It was built. To build it
+  again, the user first removes it through `/fix` and unchecks the item.
 
-State the selected feature in one sentence.
+A `--check` argument requests the spec check for this run and is not part of
+the target. State the selected feature in one sentence.
 
 ## Build one authoritative feature packet
 
@@ -68,9 +79,9 @@ target and overview matches, one batched repository inspection, applicable
 standards only if needed, and Verify. Combine or skip rounds when possible. Do
 not inspect other skill directories, `ai-interaction.md`, findings, review records,
 or templates during normal planned-feature work. The only history exception is
-this skill's `reference/build-history.md` and the selected feature's archive metadata,
-exact rollback records, and Git evidence needed to freeze its build attempt below;
-batch this with the target lookup, without loading unrelated history. Do not create
+this skill's `reference/build-history.md` and the selected feature's archive metadata
+needed to freeze its build attempt below; batch this with the target lookup,
+without loading unrelated history. Do not create
 scratch code or run implementation probes while writing a spec. Put a check in the
 relevant build step when a repository detail cannot be confirmed from existing
 evidence.
@@ -115,13 +126,13 @@ resume this skill. Bugs and small unplanned changes belong in `/fix`.
 
 Before review, allocate the selected stable feature ID's build attempt using
 `reference/build-history.md`: first build 1, otherwise one greater than
-the maximum proven prior attempt after all prior builds were reversed. Preserve
-the ID across renamed titles and lettered sub-items. Stop on ambiguous history;
-never infer attempts from a title suffix, file count, or timestamps.
+the highest attempt archived for that ID. Preserve the ID across renamed titles
+and lettered sub-items. Stop on ambiguous history; never infer attempts from a
+title suffix, file count, or timestamps.
 
 Draft and critique in context, then write
 `blueprint/context/current-feature.md` once. A later write is only for a
-mechanical correction or user-requested revision. Record `**Branch:**` with the
+mechanical correction, a selected spec check, or a user-requested revision. Record `**Branch:**` with the
 full configured feature branch. The first heading and build-plan identity must
 use this canonical form:
 
@@ -149,8 +160,9 @@ Then use these section headings:
 Build steps are ordered checklist items. Each step must leave the project
 working, stay small enough to review, and end with a concrete `Done when` that
 names observable behavior and the relevant check. Follow `workflow.stepReview`
-and `workflow.checkpointCommits` from config in the Build loop. `/complete`
-creates the final feature commit.
+and `workflow.checkpointCommits` from config in the Build loop, and describe a
+checkpoint commit as a per-step choice the user picks in `/implement`, never an
+automatic step. `/complete` creates the final feature commit.
 
 The spec must preserve every explicit contract in the feature packet, including
 applicable project-wide UX and security requirements. Do not discard a required
@@ -169,8 +181,7 @@ and digits with one hyphen and trim edge hyphens. For attempt N > 1, append
 `feature/export-reports--build-2`. The reserved double hyphen distinguishes the
 attempt from a title ending in `Build 2`. Before freezing the new spec, check the
 exact archive path and branch availability using `reference/build-history.md`.
-Stop on filesystem entries, disallowed refs, or prior Git use of that archive
-path; never auto-bump the attempt. The reference permits only one existing-ref
+Stop on filesystem entries or disallowed refs; never auto-bump the attempt. The reference permits only one existing-ref
 case: the pristine current branch of a pre-created parallel worktree. Freeze both
 fields before review; completion and resume reuse them rather than allocating
 again.
@@ -213,6 +224,8 @@ If a prerequisite is absent, incomplete, untracked, or unverified, say which one
 the evidence shows. Do not bury repair inside this feature. Stop with the exact
 `/fix` or user decision required.
 
-Otherwise write the tightened spec, update activity to `ready`, and stop for
-review. Lead with a short note naming what the critique changed, or say that it
-found no material change. Never implement from this skill.
+Otherwise write the tightened spec. When `qualityGates.regular.specCheck` is
+`always` or this run requested `--check`, follow `reference/spec-check.md`
+before the review stop. Then update activity to `ready` and stop for review.
+Lead with a short note naming what the critique and any spec check changed, or
+say that they found no material change. Never implement from this skill.

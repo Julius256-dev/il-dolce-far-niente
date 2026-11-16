@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Start coding or resume the approved current feature, fix, or rollback on its branch, testing each step and presenting review. Use for /implement or building current-feature.md.
+description: Start coding or resume the approved current feature or fix on its branch, testing each step and presenting review. Use for /implement or building current-feature.md.
 disable-model-invocation: true
 metadata:
   internal: true
@@ -17,6 +17,14 @@ packet. Implement it and stop before the work-level commit or merge.
 
 **First action:** Before project inspection, preflight, or any other tool call,
 publish the `implement` activity as `running` when `blueprint/.state/` exists.
+From the project root, run the first helper that exists,
+`node .agents/skills/blueprint-doctor/scripts/run-state.mjs` or
+`node .claude/skills/blueprint-doctor/scripts/run-state.mjs`, with `start --command
+<skill> --summary "<truthful summary>" --boundary
+<read-only|reviewed|local-only>`. Use `update` at milestones, with `--status
+blocked --resume <command>` for a blocker, and `finish --status ready|completed`
+at the end; `--help` lists every option and `blueprint/workflow.md` has the full
+activity contract. A missing or failing helper is a warning, not a blocker.
 Combine it with the first preflight tool batch when supported.
 
 In one preflight batch, read:
@@ -26,7 +34,7 @@ In one preflight batch, read:
 - the current branch, status, and recent relevant log
 - the Commands section already loaded from `AGENTS.md`
 
-Stop for `/doctor` on invalid config. Stop for `/feature`, `/fix`, or `/rollback`
+Stop for `/blueprint-doctor` on invalid config. Stop for `/feature` or `/fix`
 when the active spec is empty. Preserve unrelated worktree changes.
 
 Do not reread the full project overview, coding standards, interaction guide,
@@ -41,19 +49,19 @@ blocks the next change. Do not list or survey the repository, inspect unrelated
 examples, or run scratch environment probes. Follow the declared runtime and
 existing target-area patterns, then let the narrow check expose incompatibilities.
 
+If the spec says `Type: Rollback`, it predates the removal of the rollback
+workflow. Stop without changing product files and suggest removing the feature
+through `/fix` instead.
+
 Resolve the work branch before editing. Use the exact `**Branch:**` value in the
 spec when present. For an older spec without it, combine the configured prefix
 for its type with the work title: lowercase ASCII letters and digits, replace
 each run of other characters with one hyphen, and trim edge hyphens. Feature
-titles come from the named build-plan item; fix and rollback titles come from
-their spec heading or target. Stop if the type or title is ambiguous. Create or
+titles come from the named build-plan item; fix titles come from their spec
+heading. Stop if the type or title is ambiguous. Create or
 switch to that exact branch and never implement on the default branch. On
 resume, start at the first unchecked build step and use git status plus the
 checked boxes to distinguish finished work from unfinished work.
-
-If the spec says `Type: Rollback`, read and follow
-`reference/rollback-implementation.md` before changing product files. Do not load
-that reference for a feature or fix.
 
 ## Build loop
 
@@ -90,13 +98,28 @@ configured browser evidence, or stop and ask the user to start the required
 server when live evidence cannot run automatically.
 
 With `workflow.stepReview: feature`, continue through passing steps and present
-one final review packet. With `workflow.stepReview: every`, stop after each step
-with the diff, a short explanation, evidence, and a manual try path when one
-exists. Continue only after approval.
+one final review packet, with no per-step choices. With `workflow.stepReview:
+every`, stop after each step with the diff, a short explanation, evidence, and a
+manual try path when one exists, then offer these choices:
 
-Checkpoint commits are offered only when `workflow.checkpointCommits` is
-`enabled` and the current review gate was approved. Never commit without current
-approval. `/complete` owns the final work-level commit and merge.
+1. Continue to the next step.
+2. Commit a checkpoint, then continue. Offer this only when
+   `workflow.checkpointCommits` is `enabled`.
+3. Walk me through this step.
+4. Stop here.
+
+Continue only after the user picks continue or a checkpoint. A reply asking for
+changes revises this step, then the choices return. A step walkthrough is a
+read-only tour of this step's diff: its purpose, key files and symbols, and
+non-obvious decisions; offer the choices again afterward. Stop here leaves the
+finished step checked so a later `/implement` resumes at the next one.
+
+The user's checkpoint pick is the commit approval for that step only. Before
+committing, run Verify, or the fallback build and tests, and stop if it fails.
+Commit the step's code, tests, and updated `current-feature.md` checkbox on the
+work branch with a conventional message such as `feat: checkpoint <step>`. Never
+commit without current approval. `/complete` owns the final work-level commit
+and merge.
 
 Do not create a separate tool round merely to narrate a passing internal step.
 Keep the durable checkbox current and continue. Split a step when its diff is too
@@ -124,7 +147,10 @@ passed without its output.
 
 Apply configured regular gates:
 
-- Audit and independent review follow `qualityGates.regular`.
+- Audit and independent review follow `qualityGates.regular`; `when-sensitive`
+  selects them for authentication, authorization, payments, secrets, personal
+  or user data, migrations, destructive operations, external side effects,
+  security boundaries, or unusually broad changes.
 - Check runs for `always`, for behavioral work under `when-behavioral`, or when
   explicitly requested.
 - `/check guide` follows `qualityGates.regular.tryGuide`: it runs for `always`,
@@ -132,11 +158,12 @@ Apply configured regular gates:
   direct observation under `when-testable`, or when explicitly requested.
 
 After final Verify and required Check pass, apply the selected try-guide policy.
-For `when-testable`, let `/check guide` perform its conservative classification.
-Keep its generated `## Try it now` section for the final packet. When no safe,
-meaningful direct observation exists, record that the gate was skipped and do
-not fabricate a section. Guide output never counts as verification or user
-acceptance.
+For `when-testable`, follow only `../check/reference/try-it-now.md` for its
+conservative classification; the full guide is not needed. Other selected
+policies run `/check guide`. Keep the generated `## Try it now` section for the
+final packet. When no safe, meaningful direct observation exists, record that
+the gate was skipped and do not fabricate a section. Guide output never counts
+as verification or user acceptance.
 
 Do not start a dev server. When a required runtime check needs one, ask the user
 to start it. Build output does not prove visual, persisted-data, authenticated,
@@ -210,8 +237,9 @@ named area. If the feature spans too many distinct areas for one useful pass,
 name the sections first and let the user choose where to begin. Remain read-only
 unless the user separately requests changes.
 
-Never create an ordinary step, product, or work-level commit from this skill.
-The sole exception is exactly one immutable independent-review checkpoint after
-showing its exact candidate and receiving current explicit commit approval.
-Configuration never supplies that approval. Never merge, push, deploy, publish,
-or start unrelated work from this skill.
+The only commits this skill may make are an approved step checkpoint from the
+Build loop and exactly one immutable independent-review checkpoint after showing
+its exact candidate and receiving current explicit commit approval.
+Configuration never supplies either approval. Never create any other commit,
+including a product or work-level commit, and never merge, push, deploy,
+publish, or start unrelated work from this skill.

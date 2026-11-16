@@ -6,16 +6,20 @@ feature field, not its title or filename. Normalize the numeric part by removing
 leading zeros and the optional letter to lowercase (`012A` becomes `12a`). Match
 that complete ID, never a substring. Use the archived spec's positive integer
 `**Build attempt:**`; duplicate or malformed fields stop selection. A legacy
-first-build archive without it counts as attempt 1 only when its spec identity
-and unsuffixed `NN-name.md` path agree unambiguously. Derive the expected name
-from its own spec, not today's renamed plan title. Text such as `Build 2` in a
-title proves no attempt.
+archive without the field counts as attempt 1, or as N when its path ends in
+`--build-N.md`. Text such as `Build 2` in a title proves no attempt.
+
 For new paths, pad the numeric part to at least two digits, keep its letter, and
 use the spec title's lowercase kebab-case slug. Append `--build-N` only for N > 1.
-An archive declaring an attempt must agree with that computed path.
 The double hyphen is reserved: slug normalization collapses punctuation runs to
 one hyphen, so a first build titled `Export Build 2` uses `04-export-build-2.md`,
 while a later attempt 2 titled `Export` uses `04-export--build-2.md`.
+
+Allocate the attempt from this feature's archives under
+`blueprint/history/features/`: use 1 when none exist, otherwise one greater than
+the highest attempt among them. A later build happens only after the user removed
+the earlier one through ordinary work, such as a `/fix`, and unchecked its
+build-plan item. Search only this feature's records.
 
 Before freezing a new spec, check its exact planned archive path and branch.
 Require `lstat` to return `ENOENT` for the archive leaf; any existing entry,
@@ -32,6 +36,7 @@ wave's integration tip recorded for this item in `blueprint/.state/avengers.json
 <!-- ext:end idfn-wave-branch -->
  Any other exact
 existing branch blocks the new spec.
+<<<<<<< ours
 Also require no prior use of the archive path in available Git history:
 
 ```bash
@@ -86,13 +91,11 @@ by the same procedure, reachable on the local default after the target build.
 Require a non-merge rollback commit containing that record and its completed
 plan bookkeeping. Uncommitted, malformed, changed, or merely rollback-looking
 files are not completed reversals. Conflicting or duplicate reversals stop.
+=======
+>>>>>>> upstream
 
-Include exact rollback references retained on the selected plan line; missing
-referenced records are a blocker, not an empty history. For a new unchecked feature,
-use 1 when there are no prior records; otherwise
-require every prior build to have one proven completed reversal and allocate
-`max(attempts) + 1`. Duplicate attempts or inconsistent/missing history stop with
-the exact paths and missing proof. Search only this feature's records and their
-exact reversal references. Ignored local-only history without introducing-commit
-proof cannot establish a rebuild or rollback target; stop without force-adding or
-migrating it. Ordinary first builds do not require prior history.
+Any collision stops before spec review with the exact path or ref. Do not
+auto-bump the attempt or rename reviewed work to avoid it. These checks apply to
+new specs; existing completion must run its recovery routing first so its own
+archive is reconciled rather than rejected. Preserve already-reviewed legacy spec
+bytes, branch, and any proven recovery destination.

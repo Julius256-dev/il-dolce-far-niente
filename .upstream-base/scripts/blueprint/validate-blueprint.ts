@@ -13,13 +13,12 @@ const codexSkillsRoot = path.join(repoRoot, ".agents", "skills");
 const claudeSkillsRoot = path.join(repoRoot, ".claude", "skills");
 const currentFeatureStub = `# Current Feature
 
-> **Generated file.** Holds the one feature, fix, or rollback being built in this checkout. Run
+> **Generated file.** Holds the one feature or fix being built in this checkout. Run
 > \`/feature <number-or-name>\` to spec a build-plan feature, or \`/fix "<bug>"\` for
-> an ad-hoc fix. Use \`/rollback <completed-feature>\` to plan a safe reversal.
-> Build one thing at a time in this checkout; \`/complete\` archives it under
-> \`blueprint/history/\` and resets this file.
+> an ad-hoc fix. Build one thing at a time in this checkout; \`/complete\` archives
+> it under \`blueprint/history/\` and resets this file.
 
-_Nothing in progress. Run \`/feature\`, \`/fix\`, or \`/rollback\` to start._
+_Nothing in progress. Run \`/feature\` or \`/fix\` to start._
 `;
 const findingsStub = `# Findings
 
@@ -41,6 +40,17 @@ const reviewStub = `# Independent Review
 
 _No independent review requested. Run \`/audit independent current\` to prepare one._
 `;
+const AGENTS_BYTE_BUDGET = 6000;
+const ACTIVITY_HELPER_INSTRUCTION = [
+  "From the project root, run the first helper that exists,",
+  "`node .agents/skills/blueprint-doctor/scripts/run-state.mjs` or",
+  "`node .claude/skills/blueprint-doctor/scripts/run-state.mjs`, with `start --command",
+  "<skill> --summary \"<truthful summary>\" --boundary",
+  "<read-only|reviewed|local-only>`. Use `update` at milestones, with `--status",
+  "blocked --resume <command>` for a blocker, and `finish --status ready|completed`",
+  "at the end; `--help` lists every option and `blueprint/workflow.md` has the full",
+  "activity contract. A missing or failing helper is a warning, not a blocker."
+].join(" ");
 const requiredPaths = [
   "AGENTS.md",
   "CLAUDE.md",
@@ -74,7 +84,7 @@ const requiredPaths = [
   "blueprint/context/project-overview.md",
   "blueprint/history/features/README.md",
   "blueprint/history/fixes/README.md",
-  "blueprint/history/rollbacks/README.md",
+  "blueprint/workflow.md",
   "evals/try-guide.json",
   "packages/create-ai-blueprint/bin/create-ai-blueprint.ts",
   "packages/create-ai-blueprint/LICENSE",
@@ -256,53 +266,72 @@ async function validateSkillMetadata(skills: readonly string[]): Promise<void> {
 }
 
 async function validateCommandInventories(skills: readonly string[]): Promise<void> {
-  const [agents, readme] = await Promise.all([
+  const [agents, workflow, readme] = await Promise.all([
     fs.readFile(path.join(repoRoot, "AGENTS.md"), "utf8"),
+    fs.readFile(path.join(repoRoot, "blueprint", "workflow.md"), "utf8"),
     fs.readFile(path.join(repoRoot, "README.md"), "utf8")
   ]);
-  const coreBlock = agents.match(/Core skills:\r?\n([\s\S]*?)\r?\nIn Codex/);
+  const coreBlock = workflow.match(/Core skills:\r?\n([\s\S]*?)\r?\nIn Codex/);
 
   if (!coreBlock) {
-    throw new Error("Could not find the Core skills inventory in AGENTS.md");
+    throw new Error("Could not find the Core skills inventory in blueprint/workflow.md");
   }
 
-  const agentSkills = [...coreBlock[1].matchAll(/^- `([a-z0-9-]+)`/gm)].map(
+  const workflowSkills = [...coreBlock[1].matchAll(/^- `([a-z0-9-]+)`/gm)].map(
     (match) => match[1]
   );
   const optionalSkills = [
-    ...agents.matchAll(/Optional explicit-only skill: `([a-z0-9-]+)`/g)
+    ...workflow.matchAll(/Optional explicit-only skill: `([a-z0-9-]+)`/g)
   ].map((match) => match[1]);
+  const agentsBlock = agents.match(/^Skills: ([\s\S]*?)\.\r?\n/m);
+
+  if (!agentsBlock) {
+    throw new Error("Could not find the Skills list in AGENTS.md");
+  }
+
+  const agentSkills = [...agentsBlock[1].matchAll(/`([a-z0-9-]+)`/g)].map((match) => match[1]);
   const readmeSkills = [
     ...readme.matchAll(/^\| \*\*\/([a-z0-9-]+)\*\* \|/gm)
   ].map((match) => match[1]);
 
-  assertEqualLists(skills, [...agentSkills, ...optionalSkills].sort(), "AGENTS.md commands");
+  assertEqualLists(
+    skills,
+    [...workflowSkills, ...optionalSkills].sort(),
+    "blueprint/workflow.md commands"
+  );
+  assertEqualLists(skills, agentSkills.sort(), "AGENTS.md skills list");
   assertEqualLists(skills, readmeSkills.sort(), "README command table");
+
+  if (Buffer.byteLength(agents, "utf8") > AGENTS_BYTE_BUDGET) {
+    throw new Error(
+      `AGENTS.md exceeds the ${AGENTS_BYTE_BUDGET}-byte startup context budget; move workflow reference to blueprint/workflow.md`
+    );
+  }
 }
 
 async function validateDashboardActivityContract(skills: readonly string[]): Promise<void> {
-  const agents = await fs.readFile(path.join(repoRoot, "AGENTS.md"), "utf8");
-  const trackedBlock = agents.match(
+  const workflow = await fs.readFile(path.join(repoRoot, "blueprint", "workflow.md"), "utf8");
+  const trackedBlock = workflow.match(
     /Commands with meaningful progress or a durable handoff should write it when the\s+state directory exists:([\s\S]*?)\. Short/
   );
 
   if (!trackedBlock) {
-    throw new Error("Could not find the dashboard activity command inventory in AGENTS.md");
+    throw new Error("Could not find the dashboard activity command inventory in blueprint/workflow.md");
   }
 
   for (const required of [
     "Never create or edit `run.json` directly.",
-    ".agents/skills/doctor/scripts/run-state.mjs",
-    ".claude/skills/doctor/scripts/run-state.mjs"
+    ".agents/skills/blueprint-doctor/scripts/run-state.mjs",
+    ".claude/skills/blueprint-doctor/scripts/run-state.mjs"
   ]) {
-    if (!agents.includes(required)) {
+    if (!workflow.includes(required)) {
       throw new Error(`Dashboard activity contract is missing: ${required}`);
     }
   }
 
   for (const relativePath of [
-    ".agents/skills/doctor/scripts/run-state.mjs",
-    ".claude/skills/doctor/scripts/run-state.mjs"
+    ".agents/skills/blueprint-doctor/scripts/run-state.mjs",
+    ".claude/skills/blueprint-doctor/scripts/run-state.mjs"
   ]) {
     await requirePath(
       path.join(repoRoot, ...relativePath.split("/")),
@@ -324,6 +353,10 @@ async function validateDashboardActivityContract(skills: readonly string[]): Pro
     const content = await fs.readFile(path.join(codexSkillsRoot, skill, "SKILL.md"), "utf8");
     if (!content.includes(directive)) {
       throw new Error(`Tracked skill does not publish immediate dashboard activity: ${skill}`);
+    }
+
+    if (!content.replace(/\s+/g, " ").includes(ACTIVITY_HELPER_INSTRUCTION)) {
+      throw new Error(`Tracked skill does not name the dashboard activity helper: ${skill}`);
     }
   }
 }
@@ -359,7 +392,7 @@ async function validateVerificationContract(): Promise<void> {
         "authoritative installer selection",
         "does not mean all four tools were selected",
         "Do not ask the user to select adapters again",
-        "point to `/doctor` instead of guessing"
+        "point to `/blueprint-doctor` instead of guessing"
       ]
     ],
     [
@@ -438,6 +471,16 @@ async function validateVerificationContract(): Promise<void> {
         "run checks or the app",
         "A guide\nnever counts as acceptance evidence",
         "For `latest`, use the most recent archive even when an active spec exists",
+        "../../check/reference/try-it-now.md",
+        "explicitly route to `/check`"
+      ]
+    ],
+    [
+      ".agents/skills/check/reference/try-it-now.md",
+      [
+        "Writing the proof is read-only",
+        "never treat it as acceptance evidence",
+        "When the work removed behavior, lead with the path that proves it is gone",
         "For `when-testable`, generate Try It Now only when one safe, meaningful path",
         "**CLI**",
         "**Library**",
@@ -449,8 +492,7 @@ async function validateVerificationContract(): Promise<void> {
         "omit the `## Try it now` section",
         "Never start a development server in guide mode",
         "Prefer an API, MCP, or CLI demonstration",
-        "## Try it now",
-        "explicitly route to `/check`"
+        "## Try it now"
       ]
     ],
     [
@@ -477,7 +519,7 @@ async function validateVerificationContract(): Promise<void> {
       ["add the real test command", "never creates a GitHub workflow on its own"]
     ],
     [
-      ".agents/skills/status/SKILL.md",
+      ".agents/skills/blueprint-status/SKILL.md",
       [
         "markers normalized to `- [ ]`",
         "matching legacy exact-byte hash",
@@ -515,21 +557,13 @@ async function validateVerificationContract(): Promise<void> {
         "never grants commit permission",
         "local `Spec snapshot` contract without changing visibility",
         "Do not create an empty commit for ignored spec changes",
-        "sole exception is exactly one immutable independent-review checkpoint",
+        "The only commits this skill may make are an approved step checkpoint from the Build loop",
+        "exactly one immutable independent-review checkpoint",
         "receiving current explicit commit approval",
         "Treat an existing request without `Requested execution` as legacy manual-only",
         "After final Verify and required Check pass, apply the selected try-guide policy",
+        "follow only `../check/reference/try-it-now.md`",
         "Include the generated `## Try it now` section verbatim"
-      ]
-    ],
-    [
-      ".agents/skills/implement/reference/rollback-implementation.md",
-      [
-        "both values match `^[0-9a-f]{40}$`",
-        "verify it has exactly one parent",
-        "Stop on a merge target",
-        "resolved parent exactly equals `Target parent`",
-        "Use only the resolved full SHA values"
       ]
     ],
     [
@@ -552,19 +586,17 @@ async function validateVerificationContract(): Promise<void> {
         "feature/export-reports--build-2",
         "Record `**Branch:**` with the",
         "Do not bury repair inside this feature",
+        "checkpoint commit as a per-step choice the user picks in `/implement`, never an automatic step",
         "Never implement from this skill"
       ]
     ],
     [
       ".agents/skills/feature/reference/build-history.md",
       [
-        "max(attempts) + 1",
-        "unique introducing commit",
-        "**Target archive:**",
-        "**Target commit:**",
-        "Ignored local-only history",
-        "git log --all --reflog --full-history",
-        "including a dangling symlink"
+        "one greater than\nthe highest attempt among them",
+        "unchecked its\nbuild-plan item",
+        "including a dangling symlink",
+        "Do not\nauto-bump the attempt"
       ]
     ],
     [
@@ -587,20 +619,8 @@ async function validateVerificationContract(): Promise<void> {
         "`/audit independent current` is a two-context workflow",
         "Never let a builder complete its own independent request",
         "A stale receipt is no receipt",
-        "Record `fresh subagent` as its reviewer context",
         "may write only `blueprint/context/findings.md` and `blueprint/context/review.md`",
-        "Spawn a generic fresh isolated child through the current runtime",
-        "Do not discover, select, or depend on a globally installed role, skill, prompt",
-        "read the project-local Audit skill",
-        "pending request without `Requested execution` is legacy and manual only",
-        "omit `Actual execution`",
-        "create or reuse the exact snapshot first",
         "Phase B may write only",
-        "same ignored spec/snapshot inputs",
-        "working tree matching the target except existing `blueprint/context/review.md` and `blueprint/context/findings.md` evidence",
-        "tracked, staged, unstaged, or untracked path other than those two evidence paths differs from the target, stop",
-        "Do not create a checkpoint solely for review/findings changes",
-        "normal Phase A exception never allows snapshot Git differences",
         "gate value disables only\nautomatic selection by the workflow"
       ]
     ],
@@ -629,7 +649,19 @@ async function validateVerificationContract(): Promise<void> {
         "never overwrite or repair the existing snapshot in place",
         "Git failure never passes",
         "A local-spec-only revision may reuse the same approved product HEAD",
-        "Never create an empty commit"
+        "Never create an empty commit",
+        "Record `fresh subagent` as its reviewer context",
+        "Spawn a generic fresh isolated child through the current runtime",
+        "Do not discover, select, or depend on a globally installed role, skill, prompt",
+        "read the project-local Audit skill",
+        "pending request without `Requested execution` is legacy and manual only",
+        "omit `Actual execution`",
+        "create or reuse the exact snapshot first",
+        "same ignored spec/snapshot inputs",
+        "working tree matching the target except existing `blueprint/context/review.md` and `blueprint/context/findings.md` evidence",
+        "tracked, staged, unstaged, or untracked path other than those two evidence paths differs from the target, stop",
+        "Do not create a checkpoint solely for review/findings changes",
+        "normal Phase A exception never allows snapshot Git differences"
       ]
     ],
     [
@@ -652,7 +684,9 @@ async function validateVerificationContract(): Promise<void> {
         "local `Spec snapshot` contract without changing visibility",
         "the original `Spec snapshot` field when present",
         "Before requiring a real active spec",
+        "reference/completion-screen.md",
         "reference/completion-recovery.md",
+        "reference/completion-archive.md",
         "git.landing",
         "With `git.landing: \"pull-request\"`",
         "Never merge the pull request",
@@ -663,14 +697,22 @@ async function validateVerificationContract(): Promise<void> {
       ]
     ],
     [
-      ".agents/skills/complete/reference/completion-recovery.md",
+      ".agents/skills/complete/reference/completion-archive.md",
       [
+        "## Prepare one recoverable archive",
         '"specBytes"',
         '"sourceTree"',
         '"landing"',
         '"absentOptional"',
-        "## Screen candidates read-only",
-        "historical-build exclusion",
+        "## Verify a local squash merge",
+        "git diff --exit-code <workCommit>^{tree} <defaultTip>^{tree}"
+      ]
+    ],
+    [
+      ".agents/skills/complete/reference/completion-recovery.md",
+      [
+        "../../complete/reference/completion-archive.md",
+        "../../complete/reference/completion-screen.md",
         "never allocate a new attempt on resume",
         "## Interrupted archival, before the work commit",
         "## Work committed, awaiting landing",
@@ -684,33 +726,18 @@ async function validateVerificationContract(): Promise<void> {
       ]
     ],
     [
-      ".agents/skills/status/SKILL.md",
-      ["Pending completion candidate", "../complete/reference/completion-recovery.md"]
-    ],
-    [
-      ".agents/skills/rollback/SKILL.md",
+      ".agents/skills/complete/reference/completion-screen.md",
       [
-        "target commit and parent commit as full 40-character SHA values",
-        "`# Rollback: Feature <id> - <title>`",
-        "`**Type:** Rollback` contract",
-        "stop before Step 2 and before",
-        "writing or changing `blueprint/context/current-feature.md`",
-        "Publish `blocked` to",
-        "Do not record a target parent or choose a mainline",
-        "retains its merge-target stop as defense in depth",
-        "exactly one unreversed build",
-        "../feature/reference/build-history.md"
+        "## Screen candidates read-only",
+        "../../complete/reference/completion-recovery.md"
       ]
     ],
     [
-      ".agents/skills/rollback/reference/rollback-spec-template.md",
-      [
-        "**Target commit:** `<full 40-character commit SHA>`",
-        "**Target parent:** `<full 40-character parent SHA>`"
-      ]
+      ".agents/skills/blueprint-status/SKILL.md",
+      ["Pending completion candidate", "../complete/reference/completion-screen.md"]
     ],
     [
-      ".agents/skills/doctor/SKILL.md",
+      ".agents/skills/blueprint-doctor/SKILL.md",
       [
         "missing `Verify` command or GitHub workflow is informational",
         "At or above 20,000 bytes, call it oversized",
@@ -745,7 +772,8 @@ async function validateVerificationContract(): Promise<void> {
         "Do not create an empty commit for ignored spec changes",
         "The request records `Requested execution`",
         "pending request without `Requested execution` is legacy manual-only",
-        "`when-testable` - run `/check guide` after Verify and required Check",
+        "`when-testable` - after Verify and required Check, follow only",
+        "follow only `../check/reference/try-it-now.md`",
         "the generated `## Try it now` section when one exists"
       ]
     ],
@@ -763,9 +791,11 @@ async function validateVerificationContract(): Promise<void> {
         "Do not create an empty commit for ignored spec changes",
         "The request records `Requested execution`",
         "pending request without `Requested execution` is legacy manual-only",
+        "../complete/reference/completion-screen.md",
         "../complete/reference/completion-recovery.md",
         "never counts the same completion twice",
         "Use the exact `**Branch:**` frozen in the spec",
+        "follow only `../check/reference/try-it-now.md`",
         "`when-testable` runs after Verify",
         "generated `## Try it now` sections"
       ]
@@ -787,14 +817,22 @@ async function validateVerificationContract(): Promise<void> {
         "Unknown scale or extensibility defaults to the smaller reversible design",
         "Derive trust and data-integrity boundaries from actual reachability",
         "Ask only when an unknown materially changes behavior",
-        "Stack-specific template standards apply only when the project uses that stack",
+        "Stack-specific template standards apply only when the project uses that stack"
+      ]
+    ],
+    [
+      "blueprint/workflow.md",
+      [
         "## Automatic verification",
         "`contents: read`",
         "spawns a generic child through the current runtime",
         "never requires or discovers global agent roles",
         "Independent review defaults to `when-sensitive`",
         "Its default, `automatic`",
-        "Try guide defaults to `when-testable`"
+        "Try guide defaults to `when-testable`",
+        "run that exact command as the final automated gate",
+        "the same approval can finalize the local baseline",
+        "Try It Now is a user demonstration"
       ]
     ],
     [
@@ -823,13 +861,9 @@ async function validateVerificationContract(): Promise<void> {
     [
       "blueprint/context/ai-interaction.md",
       [
-        "run that exact command as the final automated gate",
         "Continuous Mode also exists only as an explicit opt-in command",
         "The initial Overview baseline also requires explicit approval",
-        "the same approval can finalize the local baseline",
-        "generic child through the current runtime",
-        "never depends on a global role",
-        "Try It Now is a user demonstration"
+        "Do NOT commit without permission or until Verify"
       ]
     ],
     [
@@ -924,19 +958,26 @@ async function validateClaudeImports(): Promise<number> {
 async function validateSkillReferences(adapterFiles: readonly string[]): Promise<number> {
   let count = 0;
 
-  for (const relativePath of adapterFiles.filter((file) => file.endsWith("SKILL.md"))) {
-    const skillFile = path.join(codexSkillsRoot, ...relativePath.split("/"));
-    const content = await fs.readFile(skillFile, "utf8");
+  for (const relativePath of adapterFiles.filter((file) => file.endsWith(".md"))) {
+    const sourceFile = path.join(codexSkillsRoot, ...relativePath.split("/"));
+    const content = await fs.readFile(sourceFile, "utf8");
     const references = [
-      ...content.matchAll(/`(reference\/[A-Za-z0-9._/-]+)`/g)
+      ...content.matchAll(/`((?:\.\.\/){0,2}(?:[a-z0-9-]+\/)?(?:reference|scripts)\/[A-Za-z0-9._/-]+)`/g)
     ].map((match) => match[1]);
 
     for (const reference of new Set(references)) {
-      assertSafeRelativePath(reference);
-      await requirePath(
-        path.join(path.dirname(skillFile), ...reference.split("/")),
-        `${relativePath} reference ${reference}`
-      );
+      // A bare `<skill>/...` path names another skill from the adapter skills root.
+      const base = reference.startsWith("../") || /^(?:reference|scripts)\//.test(reference)
+        ? path.dirname(sourceFile)
+        : codexSkillsRoot;
+      const target = path.resolve(base, ...reference.split("/"));
+      const fromRoot = path.relative(codexSkillsRoot, target);
+
+      if (fromRoot.startsWith("..") || path.isAbsolute(fromRoot)) {
+        throw new Error(`Unsafe skill reference in ${relativePath}: ${reference}`);
+      }
+
+      await requirePath(target, `${relativePath} reference ${reference}`);
       count += 1;
     }
   }

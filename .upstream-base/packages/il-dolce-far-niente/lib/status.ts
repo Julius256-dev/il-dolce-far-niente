@@ -371,7 +371,8 @@ function formatQualityGates(gates: QualityGatePolicy): string {
     `audit ${gates.audit}`,
     `independent review ${gates.independentReview}`,
     `check ${gates.check}`,
-    `try guide ${gates.tryGuide}`
+    `try guide ${gates.tryGuide}`,
+    `spec check ${gates.specCheck}`
   ].join(", ");
 }
 
@@ -750,7 +751,7 @@ function selectNextAction(
 ): StatusNextAction {
   if (configState === "invalid") {
     return {
-      command: "/doctor",
+      command: "/blueprint-doctor",
       reason: "Repair blueprint/config.json before running a mutating workflow."
     };
   }
@@ -762,7 +763,7 @@ function selectNextAction(
 
   if (currentWork.state === "malformed") {
     return {
-      command: "/doctor",
+      command: "/blueprint-doctor",
       reason: "Repair the current-work contract before continuing."
     };
   }
@@ -770,7 +771,7 @@ function selectNextAction(
   if (currentWork.state === "active") {
     if (evidence.recordFaults.length > 0) {
       return {
-        command: "/doctor",
+        command: "/blueprint-doctor",
         reason: `Diagnose ${evidence.recordFaults.map((fault) => fault.path).join(" and ")} before continuing: ${evidence.recordFaults.map((fault) => fault.blocker).join("; ")}.`
       };
     }
@@ -794,7 +795,7 @@ function selectNextAction(
 
   if (onboarding.state === "unknown") {
     return {
-      command: "/doctor",
+      command: "/blueprint-doctor",
       reason: onboarding.reason || "Confirm Blueprint onboarding state before continuing."
     };
   }
@@ -861,7 +862,7 @@ function selectNextAction(
 
     if (completion.state !== "ready") {
       return {
-        command: "/doctor",
+        command: "/blueprint-doctor",
         reason: `Resolve completion blockers before continuing: ${completion.blockers.join("; ")}.`
       };
     }
@@ -916,7 +917,7 @@ function selectNextAction(
   }
 
   return {
-    command: "/doctor",
+    command: "/blueprint-doctor",
     reason: "The build plan is not ready for feature work."
   };
 }
@@ -950,7 +951,7 @@ function selectActivityNextAction(
 ): StatusNextAction | null {
   if (activity.state === "malformed") {
     return {
-      command: "/doctor",
+      command: "/blueprint-doctor",
       reason: "Inspect and reset malformed dashboard state in blueprint/.state/run.json."
     };
   }
@@ -1107,12 +1108,13 @@ function isMatchingWorkBranch(
   type: CurrentWorkType,
   config: ProjectConfig
 ): boolean {
+  // A leftover rollback spec can no longer be implemented or completed.
   const prefix = type === "feature"
     ? config.git.featureBranchPrefix
     : type === "fix"
       ? config.git.fixBranchPrefix
-      : config.git.rollbackBranchPrefix;
-  return branch?.startsWith(prefix) === true;
+      : null;
+  return prefix !== null && branch?.startsWith(prefix) === true;
 }
 
 async function readOnboardingStatus(projectRoot: string): Promise<{
